@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="SHA EXAMBRO">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SHA EXAMBRO - SECURE</title>
@@ -202,6 +206,21 @@
     function next() { if(curr < listSoal.length-1) { curr++; render(); } else toggleDrawer(); }
     function prev() { if(curr > 0) { curr--; render(); } }
     function toggleDrawer() { document.getElementById('drawer').classList.toggle('open'); }
+</script>
+    <script>
+  // Mendaftarkan Service Worker sederhana agar syarat PWA terpenuhi
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('https://cdn.jsdelivr.net/gh/GoogleChrome/pwacompat/pwacompat.min.js');
+  }
+
+  // Menangkap event install
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    // Anda bisa memunculkan tombol install kustom di sini jika mau
+    console.log('Aplikasi siap diinstal');
+  });
 </script>
 </body>
 </html>
