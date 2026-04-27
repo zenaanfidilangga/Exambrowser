@@ -1,177 +1,169 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <link rel="manifest" href="manifest.json">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SHA EXAMBRO</title>
-    <link rel="icon" type="image/png" href="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png">
-
-<link rel="apple-touch-icon" href="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png">
-
-<meta name="theme-color" content="#1a73ce">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="icon" href="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png">
     <style>
-        :root { --blue: #1a73ce; --light: #e8f0fe; --red: #d93025; }
-        body, html { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background: #f4f7f6; height: 100%; overflow: hidden; }
-        
-        /* Login & Mapel UI */
-        .page { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
-        .box { background: white; padding: 35px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 340px; text-align: center; }
-        .header-blue { background: var(--blue); color: white; width: 100%; padding: 15px; position: fixed; top: 0; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .btn { width: 100%; padding: 14px; background: var(--blue); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; }
-        .btn:hover { background: #1557a0; }
+        :root { --blue: #1a73ce; --red: #d93025; --bg: #f1f3f4; }
+        body { margin: 0; font-family: sans-serif; background: var(--bg); color: #333; overflow: hidden; }
+        .page { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; padding: 20px; box-sizing: border-box; }
+        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 350px; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-blue { background: var(--blue); color: white; }
 
-        /* Exam UI */
-        #exam-page { display: none; height: 100vh; grid-template-rows: auto 1fr auto; grid-template-columns: 1fr 280px; }
-        .exam-nav { grid-column: 1 / span 2; background: white; padding: 10px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ddd; }
-        .timer-box { background: var(--light); color: var(--red); padding: 8px 20px; border-radius: 25px; font-weight: bold; font-size: 20px; }
-        iframe { width: 100%; height: 100%; border: none; }
-        .sidebar { background: white; border-left: 1px solid #ddd; padding: 20px; overflow-y: auto; }
+        /* CBT MOBILE INTERFACE */
+        #exam-page { display: none; height: 100vh; grid-template-rows: 60px 1fr 70px; }
+        header { background: white; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; border-bottom: 1px solid #ddd; }
+        .main-soal { padding: 20px; overflow-y: auto; background: white; }
+        .opsi { display: flex; align-items: center; padding: 15px; border: 2px solid #eee; border-radius: 10px; margin-bottom: 10px; cursor: pointer; }
+        .opsi.active { border-color: var(--blue); background: #e8f0fe; }
+        footer { background: white; border-top: 1px solid #ddd; display: flex; gap: 10px; padding: 10px; }
         
-        /* Fullscreen Lock Overlay */
-        #lock-screen { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); color: white; z-index: 9999; text-align: center; padding-top: 15vh; }
+        /* Drawer Navigasi */
+        #drawer { position: fixed; top: 0; right: -100%; width: 85%; height: 100%; background: white; z-index: 100; transition: 0.3s; padding: 20px; box-sizing: border-box; }
+        #drawer.open { right: 0; box-shadow: -5px 0 15px rgba(0,0,0,0.2); }
+        .grid-nav { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 20px; }
+        .nav-item { border: 1px solid #ddd; padding: 10px 0; text-align: center; border-radius: 5px; font-weight: bold; font-size: 14px; }
+        .nav-item.done { background: var(--blue); color: white; border: none; }
+        
+        #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); color: white; display: none; z-index: 1000; text-align: center; padding-top: 20vh; }
     </style>
 </head>
 <body>
 
-<div id="login-page" class="page">
-    <div class="header-blue">
-        <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" height="35">
-        <span style="font-weight:bold; letter-spacing:1px;">SHA EXAMBRO</span>
+    <div id="login-page" class="page">
+        <div class="card">
+            <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" width="80">
+            <h3>SHA EXAMBRO</h3>
+            <input type="text" id="u" placeholder="Username">
+            <input type="password" id="p" placeholder="Password">
+            <button class="btn btn-blue" onclick="doLogin()">Masuk</button>
+        </div>
     </div>
-    <div class="box">
-        <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" height="80">
-        <h2 style="margin: 10px 0;">Selamat Datang</h2>
-        <input type="text" id="user" placeholder="Username">
-        <input type="password" id="pass" placeholder="Password">
-        <button class="btn" id="btn-login" onclick="handleLogin()">Login</button>
-        <p id="err" style="color:var(--red); display:none; font-size:13px; margin-top:10px;">Maaf salah, cek kembali data atau hubungi Proktor</p>
-    </div>
-</div>
 
-<div id="mapel-page" class="page" style="display:none;">
-    <div class="box" style="width: 450px;">
-        <h3>Pilih Mata Pelajaran</h3>
-        <div id="list-mapel" style="display: grid; gap: 10px;">Memuat data...</div>
+    <div id="mapel-page" class="page" style="display:none">
+        <div class="card" id="list-mapel">Memuat Mapel...</div>
     </div>
-</div>
 
-<div id="exam-page">
-    <div class="exam-nav">
-        <b id="active-title" style="color:var(--blue)">MAPEL</b>
-        <div class="timer-box" id="timer-display">90:00</div>
-        <button onclick="requestExit()" style="border:none; background:none; cursor:pointer; color:#999;">Keluar (1234)</button>
+    <div id="exam-page">
+        <header>
+            <b id="timer" style="color:var(--red); font-size:18px">90:00</b>
+            <button onclick="toggleDrawer()" style="background:var(--blue); color:white; border:none; padding:8px 15px; border-radius:5px">Daftar Soal</button>
+        </header>
+        <main class="main-soal">
+            <div style="font-weight:bold; color:var(--blue); margin-bottom:10px">SOAL NO <span id="no-skrg">1</span></div>
+            <div id="tanya" style="font-size:18px; line-height:1.4; margin-bottom:20px">...</div>
+            <div id="opsi-list"></div>
+        </main>
+        <footer>
+            <button class="btn" style="background:#ddd" onclick="prev()">Kembali</button>
+            <button class="btn btn-blue" onclick="next()">Berikutnya</button>
+        </footer>
     </div>
-    <iframe id="exam-frame"></iframe>
-    <div class="sidebar">
-        <b>Daftar Soal</b>
-        <div id="q-grid" style="display:grid; grid-template-columns: repeat(5,1fr); gap:8px; margin-top:15px;"></div>
-        <button style="margin-top:20px; background: #ffcc00; border:none; padding:10px; width:100%; font-weight:bold; border-radius:5px;">RAGU-RAGU</button>
-    </div>
-</div>
 
-<div id="lock-screen">
-    <h1 style="color:var(--red); font-size: 40px;">UJIAN TERKUNCI</h1>
-    <p>Anda melanggar aturan (pindah tab/aplikasi/keluar fullscreen).</p>
-    <p>Silakan hubungi Proktor untuk membuka kembali.</p><br>
-    <input type="password" id="p-input" placeholder="Kode Proktor" style="width:250px; text-align:center;"><br>
-    <button class="btn" style="width:250px;" onclick="unlock()">Buka Kunci</button>
-</div>
+    <div id="drawer">
+        <div style="display:flex; justify-content:space-between"><b>Navigasi Soal</b> <button onclick="toggleDrawer()" style="border:none; background:none; font-size:20px">✕</button></div>
+        <div class="grid-nav" id="grid-nav"></div>
+    </div>
+
+    <div id="overlay">
+        <h1>TERKUNCI</h1>
+        <p>Hubungi Proktor</p>
+        <input type="password" id="p-key" placeholder="Kode Proktor" style="width:200px; text-align:center"><br>
+        <button class="btn btn-blue" style="width:200px" onclick="unlock()">Buka</button>
+    </div>
 
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwuB5Nf3BiXyG2MCk0T5G1ELXkRcwSLfQzF4CizZSm_5WCs7yED9eRNo7j_WXHCQQ2yMQ/exec";
-    let uRow, pCode, vCount = 0;
+    let listSoal = [], curr = 0, jawabanSiswa = {}, vCount = 0, uData = {};
 
-    async function handleLogin() {
-        const u = document.getElementById('user').value;
-        const p = document.getElementById('pass').value;
-        document.getElementById('btn-login').innerText = "Verifikasi...";
-        
-        try {
-            const res = await fetch(`${SCRIPT_URL}?action=login&user=${u}&pass=${p}`);
-            const d = await res.json();
-            if(d.status === "success") {
-                uRow = d.row; pCode = d.pCode; vCount = d.violation;
-                if(vCount >= 2) return forceLock();
-                document.getElementById('login-page').style.display = 'none';
-                showMapels();
-            } else { throw "error"; }
-        } catch(e) { 
-            document.getElementById('err').style.display = 'block';
-            document.getElementById('btn-login').innerText = "Login";
-        }
+    async function doLogin() {
+        const res = await fetch(`${SCRIPT_URL}?action=login&user=${u.value}&pass=${p.value}`);
+        const d = await res.json();
+        if(d.status === "success") {
+            uData = d; vCount = d.v;
+            if(vCount >= 2) return lock();
+            document.getElementById('login-page').style.display = 'none';
+            loadMapels();
+        } else alert("Login Gagal");
     }
 
-    async function showMapels() {
+    async function loadMapels() {
         document.getElementById('mapel-page').style.display = 'flex';
         const res = await fetch(`${SCRIPT_URL}?action=getMapel`);
-        const maps = await res.json();
+        const mapels = await res.json();
         const container = document.getElementById('list-mapel');
-        container.innerHTML = "";
-        maps.forEach(m => {
+        container.innerHTML = "<h3>Pilih Mapel</h3>";
+        mapels.forEach(m => {
             const b = document.createElement('button');
-            b.className = "btn"; b.innerText = m.n;
-            b.onclick = () => startExam(m.n, m.u);
+            b.className = "btn btn-blue"; b.style.marginBottom = "8px";
+            b.innerText = m.nama;
+            b.onclick = () => start(m.nama, m.url);
             container.appendChild(b);
         });
     }
 
-    function startExam(n, u) {
+    async function start(n, url) {
         document.getElementById('mapel-page').style.display = 'none';
         document.getElementById('exam-page').style.display = 'grid';
-        document.getElementById('active-title').innerText = n;
-        document.getElementById('exam-frame').src = u;
-        
-        document.documentElement.requestFullscreen().catch(() => {});
-        startTimer(90);
-        setupSecurity();
-        for(let i=1; i<=40; i++) {
-            const d = document.createElement('div');
-            d.style = "border:1px solid #ccc; text-align:center; padding:8px; border-radius:4px; font-size:12px; font-weight:bold;";
-            d.innerText = i;
-            document.getElementById('q-grid').appendChild(d);
-        }
+        const res = await fetch(`${SCRIPT_URL}?action=getSoalForm&url=${encodeURIComponent(url)}`);
+        listSoal = await res.json();
+        render(); drawNav(); startTimer(); initSec();
     }
 
-    function startTimer(m) {
-        let s = m * 60;
+    function render() {
+        const s = listSoal[curr];
+        document.getElementById('no-skrg').innerText = curr + 1;
+        document.getElementById('tanya').innerText = s.tanya;
+        const container = document.getElementById('opsi-list');
+        container.innerHTML = "";
+        ['A','B','C','D','E'].forEach((h, i) => {
+            if(!s.opsi[i]) return;
+            const d = document.createElement('div');
+            d.className = `opsi ${jawabanSiswa[curr] === h ? 'active' : ''}`;
+            d.innerHTML = `<div style="width:25px; font-weight:bold">${h}.</div><div>${s.opsi[i]}</div>`;
+            d.onclick = () => { jawabanSiswa[curr] = h; render(); drawNav(); };
+            container.appendChild(d);
+        });
+    }
+
+    function drawNav() {
+        const g = document.getElementById('grid-nav');
+        g.innerHTML = "";
+        listSoal.forEach((_, i) => {
+            const d = document.createElement('div');
+            d.className = `nav-item ${jawabanSiswa[i] ? 'done' : ''}`;
+            d.innerText = i + 1;
+            d.onclick = () => { curr = i; render(); toggleDrawer(); };
+            g.appendChild(d);
+        });
+    }
+
+    function next() { if(curr < listSoal.length-1) { curr++; render(); } }
+    function prev() { if(curr > 0) { curr--; render(); } }
+    function toggleDrawer() { document.getElementById('drawer').classList.toggle('open'); }
+    
+    function startTimer() {
+        let t = 90 * 60;
         setInterval(() => {
-            let mins = Math.floor(s/60); let secs = s%60;
-            document.getElementById('timer-display').innerText = `${mins}:${secs<10?'0':''}${secs}`;
-            if(s-- <= 0) { alert("Waktu Habis!"); window.location.reload(); }
+            let m = Math.floor(t/60), s = t%60;
+            document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
+            if(t-- <= 0) location.reload();
         }, 1000);
     }
 
-    function setupSecurity() {
-        // Deteksi Keluar (Blur)
+    function initSec() {
         window.onblur = () => {
             vCount++;
-            fetch(`${SCRIPT_URL}?action=updateV&row=${uRow}&count=${vCount}`);
-            if(vCount >= 2) forceLock();
-            else alert("Peringatan! Jangan keluar dari aplikasi.");
+            fetch(`${SCRIPT_URL}?action=updateV&row=${uData.row}&count=${vCount}`);
+            if(vCount >= 2) lock(); else alert("Peringatan! Dilarang keluar.");
         };
-        // Blokir Klik Kanan & Keyboard
-        document.addEventListener('contextmenu', e => e.preventDefault());
-        document.onkeydown = (e) => { if(e.ctrlKey && 'cvu'.includes(e.key)) return false; };
     }
-
-    function forceLock() { document.getElementById('lock-screen').style.display = 'block'; }
-
-    function unlock() {
-        if(document.getElementById('p-input').value === pCode) {
-            vCount = 0;
-            fetch(`${SCRIPT_URL}?action=updateV&row=${uRow}&count=0`);
-            document.getElementById('lock-screen').style.display = 'none';
-            document.documentElement.requestFullscreen();
-        } else { alert("Kode Proktor Salah!"); }
-    }
-
-    function requestExit() {
-        if(prompt("Masukkan Kode Keluar:") === "1234") window.location.reload();
-    }
+    function lock() { document.getElementById('overlay').style.display = 'block'; }
+    function unlock() { if(document.getElementById('p-key').value === uData.pCode) { vCount = 0; fetch(`${SCRIPT_URL}?action=updateV&row=${uData.row}&count=0`); document.getElementById('overlay').style.display = 'none'; } }
 </script>
 </body>
 </html>
