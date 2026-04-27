@@ -1,14 +1,17 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <link rel="manifest" href="manifest.json">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="apple-mobile-web-app-title" content="SHA EXAMBRO">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SHA EXAMBRO - SECURE</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="SHA EXAMBRO">
     <link rel="icon" href="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png">
+    <link rel="apple-touch-icon" href="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png">
+
     <style>
         :root { --blue: #1a73ce; --red: #d93025; --green: #28a745; --bg: #f8f9fa; }
         body { margin: 0; font-family: sans-serif; background: var(--bg); user-select: none; -webkit-user-select: none; overflow: hidden; touch-action: manipulation; }
@@ -83,12 +86,23 @@
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwuB5Nf3BiXyG2MCk0T5G1ELXkRcwSLfQzF4CizZSm_5WCs7yED9eRNo7j_WXHCQQ2yMQ/exec";
     let listSoal = [], curr = 0, jawabanSiswa = {}, uData = {}, mapelAktif = {}, isStarted = false, vCount = 0;
 
+    // PWA Service Worker Registration
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('https://cdn.jsdelivr.net/gh/GoogleChrome/pwacompat/pwacompat.min.js').catch(() => {});
+        });
+    }
+
     async function doLogin() {
-        const res = await fetch(`${SCRIPT_URL}?action=login&user=${u.value}&pass=${p.value}`);
-        const d = await res.json();
-        if(d.status === "success") {
-            uData = d; document.getElementById('login-page').style.display = 'none'; loadMapels();
-        } else alert("Username/Password salah!");
+        try {
+            const res = await fetch(`${SCRIPT_URL}?action=login&user=${document.getElementById('u').value}&pass=${document.getElementById('p').value}`);
+            const d = await res.json();
+            if(d.status === "success") {
+                uData = d; 
+                document.getElementById('login-page').style.display = 'none'; 
+                loadMapels();
+            } else alert("Username/Password salah!");
+        } catch(e) { alert("Koneksi Error!"); }
     }
 
     async function loadMapels() {
@@ -108,10 +122,13 @@
     async function start(m) {
         document.getElementById('confirm-page').style.display = 'none';
         document.getElementById('exam-page').style.display = 'grid';
-        isStarted = true; document.documentElement.requestFullscreen().catch(()=>{});
+        isStarted = true; 
+        document.documentElement.requestFullscreen().catch(()=>{});
+        initSecurity(); // Panggil keamanan segera
+
         const res = await fetch(`${SCRIPT_URL}?action=getSoalForm&url=${encodeURIComponent(m.url)}`);
         listSoal = await res.json();
-        render(); drawNav(); initSecurity(); startTimer(90);
+        render(); drawNav(); startTimer(90);
     }
 
     function render() {
@@ -122,6 +139,7 @@
         const huruf = ['A','B','C','D','E'];
         
         s.opsi.forEach((teks, i) => {
+            if(!teks) return;
             const h = huruf[i];
             const active = (s.tipe === "CHECKBOX") ? (jawabanSiswa[curr] && jawabanSiswa[curr].includes(h)) : (jawabanSiswa[curr] === h);
             const d = document.createElement('div');
@@ -146,7 +164,7 @@
             const d = document.createElement('div');
             d.className = `nav-item ${jawabanSiswa[i] ? 'sudah' : ''} ${i===curr?'aktif' : ''}`;
             d.innerText = i + 1;
-            d.onclick = () => { curr = i; render(); toggleDrawer(); };
+            d.onclick = () => { curr = i; render(); if(document.getElementById('drawer').classList.contains('open')) toggleDrawer(); };
             g.appendChild(d);
         });
     }
@@ -160,7 +178,6 @@
                     document.getElementById('shield-info').innerText = "⚠️ 1x Lagi";
                     document.getElementById('shield-info').style.color = "orange";
                     fetch(`${SCRIPT_URL}?action=updateV&row=${uData.row}&count=${vCount}`);
-                    document.documentElement.requestFullscreen().catch(()=>{});
                 } else {
                     document.getElementById('lock-screen').style.display = 'flex';
                     fetch(`${SCRIPT_URL}?action=updateV&row=${uData.row}&count=2`);
@@ -175,6 +192,7 @@
             vCount = 0; 
             document.getElementById('shield-info').innerText = "🛡️ Aman";
             document.getElementById('shield-info').style.color = "var(--green)";
+            document.getElementById('p-key').value = "";
             document.documentElement.requestFullscreen().catch(()=>{});
         } else alert("Kode Salah!");
     }
@@ -184,7 +202,7 @@
         listSoal.forEach((_, i) => { if(!jawabanSiswa[i]) kosong.push(i+1); });
         if(kosong.length > 0) {
             alert("Nomor belum dijawab: " + kosong.join(", "));
-            toggleDrawer();
+            if(!document.getElementById('drawer').classList.contains('open')) toggleDrawer();
         } else if(confirm("Kirim jawaban sekarang?")) {
             let skor = 0;
             listSoal.forEach((s, i) => {
@@ -197,30 +215,17 @@
 
     function startTimer(min) {
         let t = min * 60;
-        setInterval(() => {
+        const timerInterval = setInterval(() => {
+            if(!isStarted) { clearInterval(timerInterval); return; }
             let m = Math.floor(t/60), s = t%60;
             document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
-            if(t-- <= 0) finishExam();
+            if(t-- <= 0) { clearInterval(timerInterval); finishExam(); }
         }, 1000);
     }
+
     function next() { if(curr < listSoal.length-1) { curr++; render(); } else toggleDrawer(); }
     function prev() { if(curr > 0) { curr--; render(); } }
     function toggleDrawer() { document.getElementById('drawer').classList.toggle('open'); }
-</script>
-    <script>
-  // Mendaftarkan Service Worker sederhana agar syarat PWA terpenuhi
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('https://cdn.jsdelivr.net/gh/GoogleChrome/pwacompat/pwacompat.min.js');
-  }
-
-  // Menangkap event install
-  let deferredPrompt;
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    // Anda bisa memunculkan tombol install kustom di sini jika mau
-    console.log('Aplikasi siap diinstal');
-  });
 </script>
 </body>
 </html>
