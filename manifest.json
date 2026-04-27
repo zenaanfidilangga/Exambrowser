@@ -1,0 +1,20 @@
+{
+  "name": "SHA EXAMBRO - SMP Shalahuddin",
+  "short_name": "SHA EXAM",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1a73ce",
+  "icons": [
+    {
+      "src": "https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
