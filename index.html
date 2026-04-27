@@ -3,167 +3,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHA EXAMBRO</title>
+    <title>SHA EXAMBRO - SECURE</title>
     <link rel="icon" href="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png">
     <style>
-        :root { --blue: #1a73ce; --red: #d93025; --bg: #f1f3f4; }
-        body { margin: 0; font-family: sans-serif; background: var(--bg); color: #333; overflow: hidden; }
+        :root { --blue: #1a73ce; --red: #d93025; --green: #28a745; --bg: #f8f9fa; }
+        body { margin: 0; font-family: sans-serif; background: var(--bg); user-select: none; -webkit-user-select: none; overflow: hidden; touch-action: manipulation; }
         .page { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; padding: 20px; box-sizing: border-box; }
-        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 350px; text-align: center; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
-        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 360px; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.2s; }
         .btn-blue { background: var(--blue); color: white; }
-
-        /* CBT MOBILE INTERFACE */
         #exam-page { display: none; height: 100vh; grid-template-rows: 60px 1fr 70px; }
-        header { background: white; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; border-bottom: 1px solid #ddd; }
-        .main-soal { padding: 20px; overflow-y: auto; background: white; }
-        .opsi { display: flex; align-items: center; padding: 15px; border: 2px solid #eee; border-radius: 10px; margin-bottom: 10px; cursor: pointer; }
+        header { background: white; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; border-bottom: 2px solid #eee; }
+        .main-soal { padding: 20px; overflow-y: auto; background: white; -webkit-overflow-scrolling: touch; }
+        .opsi { display: flex; align-items: center; padding: 15px; border: 2px solid #eee; border-radius: 12px; margin-bottom: 12px; cursor: pointer; }
         .opsi.active { border-color: var(--blue); background: #e8f0fe; }
-        footer { background: white; border-top: 1px solid #ddd; display: flex; gap: 10px; padding: 10px; }
-        
-        /* Drawer Navigasi */
-        #drawer { position: fixed; top: 0; right: -100%; width: 85%; height: 100%; background: white; z-index: 100; transition: 0.3s; padding: 20px; box-sizing: border-box; }
-        #drawer.open { right: 0; box-shadow: -5px 0 15px rgba(0,0,0,0.2); }
-        .grid-nav { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 20px; }
-        .nav-item { border: 1px solid #ddd; padding: 10px 0; text-align: center; border-radius: 5px; font-weight: bold; font-size: 14px; }
-        .nav-item.done { background: var(--blue); color: white; border: none; }
-        
-        #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); color: white; display: none; z-index: 1000; text-align: center; padding-top: 20vh; }
+        .huruf-box { width: 30px; height: 30px; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-weight: bold; }
+        footer { background: white; border-top: 1px solid #eee; display: flex; gap: 10px; padding: 10px; }
+        #drawer { position: fixed; top: 0; right: -100%; width: 85%; height: 100%; background: white; z-index: 100; transition: 0.3s; padding: 25px; box-sizing: border-box; }
+        #drawer.open { right: 0; box-shadow: -10px 0 20px rgba(0,0,0,0.2); }
+        .grid-nav { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 20px; }
+        .nav-item { border: 1px solid #ddd; padding: 12px 0; text-align: center; border-radius: 8px; font-weight: bold; font-size: 14px; }
+        .nav-item.sudah { background: var(--green); color: white; border: none; }
+        .nav-item.aktif { outline: 3px solid var(--blue); outline-offset: -3px; }
+        #lock-screen { position: fixed; inset: 0; background: rgba(0,0,0,0.98); color: white; display: none; z-index: 9999; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false">
 
     <div id="login-page" class="page">
         <div class="card">
-            <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" width="80">
+            <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" width="90">
             <h3>SHA EXAMBRO</h3>
-            <input type="text" id="u" placeholder="Username">
+            <input type="text" id="u" placeholder="Username / NISN">
             <input type="password" id="p" placeholder="Password">
-            <button class="btn btn-blue" onclick="doLogin()">Masuk</button>
+            <button class="btn btn-blue" onclick="doLogin()">MASUK</button>
         </div>
     </div>
 
-    <div id="mapel-page" class="page" style="display:none">
-        <div class="card" id="list-mapel">Memuat Mapel...</div>
+    <div id="confirm-page" class="page" style="display:none">
+        <div class="card" id="user-info"></div>
     </div>
 
     <div id="exam-page">
         <header>
-            <b id="timer" style="color:var(--red); font-size:18px">90:00</b>
-            <button onclick="toggleDrawer()" style="background:var(--blue); color:white; border:none; padding:8px 15px; border-radius:5px">Daftar Soal</button>
+            <b id="timer" style="color:var(--red); font-size:18px">00:00</b>
+            <span id="shield-info" style="font-size:12px; color:var(--green)">🛡️ Aman</span>
+            <button class="btn-blue" style="padding:5px 15px; width:auto;" onclick="toggleDrawer()">DAFTAR SOAL</button>
         </header>
         <main class="main-soal">
-            <div style="font-weight:bold; color:var(--blue); margin-bottom:10px">SOAL NO <span id="no-skrg">1</span></div>
-            <div id="tanya" style="font-size:18px; line-height:1.4; margin-bottom:20px">...</div>
+            <b style="color:var(--blue)">SOAL NOMOR <span id="no-skrg">1</span></b>
+            <div id="tanya" style="font-size:19px; line-height:1.4; margin:15px 0">Memuat soal...</div>
             <div id="opsi-list"></div>
         </main>
         <footer>
-            <button class="btn" style="background:#ddd" onclick="prev()">Kembali</button>
-            <button class="btn btn-blue" onclick="next()">Berikutnya</button>
+            <button class="btn" style="background:#eee" onclick="prev()">KEMBALI</button>
+            <button class="btn btn-blue" id="next-btn" onclick="next()">BERIKUTNYA</button>
         </footer>
     </div>
 
     <div id="drawer">
-        <div style="display:flex; justify-content:space-between"><b>Navigasi Soal</b> <button onclick="toggleDrawer()" style="border:none; background:none; font-size:20px">✕</button></div>
+        <div style="display:flex; justify-content:space-between"><b>NAVIGASI</b> <button onclick="toggleDrawer()" style="border:none; background:none; font-size:24px">&times;</button></div>
         <div class="grid-nav" id="grid-nav"></div>
+        <button class="btn btn-blue" style="margin-top:30px; background:var(--red);" onclick="finishExam()">SELESAI UJIAN</button>
     </div>
 
-    <div id="overlay">
-        <h1>TERKUNCI</h1>
-        <p>Hubungi Proktor</p>
+    <div id="lock-screen">
+        <h1 style="color:var(--red); font-size:40px">TERKUNCI!</h1>
+        <p>Anda melanggar aturan ujian.<br>Kesempatan habis.</p>
         <input type="password" id="p-key" placeholder="Kode Proktor" style="width:200px; text-align:center"><br>
-        <button class="btn btn-blue" style="width:200px" onclick="unlock()">Buka</button>
+        <button class="btn btn-blue" style="width:200px" onclick="unlock()">BUKA AKSES</button>
     </div>
 
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwuB5Nf3BiXyG2MCk0T5G1ELXkRcwSLfQzF4CizZSm_5WCs7yED9eRNo7j_WXHCQQ2yMQ/exec";
-    let listSoal = [], curr = 0, jawabanSiswa = {}, vCount = 0, uData = {};
+    let listSoal = [], curr = 0, jawabanSiswa = {}, uData = {}, mapelAktif = {}, isStarted = false, vCount = 0;
 
     async function doLogin() {
         const res = await fetch(`${SCRIPT_URL}?action=login&user=${u.value}&pass=${p.value}`);
         const d = await res.json();
         if(d.status === "success") {
-            uData = d; vCount = d.v;
-            if(vCount >= 2) return lock();
-            document.getElementById('login-page').style.display = 'none';
-            loadMapels();
-        } else alert("Login Gagal");
+            uData = d; document.getElementById('login-page').style.display = 'none'; loadMapels();
+        } else alert("Username/Password salah!");
     }
 
     async function loadMapels() {
-        document.getElementById('mapel-page').style.display = 'flex';
+        document.getElementById('confirm-page').style.display = 'flex';
         const res = await fetch(`${SCRIPT_URL}?action=getMapel`);
-        const mapels = await res.json();
-        const container = document.getElementById('list-mapel');
-        container.innerHTML = "<h3>Pilih Mapel</h3>";
-        mapels.forEach(m => {
+        const maps = await res.json();
+        const container = document.getElementById('user-info');
+        container.innerHTML = `<h3>Halo, ${uData.nama}</h3><p>Kelas: ${uData.kelas}</p><p>Pilih Mapel:</p>`;
+        maps.forEach(m => {
             const b = document.createElement('button');
-            b.className = "btn btn-blue"; b.style.marginBottom = "8px";
-            b.innerText = m.nama;
-            b.onclick = () => start(m.nama, m.url);
+            b.className = "btn btn-blue"; b.style.marginBottom = "8px"; b.innerText = m.nama;
+            b.onclick = () => { mapelAktif = m; start(m); };
             container.appendChild(b);
         });
     }
 
-    async function start(n, url) {
-        document.getElementById('mapel-page').style.display = 'none';
+    async function start(m) {
+        document.getElementById('confirm-page').style.display = 'none';
         document.getElementById('exam-page').style.display = 'grid';
-        const res = await fetch(`${SCRIPT_URL}?action=getSoalForm&url=${encodeURIComponent(url)}`);
+        isStarted = true; document.documentElement.requestFullscreen().catch(()=>{});
+        const res = await fetch(`${SCRIPT_URL}?action=getSoalForm&url=${encodeURIComponent(m.url)}`);
         listSoal = await res.json();
-        render(); drawNav(); startTimer(); initSec();
+        render(); drawNav(); initSecurity(); startTimer(90);
     }
 
     function render() {
         const s = listSoal[curr];
         document.getElementById('no-skrg').innerText = curr + 1;
         document.getElementById('tanya').innerText = s.tanya;
-        const container = document.getElementById('opsi-list');
-        container.innerHTML = "";
-        ['A','B','C','D','E'].forEach((h, i) => {
-            if(!s.opsi[i]) return;
+        const container = document.getElementById('opsi-list'); container.innerHTML = "";
+        const huruf = ['A','B','C','D','E'];
+        
+        s.opsi.forEach((teks, i) => {
+            const h = huruf[i];
+            const active = (s.tipe === "CHECKBOX") ? (jawabanSiswa[curr] && jawabanSiswa[curr].includes(h)) : (jawabanSiswa[curr] === h);
             const d = document.createElement('div');
-            d.className = `opsi ${jawabanSiswa[curr] === h ? 'active' : ''}`;
-            d.innerHTML = `<div style="width:25px; font-weight:bold">${h}.</div><div>${s.opsi[i]}</div>`;
-            d.onclick = () => { jawabanSiswa[curr] = h; render(); drawNav(); };
+            d.className = `opsi ${active ? 'active' : ''}`;
+            d.innerHTML = `<div class="huruf-box" style="${s.tipe==='CHECKBOX'?'border-radius:4px':'border-radius:50%'}">${active?'✓':h}</div>${teks}`;
+            d.onclick = () => {
+                if(s.tipe === "CHECKBOX") {
+                    if(!jawabanSiswa[curr]) jawabanSiswa[curr] = [];
+                    const idx = jawabanSiswa[curr].indexOf(h);
+                    if(idx > -1) jawabanSiswa[curr].splice(idx, 1); else jawabanSiswa[curr].push(h);
+                } else jawabanSiswa[curr] = h;
+                render(); drawNav();
+            };
             container.appendChild(d);
         });
+        document.getElementById('next-btn').innerText = (curr === listSoal.length - 1) ? "DAFTAR SOAL" : "BERIKUTNYA";
     }
 
     function drawNav() {
-        const g = document.getElementById('grid-nav');
-        g.innerHTML = "";
+        const g = document.getElementById('grid-nav'); g.innerHTML = "";
         listSoal.forEach((_, i) => {
             const d = document.createElement('div');
-            d.className = `nav-item ${jawabanSiswa[i] ? 'done' : ''}`;
+            d.className = `nav-item ${jawabanSiswa[i] ? 'sudah' : ''} ${i===curr?'aktif' : ''}`;
             d.innerText = i + 1;
             d.onclick = () => { curr = i; render(); toggleDrawer(); };
             g.appendChild(d);
         });
     }
 
-    function next() { if(curr < listSoal.length-1) { curr++; render(); } }
-    function prev() { if(curr > 0) { curr--; render(); } }
-    function toggleDrawer() { document.getElementById('drawer').classList.toggle('open'); }
-    
-    function startTimer() {
-        let t = 90 * 60;
+    function initSecurity() {
+        window.onblur = () => {
+            if(isStarted) {
+                vCount++;
+                if(vCount < 2) {
+                    alert("PERINGATAN 1!\nJangan keluar dari aplikasi. Kesempatan tinggal 1x lagi.");
+                    document.getElementById('shield-info').innerText = "⚠️ 1x Lagi";
+                    document.getElementById('shield-info').style.color = "orange";
+                    fetch(`${SCRIPT_URL}?action=updateV&row=${uData.row}&count=${vCount}`);
+                    document.documentElement.requestFullscreen().catch(()=>{});
+                } else {
+                    document.getElementById('lock-screen').style.display = 'flex';
+                    fetch(`${SCRIPT_URL}?action=updateV&row=${uData.row}&count=2`);
+                }
+            }
+        };
+    }
+
+    function unlock() {
+        if(document.getElementById('p-key').value === uData.pCode) {
+            document.getElementById('lock-screen').style.display = 'none';
+            vCount = 0; 
+            document.getElementById('shield-info').innerText = "🛡️ Aman";
+            document.getElementById('shield-info').style.color = "var(--green)";
+            document.documentElement.requestFullscreen().catch(()=>{});
+        } else alert("Kode Salah!");
+    }
+
+    function finishExam() {
+        let kosong = [];
+        listSoal.forEach((_, i) => { if(!jawabanSiswa[i]) kosong.push(i+1); });
+        if(kosong.length > 0) {
+            alert("Nomor belum dijawab: " + kosong.join(", "));
+            toggleDrawer();
+        } else if(confirm("Kirim jawaban sekarang?")) {
+            let skor = 0;
+            listSoal.forEach((s, i) => {
+                if(JSON.stringify(jawabanSiswa[i]) === JSON.stringify(s.kunci)) skor += s.bobot;
+            });
+            fetch(`${SCRIPT_URL}?action=submitNilai&row=${uData.row}&skor=${skor}&mapel=${mapelAktif.nama}`)
+            .then(() => { alert("Terkirim! Skor: " + skor); isStarted = false; location.reload(); });
+        }
+    }
+
+    function startTimer(min) {
+        let t = min * 60;
         setInterval(() => {
             let m = Math.floor(t/60), s = t%60;
             document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
-            if(t-- <= 0) location.reload();
+            if(t-- <= 0) finishExam();
         }, 1000);
     }
-
-    function initSec() {
-        window.onblur = () => {
-            vCount++;
-            fetch(`${SCRIPT_URL}?action=updateV&row=${uData.row}&count=${vCount}`);
-            if(vCount >= 2) lock(); else alert("Peringatan! Dilarang keluar.");
-        };
-    }
-    function lock() { document.getElementById('overlay').style.display = 'block'; }
-    function unlock() { if(document.getElementById('p-key').value === uData.pCode) { vCount = 0; fetch(`${SCRIPT_URL}?action=updateV&row=${uData.row}&count=0`); document.getElementById('overlay').style.display = 'none'; } }
+    function next() { if(curr < listSoal.length-1) { curr++; render(); } else toggleDrawer(); }
+    function prev() { if(curr > 0) { curr--; render(); } }
+    function toggleDrawer() { document.getElementById('drawer').classList.toggle('open'); }
 </script>
 </body>
 </html>
