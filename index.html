@@ -32,7 +32,7 @@
     <div id="lock-screen">
         <i class="fas fa-shield-alt" style="font-size: 80px; color: #dc3545; margin-bottom: 20px;"></i>
         <h2>SISTEM TERKUNCI</h2>
-        <p>Hubungi Proktor untuk membuka akses (F1).</p>
+        <p>Hubungi Proktor untuk membuka akses (PIN F1).</p>
         <input type="password" id="pin-f1" placeholder="PIN F1" style="padding: 12px; text-align: center; border-radius: 5px; border: none; font-size: 1.1rem;">
         <button onclick="unlock()" style="margin-top: 20px; padding: 10px 40px; background: #28a745; color: white; border: none; border-radius: 5px; font-weight: bold;">BUKA</button>
     </div>
@@ -73,11 +73,12 @@
     </div>
 
     <script>
+        // MASUKKAN URL APPS SCRIPT ANDA DI BAWAH INI
         const WEB_URL = "https://script.google.com/macros/s/AKfycby8xogJ7pYxKc5_osuwn3YVJSnSUCCBI5iVo4A_vxErCZBGtHi1nwROZFGyDDCbyjiI3Q/exec"; 
+        
         let questions = [], cur = 0, answers = {}, ragu = {}, student = {}, f1 = "", f2 = "", mapelNow = "";
         let viol = 0;
 
-        // ANTI-CHEAT
         window.onblur = () => {
             if (questions.length > 0 && localStorage.getItem("locked") !== "true") {
                 viol++;
@@ -91,14 +92,18 @@
         async function login() {
             const user = document.getElementById('u').value, pass = document.getElementById('p').value;
             Swal.fire({title: 'Autentikasi...', didOpen: () => Swal.showLoading()});
-            const r = await fetch(`${WEB_URL}?action=login&user=${user}&pass=${pass}`);
-            const d = await r.json();
-            if (d.status === "success") {
-                student = d; f1 = d.f1; f2 = d.f2;
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('user-info').innerHTML = `<b>${d.nama}</b><br>Ruang: ${d.ruang}`;
-                Swal.close(); loadMapel();
-            } else Swal.fire('Gagal', 'User/Password Salah', 'error');
+            try {
+                const r = await fetch(`${WEB_URL}?action=login&user=${user}&pass=${pass}`);
+                const d = await r.json();
+                if (d.status === "success") {
+                    student = d; f1 = d.f1; f2 = d.f2;
+                    document.getElementById('login-screen').style.display = 'none';
+                    document.getElementById('user-info').innerHTML = `<b>${d.nama}</b><br>Ruang: ${d.ruang}`;
+                    Swal.close(); loadMapel();
+                } else Swal.fire('Gagal', 'User/Password Salah', 'error');
+            } catch (e) {
+                Swal.fire('Error', 'Gagal terhubung ke database. Cek Deployment URL Apps Script Anda.', 'error');
+            }
         }
 
         async function loadMapel() {
@@ -128,17 +133,11 @@
         function render() {
             const q = questions[cur];
             document.getElementById('q-title').innerHTML = `<b>Soal No. ${cur+1}</b> ${q.type === "CHECKBOX" ? "<br><small style='color:red;'>(Jawaban boleh lebih dari satu)</small>" : ""}<br><br>${q.title}`;
-            
             document.getElementById('q-opts').innerHTML = q.options.map((o, i) => {
                 let isSelected = (q.type === "CHECKBOX") ? (answers[cur] || []).includes(o) : (answers[cur] === o);
                 let icon = (q.type === "CHECKBOX") ? (isSelected ? 'fa-check-square' : 'fa-square') : (isSelected ? 'fa-dot-circle' : 'fa-circle');
-                
-                return `<div class="opt ${isSelected ? 'selected' : ''}" onclick="ans('${o}')">
-                    <i class="far ${icon}" style="margin-right:15px;"></i>
-                    <b>${String.fromCharCode(65+i)}. </b> ${o}
-                </div>`;
+                return `<div class="opt ${isSelected ? 'selected' : ''}" onclick="ans('${o}')"><i class="far ${icon}" style="margin-right:15px;"></i><b>${String.fromCharCode(65+i)}. </b> ${o}</div>`;
             }).join('');
-            
             const g = document.getElementById('nav-grid');
             g.innerHTML = questions.map((_, i) => {
                 let c = (i === cur) ? 'active' : '';
@@ -153,8 +152,7 @@
             if (q.type === "CHECKBOX") {
                 if (!answers[cur]) answers[cur] = [];
                 let idx = answers[cur].indexOf(v);
-                if (idx > -1) answers[cur].splice(idx, 1);
-                else answers[cur].push(v);
+                if (idx > -1) answers[cur].splice(idx, 1); else answers[cur].push(v);
             } else { answers[cur] = v; }
             render();
         }
@@ -165,7 +163,7 @@
         async function finish() {
             Swal.fire({ title: 'Selesaikan Ujian?', text: "Masukkan PIN F2 untuk mengakhiri", input: 'password' }).then(async res => {
                 if (res.value === String(f2)) {
-                    Swal.fire({title: 'Menghitung & Mengirim Nilai...', didOpen: () => Swal.showLoading()});
+                    Swal.fire({title: 'Mengirim Nilai...', didOpen: () => Swal.showLoading()});
                     let b = 0;
                     questions.forEach((q, i) => {
                         if (q.type === "CHECKBOX") {
@@ -174,7 +172,7 @@
                     });
                     const skor = (b / questions.length) * 100;
                     await fetch(`${WEB_URL}?action=submitSkor&nama=${student.nama}&ruang=${student.ruang}&mapel=${mapelNow}&skor=${skor}`);
-                    Swal.fire('Berhasil', 'Data nilai sudah tersimpan.', 'success').then(() => location.reload());
+                    location.reload();
                 } else if(res.isConfirmed) Swal.fire('PIN Salah', '', 'error');
             });
         }
