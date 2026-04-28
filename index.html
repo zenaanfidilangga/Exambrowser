@@ -2,208 +2,263 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SPESHA EXAMBRO</title>
-    <link rel="manifest" href="manifest.json">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --blue-primary: #0056b3; --blue-light: #007bff; --bg-gray: #f4f7f6; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: var(--bg-gray); user-select: none; overflow: hidden; }
+        :root { --blue-primary: #0056b3; --blue-light: #007bff; --bg-gray: #f0f2f5; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; background: var(--bg-gray); overflow: hidden; user-select: none; }
         
         /* Header */
-        header { background: var(--blue-primary); color: white; padding: 10px 20px; display: flex; align-items: center; justify-content: center; gap: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        header img { height: 40px; width: 40px; }
-        header h1 { font-size: 1.5rem; margin: 0; letter-spacing: 1px; }
+        header { background: var(--blue-primary); color: white; padding: 12px 20px; display: flex; align-items: center; justify-content: center; gap: 15px; }
+        header img { height: 40px; }
+        header h1 { font-size: 1.3rem; margin: 0; letter-spacing: 1px; }
 
-        /* Login Container */
-        #login-page { display: flex; justify-content: center; align-items: center; height: 90vh; }
-        .login-box { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 350px; text-align: center; }
-        .login-box img { width: 80px; margin-bottom: 10px; }
-        .login-box h2 { margin: 5px 0; color: #333; font-size: 1.2rem; }
-        .login-box p { color: #666; margin-bottom: 20px; }
+        /* Login Center */
+        .container { display: flex; justify-content: center; align-items: center; height: 90vh; }
+        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 380px; text-align: center; }
+        .card img { width: 80px; margin-bottom: 10px; }
         
         .input-group { position: relative; margin-bottom: 15px; }
-        .input-group i { position: absolute; left: 15px; top: 12px; color: #aaa; }
-        .input-group input { width: 100%; padding: 12px 12px 12px 40px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; outline: none; }
+        .input-group i { position: absolute; left: 15px; top: 14px; color: #888; }
+        .input-group input { width: 100%; padding: 14px 15px 14px 45px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; outline: none; }
         
-        .btn-login { width: 100%; padding: 12px; background: var(--blue-light); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .btn-login:hover { background: var(--blue-primary); }
+        .btn-main { width: 100%; padding: 14px; background: var(--blue-light); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem; }
 
-        /* Exam Interface */
+        /* Subject Selection */
+        #subject-page { display: none; padding: 20px; text-align: center; height: 100vh; overflow-y: auto; }
+        .mapel-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 20px; }
+        .mapel-card { background: white; padding: 20px; border-radius: 10px; border-bottom: 4px solid var(--blue-primary); cursor: pointer; transition: 0.3s; }
+        .mapel-card:hover { transform: translateY(-5px); }
+
+        /* Exam View (ANBK Style) */
         #exam-page { display: none; height: 100vh; grid-template-columns: 1fr 300px; }
-        .main-content { padding: 20px; overflow-y: auto; background: white; position: relative; }
-        .sidebar { background: #f8f9fa; border-left: 1px solid #ddd; padding: 20px; display: flex; flex-direction: column; transition: 0.3s; }
-        
-        /* Question List */
-        .q-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 15px; }
-        .q-item { padding: 10px; text-align: center; border-radius: 5px; cursor: pointer; color: white; font-weight: bold; }
-        .q-red { background: #dc3545; }
-        .q-green { background: #28a745; }
-        .q-yellow { background: #ffc107; color: black; }
+        .exam-main { background: white; position: relative; display: flex; flex-direction: column; }
+        .exam-sidebar { background: #f8f9fa; border-left: 1px solid #ddd; padding: 15px; }
+        .q-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+        .q-num { height: 40px; display: flex; align-items: center; justify-content: center; border: 1px solid #ccc; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        .ans-green { background: #28a745; color: white; border: none; }
+        .ans-yellow { background: #ffc107; color: black; border: none; }
+        .ans-red { background: #dc3545; color: white; border: none; }
 
-        /* Footer Navigation */
-        .exam-footer { position: fixed; bottom: 0; left: 0; width: 100%; background: #eee; padding: 15px; display: flex; justify-content: center; gap: 20px; align-items: center; border-top: 1px solid #ccc; }
-        .btn-nav { padding: 10px 20px; border-radius: 5px; border: none; cursor: pointer; }
-        .btn-ragu { display: flex; align-items: center; gap: 8px; font-weight: bold; }
+        .exam-footer { padding: 15px; background: #eee; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #ccc; }
 
-        /* Fullscreen Lock Overlay */
-        #lock-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); color: white; z-index: 9999; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-        
-        @media (max-width: 768px) {
-            #exam-page { grid-template-columns: 1fr; }
-            .sidebar { position: fixed; right: -300px; height: 100%; width: 250px; z-index: 100; }
-            .sidebar.active { right: 0; }
-        }
+        /* Overlay Kunci */
+        #lock-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10000; color: white; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
     </style>
 </head>
 <body>
 
     <div id="lock-overlay">
-        <h1>AKSES TERKUNCI</h1>
-        <p>Anda melakukan pelanggaran lebih dari 2 kali.<br>Hubungi Proktor untuk membuka kunci.</p>
-        <input type="password" id="proctor-unlock" placeholder="Kode Proktor" style="padding:10px; border-radius:5px; border:none; margin-top:20px;">
-        <button onclick="unlockApp()" style="margin-top:10px; padding:10px 20px; background:green; color:white; border:none; border-radius:5px;">Buka Kunci</button>
+        <i class="fas fa-user-slash" style="font-size: 60px; margin-bottom: 20px;"></i>
+        <h2>AKSES TERKUNCI</h2>
+        <p>Anda terdeteksi keluar dari aplikasi/melakukan kecurangan.<br>Batas pelanggaran (2x) telah terlampaui.</p>
+        <input type="password" id="proctor-code" placeholder="Masukkan Kode Proktor" style="padding:12px; border-radius:5px; margin: 20px 0; border:none; text-align:center;">
+        <button onclick="unlockApp()" class="btn-main" style="width: 200px; background: #28a745;">Buka Ujian</button>
     </div>
 
-    <header id="app-header">
+    <header id="main-header">
         <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" alt="Logo">
         <h1>SPESHA EXAMBRO</h1>
     </header>
 
-    <div id="login-page">
-        <div class="login-box">
-            <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" alt="App Icon">
-            <h2>SPESHA EXAMBRO</h2>
-            <p>Selamat Datang</p>
+    <div id="login-page" class="container">
+        <div class="card">
+            <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" alt="Logo">
+            <h2 style="margin:0;">SPESHA EXAMBRO</h2>
+            <p style="color:#666; margin-bottom:25px;">Selamat Datang</p>
             <div class="input-group">
                 <i class="fas fa-user"></i>
-                <input type="text" id="username" placeholder="Username">
+                <input type="text" id="user-input" placeholder="Username">
             </div>
             <div class="input-group">
-                <i class="fas fa-key"></i>
-                <input type="password" id="password" placeholder="Password">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="pass-input" placeholder="Password">
             </div>
-            <button class="btn-login" onclick="attemptLogin()">Login</button>
+            <button class="btn-main" onclick="handleLogin()">Login</button>
         </div>
     </div>
 
-    <div id="identity-page" style="display:none; text-align:center; padding:50px;">
-        <h2>Verifikasi Identitas</h2>
-        <p id="user-display"></p>
-        <div id="mapel-list" style="margin-top:20px;"></div>
+    <div id="subject-page">
+        <div style="background:white; padding:20px; border-radius:10px; margin-bottom:20px;">
+            <h3 id="student-info" style="margin:0;">Memuat Identitas...</h3>
+        </div>
+        <h3>Pilih Mata Pelajaran</h3>
+        <div class="mapel-grid" id="mapel-container">
+            </div>
     </div>
 
     <div id="exam-page">
-        <div class="main-content">
-            <iframe id="exam-frame" src="" style="width:100%; height:80vh; border:none;"></iframe>
+        <div class="exam-main">
+            <iframe id="soal-frame" src="" style="width:100%; height:100%; border:none;"></iframe>
             <div class="exam-footer">
-                <button class="btn-nav" style="background:#6c757d; color:white;"><i class="fas fa-arrow-left"></i> Kembali</button>
-                <div class="btn-ragu">
-                    <input type="checkbox" id="check-ragu" onchange="toggleRagu()"> <label for="check-ragu">Ragu-ragu</label>
+                <button class="btn-main" style="width:auto; background:#6c757d;"><i class="fas fa-arrow-left"></i> Kembali</button>
+                <div style="display:flex; align-items:center; gap:8px; font-weight:bold;">
+                    <input type="checkbox" id="check-ragu" onchange="markRagu()" style="transform:scale(1.3);"> Ragu-ragu
                 </div>
-                <button class="btn-nav" style="background:var(--blue-light); color:white;">Berikutnya <i class="fas fa-arrow-right"></i></button>
-                <button id="btn-kirim" class="btn-nav" style="background:green; color:white; display:none;" onclick="submitExam()">Kirim</button>
+                <button class="btn-main" style="width:auto;">Berikutnya <i class="fas fa-arrow-right"></i></button>
             </div>
         </div>
-        <div class="sidebar" id="sidebar">
-            <button onclick="document.getElementById('sidebar').classList.toggle('active')" style="align-self: flex-end;">Tutup X</button>
-            <h3>Daftar Soal</h3>
-            <div class="q-grid" id="q-grid">
-                </div>
+        <div class="exam-sidebar" id="exam-sidebar">
+            <h4 style="margin-top:0;">Daftar Soal</h4>
+            <div class="q-grid" id="q-nums"></div>
+            <button onclick="finishExam()" style="margin-top:auto; width:100%; padding:15px; background:green; color:white; border:none; border-radius:8px; font-weight:bold;">SELESAI</button>
+            <p style="font-size:10px; color:#888; margin-top:10px;">Kode Keluar: Masukkan PIN untuk menutup aplikasi.</p>
         </div>
     </div>
 
     <script>
-        let userData = {};
+        // DATA CONFIGURATION
+        const SS_ID = "1DYIHPLdHlXt3efLuWWIzmBeZkURrErVaSJpXNzXaOqg";
+        const APPS_SCRIPT_URL = "URL_WEB_APP_BAPAK_DI_SINI"; // Masukkan URL hasil Deploy Apps Script Bapak
+        
+        let currentUser = null;
         let violationCount = 0;
-        let scriptURL = "https://script.google.com/macros/s/AKfycbz5dxv9fvUzKrxQWH80ZECgh_bUGvrsf_VqqTSBBFHvC-3qVZBVA8SZ6JjZ44QyL20pSA/exec";
+        let proctorCodeMaster = "1234"; // Default jika gagal fetch
+        let exitCodeMaster = "1234";
 
-        // Anti-Cheat: Fullscreen & Lock
-        function startKioskMode() {
-            document.documentElement.requestFullscreen().catch(e => console.log(e));
-            window.onblur = () => {
-                violationCount++;
-                if(violationCount >= 2) {
-                    document.getElementById('lock-overlay').style.display = 'flex';
-                } else {
-                    Swal.fire('Peringatan!', 'Dilarang keluar aplikasi! Pelanggaran: ' + violationCount + '/2', 'warning');
-                }
-            };
-        }
-
-        // Disable Copy-Paste & Right Click
+        // ANTI-CHEAT: Disable Right Click & Copy-Paste
         document.addEventListener('contextmenu', e => e.preventDefault());
         document.addEventListener('keydown', e => {
-            if (e.ctrlKey && (e.key === 'c' || e.key === 'v' || e.key === 'u')) e.preventDefault();
+            if (e.ctrlKey && (e.key === 'c' || e.key === 'v' || e.key === 'u' || e.key === 'p')) e.preventDefault();
         });
 
-        async function attemptLogin() {
-            const user = document.getElementById('username').value;
-            const pass = document.getElementById('password').value;
-            
-            // Simulasi fetch (ganti dengan fetch asli ke GAS)
-            // if response success:
-            startKioskMode();
-            document.getElementById('login-page').style.display = 'none';
-            document.getElementById('identity-page').style.display = 'block';
-            document.getElementById('user-display').innerText = "Nama: Budi Santoso | Kelas: 9A";
-            loadMapel();
-        }
+        // ANTI-CHEAT: Detect Tab Switch/Notification Drag
+        window.onblur = function() {
+            violationCount++;
+            if(violationCount >= 2) {
+                document.getElementById('lock-overlay').style.display = 'flex';
+            } else {
+                Swal.fire('Peringatan Kejujuran!', 'Jangan menarik notifikasi atau pindah aplikasi! Pelanggaran: ' + violationCount + '/2', 'warning');
+            }
+        };
 
-        function loadMapel() {
-            // Fetch mapel dari GAS
-            const mapelContainer = document.getElementById('mapel-list');
-            const mapelDummy = [{name: "Matematika", token: "MTK123", time: "08:00"}];
-            mapelDummy.forEach(m => {
-                const btn = document.createElement('button');
-                btn.innerText = m.name;
-                btn.className = "btn-login";
-                btn.onclick = () => startExam(m);
-                mapelContainer.appendChild(btn);
-            });
-        }
+        // LOGIN HANDLER
+        async function handleLogin() {
+            const u = document.getElementById('user-input').value;
+            const p = document.getElementById('pass-input').value;
 
-        function startExam(mapel) {
-            Swal.fire({
-                title: 'Masukkan Token',
-                input: 'text',
-                showCancelButton: true
-            }).then(res => {
-                if(res.value === mapel.token) {
-                    document.getElementById('identity-page').style.display = 'none';
-                    document.getElementById('exam-page').style.display = 'grid';
-                    document.getElementById('exam-frame').src = "https://docs.google.com/forms/d/e/.../viewform?embedded=true";
-                    initQuestionList();
+            Swal.fire({ title: 'Memverifikasi...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() }});
+
+            try {
+                // Catatan: Bapak perlu membuat fungsi di Apps Script untuk merespon ini
+                const response = await fetch(APPS_SCRIPT_URL + "?action=login&user=" + u + "&pass=" + p);
+                const data = await response.json();
+
+                if(data.status === "success") {
+                    currentUser = data; // Data dari Sheet1: Nama (D), Kelas (E), Kode Proktor (F1), dll
+                    proctorCodeMaster = data.proctorCode;
+                    exitCodeMaster = data.exitCode;
+                    
+                    Swal.close();
+                    document.getElementById('login-page').style.display = 'none';
+                    document.getElementById('subject-page').style.display = 'block';
+                    document.getElementById('student-info').innerText = "Peserta: " + data.nama + " | Kelas: " + data.kelas;
+                    
+                    // Request Mode Fullscreen agar terkunci
+                    document.documentElement.requestFullscreen();
+                    
+                    loadSubjects();
                 } else {
-                    Swal.fire('Error', 'Token Salah!', 'error');
+                    Swal.fire('Gagal Login', 'Maaf salah, cek kembali username, password atau hubungi Proktor.', 'error');
                 }
-            });
-        }
-
-        function initQuestionList() {
-            const grid = document.getElementById('q-grid');
-            for(let i=1; i<=20; i++) {
-                const div = document.createElement('div');
-                div.className = "q-item q-red";
-                div.innerText = i;
-                grid.appendChild(div);
+            } catch (err) {
+                Swal.fire('Error', 'Gagal terhubung ke server. Pastikan internet aktif.', 'error');
             }
         }
 
-        function toggleRagu() {
-            const activeQ = document.querySelector('.q-item'); // Simulasi
-            if(document.getElementById('check-ragu').checked) {
-                activeQ.className = "q-item q-yellow";
+        // LOAD SUBJECTS FROM "MAPEL" SHEET
+        async function loadSubjects() {
+            const container = document.getElementById('mapel-container');
+            container.innerHTML = "Memuat mata pelajaran...";
+
+            try {
+                const res = await fetch(APPS_SCRIPT_URL + "?action=getMapel");
+                const subjects = await res.json();
+                
+                container.innerHTML = "";
+                subjects.forEach(s => {
+                    const card = document.createElement('div');
+                    card.className = "mapel-card";
+                    card.innerHTML = `<strong>${s.nama}</strong><br><small>${s.jam}</small>`;
+                    card.onclick = () => checkToken(s);
+                    container.appendChild(card);
+                });
+            } catch (err) {
+                container.innerHTML = "Gagal memuat daftar mapel.";
+            }
+        }
+
+        // TOKEN & TIME VALIDATION
+        function checkToken(subject) {
+            // Cek Waktu (Sederhana)
+            const now = new Date().toLocaleTimeString('id-ID', {hour12:false, hour:'2-digit', minute:'2-digit'});
+            if (now < subject.jam && subject.status === "AKTIF") {
+                Swal.fire('Belum Waktunya', 'Ujian baru bisa diakses pada jam ' + subject.jam, 'info');
+                return;
+            }
+
+            Swal.fire({
+                title: 'Masukkan Token',
+                input: 'text',
+                showCancelButton: true,
+                confirmButtonText: 'Mulai Ujian',
+                confirmButtonColor: '#007bff'
+            }).then((result) => {
+                if (result.value === subject.token) {
+                    startExam(subject.link);
+                } else if (result.value) {
+                    Swal.fire('Token Salah', 'Silakan cek kembali token Anda.', 'error');
+                }
+            });
+        }
+
+        function startExam(link) {
+            document.getElementById('subject-page').style.display = 'none';
+            document.getElementById('main-header').style.display = 'none';
+            document.getElementById('exam-page').style.display = 'grid';
+            document.getElementById('soal-frame').src = link; // Link dari Kolom B Sheet Mapel
+            
+            // Generate Nomor Soal (Simulasi 40 soal)
+            const qNums = document.getElementById('q-nums');
+            for(let i=1; i<=40; i++) {
+                const n = document.createElement('div');
+                n.className = "q-num ans-red";
+                n.innerText = i;
+                qNums.appendChild(n);
             }
         }
 
         function unlockApp() {
-            const code = document.getElementById('proctor-unlock').value;
-            if(code === "PROKTOR2026") { // Ganti dengan data dari sheet
+            const code = document.getElementById('proctor-code').value;
+            if(code === proctorCodeMaster) {
                 violationCount = 0;
                 document.getElementById('lock-overlay').style.display = 'none';
+                document.getElementById('proctor-code').value = "";
+                document.documentElement.requestFullscreen();
+                Swal.fire('Dibuka', 'Silakan lanjutkan ujian dengan jujur.', 'success');
+            } else {
+                Swal.fire('Kode Salah', 'Kode proktor tidak valid.', 'error');
             }
+        }
+
+        function finishExam() {
+            Swal.fire({
+                title: 'Selesai Ujian?',
+                text: "Pastikan semua jawaban sudah terisi dan tidak ada yang ragu-ragu.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Kirim',
+                confirmButtonColor: 'green'
+            }).then((res) => {
+                if(res.isConfirmed) {
+                    // Logic kirim nilai ke Sheet Nilai bisa ditambahkan di sini
+                    Swal.fire('Berhasil', 'Jawaban Anda telah terkirim.', 'success').then(() => {
+                        location.reload();
+                    });
+                }
+            });
         }
     </script>
 </body>
