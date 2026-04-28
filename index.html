@@ -1,174 +1,188 @@
-<script>
-    // --- KONFIGURASI WEB APP ---
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyR06T-Vn6NlV1Tz6h76166_4n7V_x_O_f/exec"; 
-    
-    let masterProctorCode = "1234"; 
-    let currentSiswa = null;
-    let violations = 0;
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SPESHA EXAMBRO</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary: #0056b3; --secondary: #007bff; --danger: #dc3545; --success: #28a745; --bg: #f4f7f9; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; background: var(--bg); overflow: hidden; user-select: none; }
+        header { background: var(--primary); color: white; padding: 15px 25px; display: flex; align-items: center; justify-content: space-between; }
+        .logo-area { display: flex; align-items: center; gap: 15px; }
+        .logo-area img { height: 40px; }
+        .full-center { display: flex; justify-content: center; align-items: center; height: 85vh; padding: 20px; }
+        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 350px; text-align: center; }
+        .input-group { position: relative; margin-bottom: 15px; }
+        .input-group i { position: absolute; left: 15px; top: 14px; color: #aaa; }
+        .input-group input { width: 100%; padding: 12px 10px 12px 40px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        .btn-block { width: 100%; padding: 12px; background: var(--secondary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        #subject-page, #exam-page, #persistent-lock { display: none; }
+        #persistent-lock { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; color: white; flex-direction: column; justify-content: center; align-items: center; }
+        .grid-mapel { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; padding: 20px; }
+        .card-mapel { background: white; padding: 20px; border-radius: 10px; border-bottom: 4px solid var(--primary); cursor: pointer; text-align: center; }
+        #exam-page { height: 100vh; grid-template-columns: 1fr 300px; }
+        iframe { width: 100%; height: 100%; border: none; }
+        .sidebar { background: #f0f0f0; padding: 15px; display: flex; flex-direction: column; border-left: 1px solid #ccc; }
+        .q-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin-top: 10px; }
+        .q-box { height: 35px; border: 1px solid #999; display: flex; align-items: center; justify-content: center; background: white; font-weight: bold; font-size: 0.8rem; }
+    </style>
+</head>
+<body onload="initCheck()">
 
-    function initCheck() {
-        if (localStorage.getItem("isLocked") === "true") {
-            showBlocker();
-        }
-    }
+    <div id="persistent-lock">
+        <i class="fas fa-lock" style="font-size: 80px; color: var(--danger);"></i>
+        <h2>AKSES DIBLOKIR</h2>
+        <p>Terdeteksi Pelanggaran. Hubungi Proktor.</p>
+        <input type="password" id="p-unlock-code" placeholder="PIN PROKTOR" style="padding: 10px; border-radius: 5px; border: none; margin: 10px;">
+        <button onclick="masterUnlock()" style="padding: 10px 20px; background: var(--success); color: white; border: none; border-radius: 5px;">BUKA</button>
+    </div>
 
-    // DETEKSI CURANG
-    window.onblur = function() {
-        if (currentSiswa) {
-            violations++;
-            if (violations >= 2) {
-                executeLock();
-            } else {
-                Swal.fire({
-                    title: 'PERINGATAN!',
-                    text: 'Jangan keluar aplikasi atau menarik bar notifikasi! Pelanggaran: ' + violations + '/2',
-                    icon: 'warning'
-                });
+    <header id="app-header">
+        <div class="logo-area">
+            <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" alt="Logo">
+            <h1 style="font-size: 1.2rem; margin:0;">SPESHA EXAMBRO</h1>
+        </div>
+        <div id="user-display" style="font-size: 0.9rem; font-weight: bold;"></div>
+    </header>
+
+    <div id="login-page" class="full-center">
+        <div class="card">
+            <h3>SISWA LOGIN</h3>
+            <div class="input-group">
+                <i class="fas fa-user"></i>
+                <input type="text" id="u-name" placeholder="Username">
+            </div>
+            <div class="input-group">
+                <i class="fas fa-key"></i>
+                <input type="password" id="u-pass" placeholder="Password">
+            </div>
+            <button class="btn-block" onclick="processLogin()">MASUK</button>
+        </div>
+    </div>
+
+    <div id="subject-page">
+        <h3 style="margin-top:20px; text-align:center;">PILIH MATA PELAJARAN</h3>
+        <div class="grid-mapel" id="list-mapel-container"></div>
+    </div>
+
+    <div id="exam-page">
+        <div style="display:flex; flex-direction:column; background: white;">
+            <iframe id="frame-soal" src=""></iframe>
+            <div style="padding:10px; background:#ddd; display:flex; justify-content: space-between;">
+                <button disabled>Sebelumnya</button>
+                <button disabled>Berikutnya</button>
+            </div>
+        </div>
+        <div class="sidebar">
+            <h4 style="margin:0;">Nomor Soal</h4>
+            <div id="nomor-soal-grid" class="q-grid"></div>
+            <button onclick="confirmSelesai()" style="margin-top:auto; padding:15px; background:var(--success); color:white; border:none; border-radius:5px; font-weight:bold;">SELESAI</button>
+        </div>
+    </div>
+
+    <script>
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz5dxv9fvUzKrxQWH80ZECgh_bUGvrsf_VqqTSBBFHvC-3qVZBVA8SZ6JjZ44QyL20pSA/exec";
+        let masterProctorCode = "1234";
+        let currentSiswa = null;
+        let violations = 0;
+
+        function initCheck() {
+            if (localStorage.getItem("isLocked") === "true") {
+                document.getElementById('persistent-lock').style.display = 'flex';
             }
         }
-    };
 
-    function executeLock() {
-        localStorage.setItem("isLocked", "true");
-        showBlocker();
-    }
-
-    function showBlocker() {
-        document.getElementById('persistent-lock').style.display = 'flex';
-    }
-
-    function masterUnlock() {
-        const input = document.getElementById('p-unlock-code').value;
-        if (String(input).trim() === String(masterProctorCode).trim()) {
-            localStorage.removeItem("isLocked");
-            violations = 0;
-            document.getElementById('persistent-lock').style.display = 'none';
-            document.getElementById('p-unlock-code').value = "";
-            Swal.fire('Akses Dibuka', 'Silakan gunakan aplikasi kembali.', 'success');
-        } else {
-            Swal.fire('GAGAL', 'Kode PIN Proktor Salah!', 'error');
-        }
-    }
-
-    // LOGIN
-    async function processLogin() {
-        const user = document.getElementById('u-name').value;
-        const pass = document.getElementById('u-pass').value;
-
-        if (!user || !pass) return Swal.fire('Isi Data', 'Username dan Password wajib diisi', 'info');
-
-        Swal.fire({ title: 'Menghubungkan...', didOpen: () => Swal.showLoading() });
-
-        try {
-            const res = await fetch(`${WEB_APP_URL}?action=login&user=${user}&pass=${pass}`);
-            const data = await res.json();
-
-            if (data.status === "success") {
-                currentSiswa = data;
-                masterProctorCode = data.proctorCode;
-                
-                document.getElementById('login-page').style.display = 'none';
-                document.getElementById('subject-page').style.display = 'block';
-                document.getElementById('user-display').style.display = 'block';
-                document.getElementById('user-display').innerText = `${data.nama} (${data.kelas})`;
-                
-                Swal.close();
-                document.documentElement.requestFullscreen().catch(() => {}); 
-                loadMapel();
-            } else {
-                Swal.fire('Gagal', 'Akun tidak ditemukan atau password salah.', 'error');
-            }
-        } catch (e) {
-            Swal.fire('Error', 'Gagal memanggil data. Periksa Apps Script.', 'error');
-        }
-    }
-
-    // AMBIL MAPEL
-    async function loadMapel() {
-        const container = document.getElementById('list-mapel-container');
-        container.innerHTML = "Memuat mata pelajaran...";
-
-        try {
-            const res = await fetch(`${WEB_APP_URL}?action=getMapel`);
-            const items = await res.json();
-            
-            container.innerHTML = "";
-            items.forEach(m => {
-                const div = document.createElement('div');
-                div.className = "card-mapel";
-                div.innerHTML = `<i class="fas fa-book" style="font-size: 2rem; color: var(--primary);"></i><br><br>
-                                 <strong>${m.nama}</strong><br><small>Waktu: ${m.jam}</small>`;
-                div.onclick = () => confirmToken(m);
-                container.appendChild(div);
-            });
-        } catch (e) {
-            container.innerHTML = "Gagal memuat data.";
-        }
-    }
-
-    // VERIFIKASI TOKEN (PERBAIKAN TOTAL)
-    function confirmToken(m) {
-        Swal.fire({
-            title: 'Konfirmasi Token',
-            text: `Masukkan Token untuk ${m.nama}`,
-            input: 'text',
-            showCancelButton: true,
-            confirmButtonText: 'Mulai Ujian',
-            inputAttributes: {
-                autocapitalize: 'off',
-                autocorrect: 'off'
-            }
-        }).then(r => {
-            if (r.isConfirmed) {
-                // 1. Ambil input siswa, hilangkan spasi, jadikan huruf kecil
-                const tokenSiswa = String(r.value).trim().toLowerCase();
-                
-                // 2. Ambil data dari sheet, pastikan jadi teks, hilangkan spasi, jadikan huruf kecil
-                const tokenSheet = String(m.token).trim().toLowerCase();
-
-                // 3. Bandingkan
-                if (tokenSiswa === tokenSheet) {
-                    startExamNow(m.link);
+        window.onblur = function() {
+            if (currentSiswa) {
+                violations++;
+                if (violations >= 2) {
+                    localStorage.setItem("isLocked", "true");
+                    document.getElementById('persistent-lock').style.display = 'flex';
                 } else {
-                    Swal.fire({
-                        title: 'Token Salah!',
-                        html: `Token yang Anda masukkan: <b>${tokenSiswa}</b><br>Tidak cocok dengan sistem.`,
-                        icon: 'error'
-                    });
+                    Swal.fire('Peringatan!', 'Dilarang keluar aplikasi!', 'warning');
                 }
             }
-        });
-    }
+        };
 
-    function startExamNow(link) {
-        let finalLink = link;
-        if (link.includes("/edit")) {
-            finalLink = link.split("/edit")[0] + "/viewform";
+        function masterUnlock() {
+            const code = document.getElementById('p-unlock-code').value;
+            if (String(code).trim() === String(masterProctorCode).trim()) {
+                localStorage.removeItem("isLocked");
+                violations = 0;
+                location.reload();
+            } else {
+                Swal.fire('Gagal', 'PIN Salah', 'error');
+            }
         }
-        
-        document.getElementById('subject-page').style.display = 'none';
-        document.getElementById('app-header').style.display = 'none';
-        document.getElementById('exam-page').style.display = 'grid';
-        document.getElementById('frame-soal').src = finalLink;
 
-        const grid = document.getElementById('nomor-soal-grid');
-        grid.innerHTML = "";
-        for(let i=1; i<=40; i++) {
-            let n = document.createElement('div');
-            n.className = "q-num";
-            n.innerText = i;
-            grid.appendChild(n);
+        async function processLogin() {
+            const u = document.getElementById('u-name').value;
+            const p = document.getElementById('u-pass').value;
+            if(!u || !p) return Swal.fire('Isi Data','','info');
+            
+            Swal.fire({title:'Menghubungkan...', didOpen:()=>Swal.showLoading()});
+            try {
+                const res = await fetch(`${WEB_APP_URL}?action=login&user=${u}&pass=${p}`);
+                const data = await res.json();
+                if(data.status === "success") {
+                    currentSiswa = data;
+                    masterProctorCode = data.proctorCode;
+                    document.getElementById('login-page').style.display = 'none';
+                    document.getElementById('subject-page').style.display = 'block';
+                    document.getElementById('user-display').innerText = data.nama;
+                    Swal.close();
+                    loadMapel();
+                } else {
+                    Swal.fire('Gagal','User/Pass Salah','error');
+                }
+            } catch(e) { Swal.fire('Error','Cek Koneksi / Apps Script','error'); }
         }
-    }
 
-    function confirmSelesai() {
-        Swal.fire({
-            title: 'Selesai Ujian?',
-            text: 'Pastikan sudah klik SUBMIT di dalam formulir soal.',
-            icon: 'question',
-            showCancelButton: true
-        }).then(r => { if(r.isConfirmed) location.reload(); });
-    }
+        async function loadMapel() {
+            const cont = document.getElementById('list-mapel-container');
+            const res = await fetch(`${WEB_APP_URL}?action=getMapel`);
+            const items = await res.json();
+            cont.innerHTML = "";
+            items.forEach(m => {
+                const d = document.createElement('div');
+                d.className = "card-mapel";
+                d.innerHTML = `<strong>${m.nama}</strong><br><small>${m.jam}</small>`;
+                d.onclick = () => {
+                    Swal.fire({title:'Token', input:'text', showCancelButton:true}).then(r => {
+                        if(r.isConfirmed){
+                            const s1 = String(r.value).trim().toLowerCase();
+                            const s2 = String(m.token).trim().toLowerCase();
+                            if(s1 === s2) startExam(m.link);
+                            else Swal.fire('Salah','','error');
+                        }
+                    });
+                };
+                cont.appendChild(d);
+            });
+        }
 
-    document.addEventListener('contextmenu', e => e.preventDefault());
-</script>
+        function startExam(link) {
+            let finalLink = link.replace("/edit", "/viewform");
+            document.getElementById('subject-page').style.display = 'none';
+            document.getElementById('app-header').style.display = 'none';
+            document.getElementById('exam-page').style.display = 'grid';
+            document.getElementById('frame-soal').src = finalLink;
+            const grid = document.getElementById('nomor-soal-grid');
+            for(let i=1; i<=40; i++) {
+                let n = document.createElement('div');
+                n.className = "q-box"; n.innerText = i;
+                grid.appendChild(n);
+            }
+        }
+
+        function confirmSelesai() {
+            Swal.fire({title:'Selesai?', showCancelButton:true}).then(r => {
+                if(r.isConfirmed) location.reload();
+            });
+        }
+        document.addEventListener('contextmenu', e => e.preventDefault());
+    </script>
+</body>
+</html>
