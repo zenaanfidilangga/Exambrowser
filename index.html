@@ -199,21 +199,26 @@
                 return;
             }
 
-            Swal.fire({
-                title: 'Masukkan Token',
-                input: 'text',
-                showCancelButton: true,
-                confirmButtonText: 'Mulai Ujian',
-                confirmButtonColor: '#007bff'
-            }).then((result) => {
-                if (result.value === subject.token) {
-                    startExam(subject.link);
-                } else if (result.value) {
-                    Swal.fire('Token Salah', 'Silakan cek kembali token Anda.', 'error');
-                }
-            });
-        }
+     function checkToken(subject) {
+    Swal.fire({
+        title: 'Masukkan Token',
+        input: 'text',
+        showCancelButton: true,
+        confirmButtonText: 'Mulai Ujian',
+    }).then((result) => {
+        if (result.isConfirmed) { // Hanya lanjut jika tombol 'Mulai' ditekan
+            const inputToken = result.value.trim(); // Hilangkan spasi jika ada
+            const tokenSheet = String(subject.token).trim(); // Pastikan token sheet jadi teks
 
+            if (inputToken === tokenSheet) {
+                startExam(subject.link);
+            } else {
+                Swal.fire('Token Salah', 'Silakan hubungi Proktor.', 'error');
+            }
+        }
+        // Jika pencet cancel atau area luar, aplikasi tidak akan masuk ke soal
+    });
+     }
         function startExam(link) {
             document.getElementById('subject-page').style.display = 'none';
             document.getElementById('main-header').style.display = 'none';
