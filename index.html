@@ -8,45 +8,51 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { --blue: #0056b3; --yellow: #ffc107; --bg: #f4f7f9; }
-        * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+        /* PROTEKSI HP & PC */
+        * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; outline: none; }
         input, textarea { -webkit-user-select: text; user-select: text; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); overflow: hidden; }
-        header { background: #fff; padding: 10px 25px; display: flex; justify-content: space-between; border-bottom: 4px solid var(--blue); align-items: center; height: 60px; box-sizing: border-box; }
-        #main-layout { display: grid; grid-template-columns: 1fr 300px; height: calc(100vh - 60px); }
-        .question-area { background: #fff; padding: 30px; overflow-y: auto; position: relative; border-right: 1px solid #ddd; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; background: var(--bg); overflow: hidden; }
+        header { background: #fff; padding: 10px 25px; display: flex; justify-content: space-between; border-bottom: 4px solid var(--blue); align-items: center; height: 70px; box-sizing: border-box; }
+        #main-layout { display: grid; grid-template-columns: 1fr 300px; height: calc(100vh - 70px); }
+        .question-area { background: #fff; padding: 30px; overflow-y: auto; position: relative; border-right: 1px solid #ddd; padding-bottom: 100px; }
         .sidebar { background: #f8f9fa; padding: 15px; display: flex; flex-direction: column; overflow-y: auto; }
-        .q-text { font-size: 1.2rem; margin-bottom: 25px; color: #333; line-height: 1.6; }
+        .q-text { font-size: 1.25rem; margin-bottom: 25px; color: #333; line-height: 1.6; }
         .opt { display: flex; align-items: center; padding: 15px; border: 1px solid #ddd; margin: 10px 0; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+        .opt:hover { background: #f0f7ff; }
         .opt.selected { background: var(--blue); color: white; border-color: var(--blue); }
         .nav-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 10px; }
         .nav-n { height: 45px; border: 1px solid #ccc; background: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; border-radius: 4px; }
         .nav-n.active { border: 3px solid var(--blue); color: var(--blue); }
         .nav-n.done { background: var(--blue); color: white; border-color: var(--blue); }
         .nav-n.ragu { background: var(--yellow); color: #000; border-color: var(--yellow); }
-        .footer { position: absolute; bottom: 0; left: 0; width: 100%; background: #fff; border-top: 1px solid #ddd; padding: 15px 30px; display: flex; justify-content: space-between; box-sizing: border-box; }
+        .footer { position: absolute; bottom: 0; left: 0; width: 100%; background: #fff; border-top: 1px solid #ddd; padding: 15px 30px; display: flex; justify-content: space-between; box-sizing: border-box; z-index: 10; }
         .btn { padding: 12px 25px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
         #lock-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; color: white; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-        #btn-finish { margin-top: auto; padding: 15px; background: #6c757d; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: not-allowed; }
+        #btn-finish { margin-top: auto; padding: 15px; background: #6c757d; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: not-allowed; transition: 0.3s; }
+        .logo-img { height: 50px; margin-right: 15px; }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false" onkeydown="return disableKeys(event)">
 
     <div id="lock-screen">
         <i class="fas fa-shield-alt" style="font-size: 80px; color: #dc3545; margin-bottom: 20px;"></i>
         <h2>SISTEM TERKUNCI</h2>
         <p>Hubungi Proktor untuk membuka (PIN F1).</p>
-        <input type="password" id="pin-f1" placeholder="PIN F1" style="padding: 12px; text-align: center; border-radius: 5px; border: none;">
-        <button onclick="unlock()" style="margin-top: 20px; padding: 10px 40px; background: #28a745; color: white; border: none; border-radius: 5px;">BUKA</button>
+        <input type="password" id="pin-f1" placeholder="PIN F1" style="padding: 12px; text-align: center; border-radius: 5px; border: none; font-size: 1.1rem;">
+        <button onclick="unlock()" style="margin-top: 20px; padding: 10px 40px; background: #28a745; color: white; border: none; border-radius: 5px; font-weight: bold;">BUKA</button>
     </div>
 
     <header>
-        <div style="font-weight: 800; color: var(--blue); font-size: 1.2rem;">SHA EXAMBRO</div>
-        <div id="user-info" style="text-align: right; font-size: 0.85rem;"></div>
+        <div style="display: flex; align-items: center;">
+            <img class="logo-img" src="https://via.placeholder.com/50?text=Logo" id="app-logo">
+            <div style="font-weight: 800; color: var(--blue); font-size: 1.2rem;">SHA EXAMBRO</div>
+        </div>
+        <div id="user-info" style="text-align: right; font-size: 0.9rem;"></div>
     </header>
 
     <div id="login-screen" style="display: flex; justify-content: center; align-items: center; height: 80vh;">
-        <div style="background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); width: 300px; text-align: center;">
-            <h3 style="color: var(--blue);">LOGIN SISWA</h3>
+        <div style="background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 25px rgba(0,0,0,0.1); width: 320px; text-align: center;">
+            <h3 style="color: var(--blue);">LOGIN PESERTA</h3>
             <input type="text" id="u" placeholder="Username" style="width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box;">
             <input type="password" id="p" placeholder="Password" style="width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box;">
             <button onclick="login()" style="width: 100%; padding: 12px; background: var(--blue); color: white; border: none; border-radius: 5px; font-weight: bold;">MASUK</button>
@@ -56,39 +62,40 @@
     <div id="exam-screen" style="display: none;">
         <div id="main-layout">
             <div class="question-area">
-                <div id="q-content">
+                <div id="q-box">
                     <div id="q-title" class="q-text"></div>
                     <div id="q-opts"></div>
                 </div>
                 <div class="footer">
                     <button class="btn" style="background: #6c757d; color: white;" onclick="move(-1)">KEMBALI</button>
                     <button class="btn" style="background: var(--yellow);" onclick="setRagu()">RAGU-RAGU</button>
-                    <button class="btn" style="background: var(--blue); color: white;" onclick="move(1)">SESUDAHNYA</button>
+                    <button class="btn" style="background: var(--blue); color: white;" onclick="move(1)">BERIKUTNYA</button>
                 </div>
             </div>
             <div class="sidebar">
-                <h4 style="margin: 0 0 10px 0;">Daftar Soal</h4>
+                <h4 style="margin: 0 0 10px 0;">Navigasi Soal</h4>
                 <div id="nav-grid" class="nav-grid"></div>
-                <div id="time-status" style="margin-top: 15px; font-size: 0.8rem; text-align: center; font-weight: bold;"></div>
+                <div id="time-status" style="margin-top: 15px; font-size: 0.8rem; color: #dc3545; font-weight: bold; text-align: center;"></div>
                 <button id="btn-finish" onclick="finish()">SELESAI & KIRIM</button>
             </div>
         </div>
     </div>
 
     <script>
-        const WEB_URL = "https://script.google.com/macros/s/AKfycbwmw_PIq9u_fkxNh2meT5oiIa2PmtdbRbCNb5ihAO0snQHczMdijdPr21r4lNF19CEtIg/exec"; 
+        const WEB_URL = "https://script.google.com/macros/s/AKfycbwEbi_naBeCkkRGmQlBufeZDdvnwEt8YHYQyrstnevlZSs7lEAOr-hphUKyZgN_pbFztg/exec"; 
         let questions = [], cur = 0, answers = {}, ragu = {}, student = {}, f1 = "", f2 = "", mapelNow = "", targetTime = "";
         let viol = 0, isTimeReady = false;
 
-        // PROTEKSI HP
-        document.addEventListener('contextmenu', e => e.preventDefault());
-        document.addEventListener('copy', e => e.preventDefault());
-        document.addEventListener('paste', e => e.preventDefault());
+        // PROTEKSI KEYBOARD
+        function disableKeys(e) {
+            if (e.ctrlKey && (e.key === 'c' || e.key === 'v' || e.key === 'u' || e.key === 's')) return false;
+            return true;
+        }
 
         window.onblur = () => {
             if (questions.length > 0 && localStorage.getItem("locked") !== "true") {
                 if (++viol >= 2) { localStorage.setItem("locked", "true"); location.reload(); }
-                else Swal.fire('PERINGATAN', 'Jangan keluar dari aplikasi!', 'warning');
+                else Swal.fire('PERINGATAN', 'Dilarang keluar aplikasi!', 'warning');
             }
         };
 
@@ -96,7 +103,6 @@
 
         async function login() {
             const user = document.getElementById('u').value, pass = document.getElementById('p').value;
-            if(!user || !pass) return;
             Swal.fire({title: 'Autentikasi...', didOpen: () => Swal.showLoading()});
             try {
                 const r = await fetch(`${WEB_URL}?action=login&user=${user}&pass=${pass}`);
@@ -106,28 +112,29 @@
                     document.getElementById('login-screen').style.display = 'none';
                     document.getElementById('user-info').innerHTML = `<b>${d.nama}</b><br>${d.ruang}`;
                     Swal.close(); loadMapel();
-                } else Swal.fire('Gagal', 'User atau Password salah', 'error');
+                } else Swal.fire('Gagal', 'Akun salah', 'error');
             } catch(e) { Swal.fire('Error', 'Koneksi database bermasalah', 'error'); }
         }
 
         async function loadMapel() {
             const r = await fetch(`${WEB_URL}?action=getMapel`);
             const m = await r.json();
-            let h = m.map(x => `<button onclick="checkToken('${x.link}','${x.token}','${x.nama}','${x.jam}')" style="display:block; width:100%; margin:10px 0; padding:15px; border:1px solid var(--blue); background:white; border-radius:8px; font-weight:bold; cursor:pointer;">${x.nama} (Selesai: ${x.jam})</button>`).join('');
-            Swal.fire({ title: 'Pilih Mata Pelajaran', html: h, showConfirmButton: false });
+            let h = m.map(x => `<button onclick="checkToken('${x.link}','${x.token}','${x.nama}','${x.jam}')" style="display:block; width:100%; margin:10px 0; padding:15px; border:1px solid var(--blue); background:white; border-radius:8px; font-weight:bold;">${x.nama} (Batas: ${x.jam})</button>`).join('');
+            Swal.fire({ title: 'Pilih Ujian', html: h, showConfirmButton: false });
         }
 
         function checkToken(link, token, nama, jam) {
             Swal.fire({ title: 'Masukkan Token', input: 'text' }).then(res => {
                 if (res.value === String(token)) { mapelNow = nama; targetTime = jam; start(link); }
-                else if(res.isConfirmed) Swal.fire('Token Salah', '', 'error');
             });
         }
 
         async function start(url) {
             Swal.fire({title: 'Memuat Soal...', didOpen: () => Swal.showLoading()});
             const r = await fetch(`${WEB_URL}?action=getQuestions&url=${encodeURIComponent(url)}`);
-            questions = await r.json();
+            const d = await r.json();
+            if(d.error) { Swal.fire('Gagal', d.error, 'error'); return; }
+            questions = d;
             Swal.close();
             document.getElementById('exam-screen').style.display = 'block';
             document.documentElement.requestFullscreen();
@@ -142,16 +149,16 @@
             const status = document.getElementById('time-status');
             if (current >= targetTime) {
                 isTimeReady = true; btn.style.background = "#28a745"; btn.style.cursor = "pointer";
-                status.innerHTML = "Akses kirim tersedia"; status.style.color = "#28a745";
+                status.innerHTML = "Selesai ujian tersedia"; status.style.color = "#28a745";
             } else {
                 isTimeReady = false; btn.style.background = "#6c757d"; btn.style.cursor = "not-allowed";
-                status.innerHTML = `Terkunci s/d ${targetTime}`; status.style.color = "#dc3545";
+                status.innerHTML = `Terkunci s/d jam ${targetTime}`; status.style.color = "#dc3545";
             }
         }
 
         function render() {
             const q = questions[cur];
-            document.getElementById('q-title').innerHTML = `<b>No. ${cur+1}</b> ${q.type === "CHECKBOX" ? "<br><small style='color:red;'>(Jawaban > 1)</small>" : ""}<br><br>${q.title}`;
+            document.getElementById('q-title').innerHTML = `<b>No. ${cur+1}</b> ${q.type === "CHECKBOX" ? "<br><small style='color:red;'>(Jawaban lebih dari satu)</small>" : ""}<br><br>${q.title}`;
             document.getElementById('q-opts').innerHTML = q.options.map((o, i) => {
                 let isSelected = (q.type === "CHECKBOX") ? (answers[cur] || []).includes(o) : (answers[cur] === o);
                 let icon = (q.type === "CHECKBOX") ? (isSelected ? 'fa-check-square' : 'fa-square') : (isSelected ? 'fa-dot-circle' : 'fa-circle');
@@ -160,7 +167,7 @@
             const g = document.getElementById('nav-grid');
             g.innerHTML = questions.map((_, i) => {
                 let c = (i === cur) ? 'active' : '';
-                if (answers[i] && (Array.isArray(answers[i]) ? answers[i].length > 0 : answers[i])) c += ' done';
+                if (answers[i] && (Array.isArray(answers[i]) ? answers[i].length > 1 || (Array.isArray(answers[i]) && answers[i].length==1) : answers[i])) c += ' done';
                 if (ragu[i]) c += ' ragu';
                 return `<div class="nav-n ${c}" onclick="cur=${i};render()">${i+1}</div>`;
             }).join('');
@@ -180,10 +187,10 @@
         function setRagu() { ragu[cur] = !ragu[cur]; render(); }
 
         async function finish() {
-            if (!isTimeReady) { Swal.fire('Belum Waktunya', `Baru bisa kirim pukul ${targetTime}`, 'warning'); return; }
+            if (!isTimeReady) { Swal.fire('Sabar', `Belum waktunya selesai (Jam ${targetTime})`, 'warning'); return; }
             Swal.fire({ title: 'Kirim Jawaban?', text: "Masukkan PIN F2", input: 'password' }).then(async res => {
                 if (res.value === String(f2)) {
-                    Swal.fire({title: 'Merekap Nilai...', didOpen: () => Swal.showLoading()});
+                    Swal.fire({title: 'Merekap...', didOpen: () => Swal.showLoading()});
                     let b = 0;
                     questions.forEach((q, i) => {
                         if (q.type === "CHECKBOX") {
@@ -192,15 +199,14 @@
                     });
                     const skor = (b / questions.length) * 100;
                     await fetch(`${WEB_URL}?action=submitSkor&nama=${student.nama}&ruang=${student.ruang}&mapel=${mapelNow}&skor=${skor}`);
-                    Swal.fire('Sukses', 'Jawaban terkirim!', 'success').then(() => location.reload());
+                    location.reload();
                 } else if(res.isConfirmed) Swal.fire('PIN Salah', '', 'error');
             });
         }
 
         function unlock() {
-            if (document.getElementById('pin-f1').value === String(f1)) {
-                localStorage.removeItem("locked"); location.reload();
-            } else Swal.fire('PIN Salah', '', 'error');
+            if (document.getElementById('pin-f1').value === String(f1)) { localStorage.removeItem("locked"); location.reload(); }
+            else Swal.fire('PIN Salah', '', 'error');
         }
     </script>
 </body>
