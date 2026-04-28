@@ -2,149 +2,209 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SHA EXAMBRO - V2</title>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPESHA EXAMBRO</title>
     <link rel="manifest" href="manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* MATIKAN SCROLL TARIK BAWAH (PULL TO REFRESH) */
-        html, body { 
-            overscroll-behavior-y: contain; 
-            overflow: hidden; 
-            position: fixed; 
-            width: 100%; 
-            height: 100%;
+        :root { --blue-primary: #0056b3; --blue-light: #007bff; --bg-gray: #f4f7f6; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: var(--bg-gray); user-select: none; overflow: hidden; }
+        
+        /* Header */
+        header { background: var(--blue-primary); color: white; padding: 10px 20px; display: flex; align-items: center; justify-content: center; gap: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        header img { height: 40px; width: 40px; }
+        header h1 { font-size: 1.5rem; margin: 0; letter-spacing: 1px; }
+
+        /* Login Container */
+        #login-page { display: flex; justify-content: center; align-items: center; height: 90vh; }
+        .login-box { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 350px; text-align: center; }
+        .login-box img { width: 80px; margin-bottom: 10px; }
+        .login-box h2 { margin: 5px 0; color: #333; font-size: 1.2rem; }
+        .login-box p { color: #666; margin-bottom: 20px; }
+        
+        .input-group { position: relative; margin-bottom: 15px; }
+        .input-group i { position: absolute; left: 15px; top: 12px; color: #aaa; }
+        .input-group input { width: 100%; padding: 12px 12px 12px 40px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; outline: none; }
+        
+        .btn-login { width: 100%; padding: 12px; background: var(--blue-light); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-login:hover { background: var(--blue-primary); }
+
+        /* Exam Interface */
+        #exam-page { display: none; height: 100vh; grid-template-columns: 1fr 300px; }
+        .main-content { padding: 20px; overflow-y: auto; background: white; position: relative; }
+        .sidebar { background: #f8f9fa; border-left: 1px solid #ddd; padding: 20px; display: flex; flex-direction: column; transition: 0.3s; }
+        
+        /* Question List */
+        .q-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 15px; }
+        .q-item { padding: 10px; text-align: center; border-radius: 5px; cursor: pointer; color: white; font-weight: bold; }
+        .q-red { background: #dc3545; }
+        .q-green { background: #28a745; }
+        .q-yellow { background: #ffc107; color: black; }
+
+        /* Footer Navigation */
+        .exam-footer { position: fixed; bottom: 0; left: 0; width: 100%; background: #eee; padding: 15px; display: flex; justify-content: center; gap: 20px; align-items: center; border-top: 1px solid #ccc; }
+        .btn-nav { padding: 10px 20px; border-radius: 5px; border: none; cursor: pointer; }
+        .btn-ragu { display: flex; align-items: center; gap: 8px; font-weight: bold; }
+
+        /* Fullscreen Lock Overlay */
+        #lock-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); color: white; z-index: 9999; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        
+        @media (max-width: 768px) {
+            #exam-page { grid-template-columns: 1fr; }
+            .sidebar { position: fixed; right: -300px; height: 100%; width: 250px; z-index: 100; }
+            .sidebar.active { right: 0; }
         }
-
-        :root { --blue: #1a73ce; --red: #d93025; --green: #28a745; --bg: #f8f9fa; }
-        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); user-select: none; -webkit-user-select: none; }
-
-        /* UI LAINNYA TETAP SAMA... */
-        .page { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; padding: 20px; box-sizing: border-box; }
-        #exam-page { display: none; height: 100vh; grid-template-rows: 60px 1fr 70px; background: white; }
-        header { background: white; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; border-bottom: 2px solid #eee; }
-        .main-soal { padding: 20px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-        /* CSS Opsi, Button, dsb (Gunakan yang sebelumnya) */
-        .opsi { padding: 15px; border: 2px solid #eee; border-radius: 12px; margin-bottom: 12px; display: flex; align-items: center; cursor: pointer; }
-        .opsi.active { border-color: var(--blue); background: #f0f7ff; }
-        .huruf-box { width: 30px; height: 30px; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-weight: bold; }
-        footer { padding: 10px; display: flex; gap: 10px; border-top: 1px solid #eee; }
-        .btn { flex: 1; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .btn-blue { background: var(--blue); color: white; }
-        #lock-screen { position: fixed; inset: 0; background: black; color: white; z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
     </style>
 </head>
-<body oncontextmenu="return false">
+<body>
 
-    <div id="login-page" class="page">
-        <div style="background:white; padding:30px; border-radius:20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width:100%; max-width:350px; text-align:center;">
-            <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" width="80">
-            <h3>SHA EXAMBRO</h3>
-            <input type="text" id="u" placeholder="NISN Siswa" style="width:100%; padding:12px; margin:10px 0; border:1px solid #ddd; border-radius:8px;">
-            <input type="password" id="p" placeholder="Password" style="width:100%; padding:12px; margin:10px 0; border:1px solid #ddd; border-radius:8px;">
-            <button class="btn btn-blue" onclick="doLogin()">LOGIN</button>
+    <div id="lock-overlay">
+        <h1>AKSES TERKUNCI</h1>
+        <p>Anda melakukan pelanggaran lebih dari 2 kali.<br>Hubungi Proktor untuk membuka kunci.</p>
+        <input type="password" id="proctor-unlock" placeholder="Kode Proktor" style="padding:10px; border-radius:5px; border:none; margin-top:20px;">
+        <button onclick="unlockApp()" style="margin-top:10px; padding:10px 20px; background:green; color:white; border:none; border-radius:5px;">Buka Kunci</button>
+    </div>
+
+    <header id="app-header">
+        <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" alt="Logo">
+        <h1>SPESHA EXAMBRO</h1>
+    </header>
+
+    <div id="login-page">
+        <div class="login-box">
+            <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" alt="App Icon">
+            <h2>SPESHA EXAMBRO</h2>
+            <p>Selamat Datang</p>
+            <div class="input-group">
+                <i class="fas fa-user"></i>
+                <input type="text" id="username" placeholder="Username">
+            </div>
+            <div class="input-group">
+                <i class="fas fa-key"></i>
+                <input type="password" id="password" placeholder="Password">
+            </div>
+            <button class="btn-login" onclick="attemptLogin()">Login</button>
         </div>
     </div>
 
-    <div id="exam-page">
-        <header>
-            <b id="timer" style="color:var(--red)">00:00</b>
-            <span id="shield-info" style="font-size:12px; color:var(--green)">🛡️ Mode Aman</span>
-            <button onclick="toggleDrawer()" style="background:#eee; border:none; padding:8px 12px; border-radius:5px;">Daftar Soal</button>
-        </header>
-        <main class="main-soal">
-            <b style="color:var(--blue)">Soal <span id="no-skrg">1</span></b>
-            <div id="tanya" style="font-size:18px; margin:15px 0; line-height:1.5;"></div>
-            <div id="opsi-list"></div>
-        </main>
-        <footer>
-            <button class="btn" style="background:#eee" onclick="prev()">Kembali</button>
-            <button class="btn btn-blue" onclick="next()">Lanjut</button>
-        </footer>
+    <div id="identity-page" style="display:none; text-align:center; padding:50px;">
+        <h2>Verifikasi Identitas</h2>
+        <p id="user-display"></p>
+        <div id="mapel-list" style="margin-top:20px;"></div>
     </div>
 
-    <div id="lock-screen">
-        <h2>APLIKASI TERKUNCI</h2>
-        <p>Anda mencoba keluar dari mode ujian!</p>
-        <input type="password" id="p-key" placeholder="Kode Proktor" style="padding:10px; border-radius:5px; border:none; margin-bottom:10px;"><br>
-        <button onclick="unlock()" class="btn-blue" style="padding:10px 30px; border-radius:5px; border:none;">BUKA</button>
+    <div id="exam-page">
+        <div class="main-content">
+            <iframe id="exam-frame" src="" style="width:100%; height:80vh; border:none;"></iframe>
+            <div class="exam-footer">
+                <button class="btn-nav" style="background:#6c757d; color:white;"><i class="fas fa-arrow-left"></i> Kembali</button>
+                <div class="btn-ragu">
+                    <input type="checkbox" id="check-ragu" onchange="toggleRagu()"> <label for="check-ragu">Ragu-ragu</label>
+                </div>
+                <button class="btn-nav" style="background:var(--blue-light); color:white;">Berikutnya <i class="fas fa-arrow-right"></i></button>
+                <button id="btn-kirim" class="btn-nav" style="background:green; color:white; display:none;" onclick="submitExam()">Kirim</button>
+            </div>
+        </div>
+        <div class="sidebar" id="sidebar">
+            <button onclick="document.getElementById('sidebar').classList.toggle('active')" style="align-self: flex-end;">Tutup X</button>
+            <h3>Daftar Soal</h3>
+            <div class="q-grid" id="q-grid">
+                </div>
+        </div>
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz5dxv9fvUzKrxQWH80ZECgh_bUGvrsf_VqqTSBBFHvC-3qVZBVA8SZ6JjZ44QyL20pSA/exec";
-        let listSoal = [], curr = 0, jawabanSiswa = {}, uData = {}, isStarted = false, vCount = 0;
+        let userData = {};
+        let violationCount = 0;
+        let scriptURL = "https://script.google.com/macros/s/AKfycbz5dxv9fvUzKrxQWH80ZECgh_bUGvrsf_VqqTSBBFHvC-3qVZBVA8SZ6JjZ44QyL20pSA/exec";
 
-        // CEK LOGIN
-        async function doLogin() {
-            const user = document.getElementById('u').value;
-            const pass = document.getElementById('p').value;
-            const res = await fetch(`${SCRIPT_URL}?action=login&user=${user}&pass=${pass}`);
-            const d = await res.json();
-            if(d.status === "success") {
-                uData = d;
-                document.getElementById('login-page').style.display = 'none';
-                loadMapels();
-            } else alert("Login Gagal!");
+        // Anti-Cheat: Fullscreen & Lock
+        function startKioskMode() {
+            document.documentElement.requestFullscreen().catch(e => console.log(e));
+            window.onblur = () => {
+                violationCount++;
+                if(violationCount >= 2) {
+                    document.getElementById('lock-overlay').style.display = 'flex';
+                } else {
+                    Swal.fire('Peringatan!', 'Dilarang keluar aplikasi! Pelanggaran: ' + violationCount + '/2', 'warning');
+                }
+            };
         }
 
-        async function loadMapels() {
-            const res = await fetch(`${SCRIPT_URL}?action=getMapel`);
-            const maps = await res.json();
-            // Buat pilihan mapel... (Sama seperti kode sebelumnya)
-            // Setelah pilih mapel, panggil start(m);
+        // Disable Copy-Paste & Right Click
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', e => {
+            if (e.ctrlKey && (e.key === 'c' || e.key === 'v' || e.key === 'u')) e.preventDefault();
+        });
+
+        async function attemptLogin() {
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            
+            // Simulasi fetch (ganti dengan fetch asli ke GAS)
+            // if response success:
+            startKioskMode();
+            document.getElementById('login-page').style.display = 'none';
+            document.getElementById('identity-page').style.display = 'block';
+            document.getElementById('user-display').innerText = "Nama: Budi Santoso | Kelas: 9A";
+            loadMapel();
         }
 
-        async function start(m) {
-            document.getElementById('exam-page').style.display = 'grid';
-            isStarted = true;
-            
-            // LOCK SCREEN LOGIC
-            document.documentElement.requestFullscreen().catch(() => {});
-            
-            // AMBIL SOAL
-            const res = await fetch(`${SCRIPT_URL}?action=getSoalForm&url=${encodeURIComponent(m.url)}`);
-            const data = await res.json();
-            if(data.error) {
-                alert(data.error);
-            } else {
-                listSoal = data;
-                render();
-                initSecurity();
+        function loadMapel() {
+            // Fetch mapel dari GAS
+            const mapelContainer = document.getElementById('mapel-list');
+            const mapelDummy = [{name: "Matematika", token: "MTK123", time: "08:00"}];
+            mapelDummy.forEach(m => {
+                const btn = document.createElement('button');
+                btn.innerText = m.name;
+                btn.className = "btn-login";
+                btn.onclick = () => startExam(m);
+                mapelContainer.appendChild(btn);
+            });
+        }
+
+        function startExam(mapel) {
+            Swal.fire({
+                title: 'Masukkan Token',
+                input: 'text',
+                showCancelButton: true
+            }).then(res => {
+                if(res.value === mapel.token) {
+                    document.getElementById('identity-page').style.display = 'none';
+                    document.getElementById('exam-page').style.display = 'grid';
+                    document.getElementById('exam-frame').src = "https://docs.google.com/forms/d/e/.../viewform?embedded=true";
+                    initQuestionList();
+                } else {
+                    Swal.fire('Error', 'Token Salah!', 'error');
+                }
+            });
+        }
+
+        function initQuestionList() {
+            const grid = document.getElementById('q-grid');
+            for(let i=1; i<=20; i++) {
+                const div = document.createElement('div');
+                div.className = "q-item q-red";
+                div.innerText = i;
+                grid.appendChild(div);
             }
         }
 
-        function initSecurity() {
-            // DETEKSI PINDAH TAB / MINIMIZE
-            window.onblur = () => {
-                if(isStarted) {
-                    vCount++;
-                    if(vCount >= 2) {
-                        document.getElementById('lock-screen').style.display = 'flex';
-                    } else {
-                        alert("PERINGATAN! Jangan keluar aplikasi!");
-                        document.documentElement.requestFullscreen();
-                    }
-                }
-            };
-
-            // MATIKAN BACK BUTTON (Hanya berfungsi di Mode PWA/Standalone)
-            window.history.pushState(null, null, window.location.href);
-            window.onpopstate = function() {
-                window.history.go(1);
-            };
+        function toggleRagu() {
+            const activeQ = document.querySelector('.q-item'); // Simulasi
+            if(document.getElementById('check-ragu').checked) {
+                activeQ.className = "q-item q-yellow";
+            }
         }
 
-        function render() {
-            const s = listSoal[curr];
-            document.getElementById('no-skrg').innerText = curr + 1;
-            document.getElementById('tanya').innerText = s.tanya;
-            // Gambar opsi... (Sama seperti kode sebelumnya)
+        function unlockApp() {
+            const code = document.getElementById('proctor-unlock').value;
+            if(code === "PROKTOR2026") { // Ganti dengan data dari sheet
+                violationCount = 0;
+                document.getElementById('lock-overlay').style.display = 'none';
+            }
         }
-        
-        // Fungsi next, prev, unlock tetap sama...
     </script>
 </body>
 </html>
