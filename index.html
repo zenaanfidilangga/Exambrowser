@@ -9,178 +9,193 @@
     <style>
         :root { --primary: #0056b3; --secondary: #007bff; --danger: #dc3545; --success: #28a745; --bg: #f4f7f9; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; background: var(--bg); overflow: hidden; user-select: none; }
-        header { background: var(--primary); color: white; padding: 15px 25px; display: flex; align-items: center; justify-content: space-between; }
-        .logo-area { display: flex; align-items: center; gap: 15px; }
+        
+        /* HEADER - Menjaga Logo Tetap Ada */
+        header { background: var(--primary); color: white; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .logo-area { display: flex; align-items: center; gap: 10px; }
         .logo-area img { height: 40px; }
-        .full-center { display: flex; justify-content: center; align-items: center; height: 85vh; padding: 20px; }
-        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 350px; text-align: center; }
+        .logo-area h1 { font-size: 1.1rem; margin: 0; text-transform: uppercase; }
+
+        /* CONTAINER LOGIN */
+        .container-center { display: flex; justify-content: center; align-items: center; height: 85vh; }
+        .login-card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 350px; text-align: center; }
         .input-group { position: relative; margin-bottom: 15px; }
-        .input-group i { position: absolute; left: 15px; top: 14px; color: #aaa; }
-        .input-group input { width: 100%; padding: 12px 10px 12px 40px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .btn-block { width: 100%; padding: 12px; background: var(--secondary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        #subject-page, #exam-page, #persistent-lock { display: none; }
-        #persistent-lock { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; color: white; flex-direction: column; justify-content: center; align-items: center; }
-        .grid-mapel { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; padding: 20px; }
-        .card-mapel { background: white; padding: 20px; border-radius: 10px; border-bottom: 4px solid var(--primary); cursor: pointer; text-align: center; }
-        #exam-page { height: 100vh; grid-template-columns: 1fr 300px; }
+        .input-group i { position: absolute; left: 12px; top: 12px; color: #888; }
+        .input-group input { width: 100%; padding: 10px 10px 10px 35px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        .btn-blue { width: 100%; padding: 12px; background: var(--secondary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+
+        /* DAFTAR MAPEL */
+        #subject-page { display: none; padding: 20px; text-align: center; height: 100vh; overflow-y: auto; }
+        .grid-mapel { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 20px; }
+        .card-mapel { background: white; padding: 20px; border-radius: 10px; border-bottom: 5px solid var(--primary); cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+
+        /* HALAMAN UJIAN */
+        #exam-page { display: none; height: 100vh; grid-template-columns: 1fr 280px; }
         iframe { width: 100%; height: 100%; border: none; }
-        .sidebar { background: #f0f0f0; padding: 15px; display: flex; flex-direction: column; border-left: 1px solid #ccc; }
+        .sidebar { background: #f8f9fa; border-left: 1px solid #ddd; padding: 15px; display: flex; flex-direction: column; }
         .q-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin-top: 10px; }
-        .q-box { height: 35px; border: 1px solid #999; display: flex; align-items: center; justify-content: center; background: white; font-weight: bold; font-size: 0.8rem; }
+        .q-item { height: 35px; border: 1px solid #bbb; display: flex; align-items: center; justify-content: center; background: white; font-weight: bold; font-size: 0.8rem; border-radius: 4px; }
+
+        /* KUNCI PELANGGARAN */
+        #lock-screen { 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #000; z-index: 10000; color: white; 
+            flex-direction: column; justify-content: center; align-items: center; text-align: center; 
+        }
     </style>
 </head>
-<body onload="initCheck()">
+<body onload="checkStatus()">
 
-    <div id="persistent-lock">
-        <i class="fas fa-lock" style="font-size: 80px; color: var(--danger);"></i>
-        <h2>AKSES DIBLOKIR</h2>
-        <p>Terdeteksi Pelanggaran. Hubungi Proktor.</p>
-        <input type="password" id="p-unlock-code" placeholder="PIN PROKTOR" style="padding: 10px; border-radius: 5px; border: none; margin: 10px;">
-        <button onclick="masterUnlock()" style="padding: 10px 20px; background: var(--success); color: white; border: none; border-radius: 5px;">BUKA</button>
+    <div id="lock-screen">
+        <i class="fas fa-exclamation-triangle" style="font-size: 70px; color: #ffc107; margin-bottom: 20px;"></i>
+        <h1>PERANGKAT TERKUNCI</h1>
+        <p>Anda melanggar aturan kejujuran. Hubungi proktor.</p>
+        <div style="margin-top: 20px;">
+            <input type="password" id="pin-proktor" placeholder="Kode Proktor" style="padding: 10px; border-radius: 5px; border: none; text-align: center;">
+            <br><br>
+            <button onclick="bukaKunci()" class="btn-blue" style="background: var(--success); width: auto; padding: 10px 30px;">BUKA AKSES</button>
+        </div>
     </div>
 
-    <header id="app-header">
+    <header id="main-header">
         <div class="logo-area">
             <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" alt="Logo">
-            <h1 style="font-size: 1.2rem; margin:0;">SPESHA EXAMBRO</h1>
+            <h1>SPESHA EXAMBRO</h1>
         </div>
-        <div id="user-display" style="font-size: 0.9rem; font-weight: bold;"></div>
+        <div id="info-siswa" style="font-weight: bold; font-size: 0.9rem;"></div>
     </header>
 
-    <div id="login-page" class="full-center">
-        <div class="card">
+    <div id="login-page" class="container-center">
+        <div class="login-card">
+            <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" width="80" style="margin-bottom: 15px;">
             <h3>SISWA LOGIN</h3>
-            <div class="input-group">
-                <i class="fas fa-user"></i>
-                <input type="text" id="u-name" placeholder="Username">
-            </div>
-            <div class="input-group">
-                <i class="fas fa-key"></i>
-                <input type="password" id="u-pass" placeholder="Password">
-            </div>
-            <button class="btn-block" onclick="processLogin()">MASUK</button>
+            <div class="input-group"><i class="fas fa-user"></i><input type="text" id="user" placeholder="Username"></div>
+            <div class="input-group"><i class="fas fa-key"></i><input type="password" id="pass" placeholder="Password"></div>
+            <button class="btn-blue" onclick="doLogin()">MASUK</button>
         </div>
     </div>
 
     <div id="subject-page">
-        <h3 style="margin-top:20px; text-align:center;">PILIH MATA PELAJARAN</h3>
-        <div class="grid-mapel" id="list-mapel-container"></div>
+        <h3>DAFTAR UJIAN AKTIF</h3>
+        <div class="grid-mapel" id="mapel-list"></div>
     </div>
 
     <div id="exam-page">
-        <div style="display:flex; flex-direction:column; background: white;">
-            <iframe id="frame-soal" src=""></iframe>
-            <div style="padding:10px; background:#ddd; display:flex; justify-content: space-between;">
-                <button disabled>Sebelumnya</button>
-                <button disabled>Berikutnya</button>
+        <div style="display: flex; flex-direction: column;">
+            <iframe id="frame-soal"></iframe>
+            <div style="padding: 10px; background: #eee; text-align: center; border-top: 1px solid #ccc;">
+                <b>Gunakan navigasi di dalam Google Form untuk menjawab</b>
             </div>
         </div>
         <div class="sidebar">
             <h4 style="margin:0;">Nomor Soal</h4>
-            <div id="nomor-soal-grid" class="q-grid"></div>
-            <button onclick="confirmSelesai()" style="margin-top:auto; padding:15px; background:var(--success); color:white; border:none; border-radius:5px; font-weight:bold;">SELESAI</button>
+            <div id="grid-nomor" class="q-grid"></div>
+            <button onclick="keluarUjian()" style="margin-top: auto; padding: 15px; background: var(--success); color: white; border: none; border-radius: 8px; font-weight: bold;">SELESAI</button>
         </div>
     </div>
 
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz5dxv9fvUzKrxQWH80ZECgh_bUGvrsf_VqqTSBBFHvC-3qVZBVA8SZ6JjZ44QyL20pSA/exec";
-        let masterProctorCode = "1234";
-        let currentSiswa = null;
-        let violations = 0;
+        // --- GANTI URL DI SINI ---
+        const WEB_URL = "https://script.google.com/macros/s/AKfycbzRYcz2pOem1qu06ajjzpXPQdU5CBaCAX-ZE_aUCAJAwoK8MfoJanxSRec-p_RNd2XdFQ/exec"; 
+        
+        let proktorMaster = "1234";
+        let isSiswaLoggedIn = false;
+        let countSalah = 0;
 
-        function initCheck() {
-            if (localStorage.getItem("isLocked") === "true") {
-                document.getElementById('persistent-lock').style.display = 'flex';
+        function checkStatus() {
+            if (localStorage.getItem("terkunci") === "true") {
+                document.getElementById('lock-screen').style.display = 'flex';
             }
         }
 
+        // DETEKSI KELUAR APLIKASI
         window.onblur = function() {
-            if (currentSiswa) {
-                violations++;
-                if (violations >= 2) {
-                    localStorage.setItem("isLocked", "true");
-                    document.getElementById('persistent-lock').style.display = 'flex';
+            if (isSiswaLoggedIn) {
+                countSalah++;
+                if (countSalah >= 2) {
+                    localStorage.setItem("terkunci", "true");
+                    document.getElementById('lock-screen').style.display = 'flex';
                 } else {
-                    Swal.fire('Peringatan!', 'Dilarang keluar aplikasi!', 'warning');
+                    Swal.fire('PERINGATAN!', 'Jangan keluar dari aplikasi!', 'warning');
                 }
             }
         };
 
-        function masterUnlock() {
-            const code = document.getElementById('p-unlock-code').value;
-            if (String(code).trim() === String(masterProctorCode).trim()) {
-                localStorage.removeItem("isLocked");
-                violations = 0;
+        function bukaKunci() {
+            const p = document.getElementById('pin-proktor').value;
+            if (String(p).trim() === String(proktorMaster).trim()) {
+                localStorage.removeItem("terkunci");
                 location.reload();
             } else {
-                Swal.fire('Gagal', 'PIN Salah', 'error');
+                Swal.fire('SALAH', 'Kode Proktor Tidak Valid', 'error');
             }
         }
 
-        async function processLogin() {
-            const u = document.getElementById('u-name').value;
-            const p = document.getElementById('u-pass').value;
-            if(!u || !p) return Swal.fire('Isi Data','','info');
-            
-            Swal.fire({title:'Menghubungkan...', didOpen:()=>Swal.showLoading()});
+        async function doLogin() {
+            const u = document.getElementById('user').value;
+            const p = document.getElementById('pass').value;
+            if(!u || !p) return;
+
+            Swal.fire({title: 'Memproses...', didOpen: () => Swal.showLoading()});
             try {
-                const res = await fetch(`${WEB_APP_URL}?action=login&user=${u}&pass=${p}`);
+                const res = await fetch(`${WEB_URL}?action=login&user=${u}&pass=${p}`);
                 const data = await res.json();
-                if(data.status === "success") {
-                    currentSiswa = data;
-                    masterProctorCode = data.proctorCode;
+                if (data.status === "success") {
+                    isSiswaLoggedIn = true;
+                    proktorMaster = data.proctorCode;
                     document.getElementById('login-page').style.display = 'none';
                     document.getElementById('subject-page').style.display = 'block';
-                    document.getElementById('user-display').innerText = data.nama;
+                    document.getElementById('info-siswa').innerText = data.nama;
                     Swal.close();
                     loadMapel();
                 } else {
-                    Swal.fire('Gagal','User/Pass Salah','error');
+                    Swal.fire('GAGAL', 'Akun tidak ditemukan', 'error');
                 }
-            } catch(e) { Swal.fire('Error','Cek Koneksi / Apps Script','error'); }
+            } catch (e) { Swal.fire('Error', 'Cek koneksi/URL Script', 'error'); }
         }
 
         async function loadMapel() {
-            const cont = document.getElementById('list-mapel-container');
-            const res = await fetch(`${WEB_APP_URL}?action=getMapel`);
-            const items = await res.json();
-            cont.innerHTML = "";
-            items.forEach(m => {
+            const list = document.getElementById('mapel-list');
+            const res = await fetch(`${WEB_URL}?action=getMapel`);
+            const mapels = await res.json();
+            list.innerHTML = "";
+            mapels.forEach(m => {
                 const d = document.createElement('div');
                 d.className = "card-mapel";
                 d.innerHTML = `<strong>${m.nama}</strong><br><small>${m.jam}</small>`;
                 d.onclick = () => {
-                    Swal.fire({title:'Token', input:'text', showCancelButton:true}).then(r => {
-                        if(r.isConfirmed){
-                            const s1 = String(r.value).trim().toLowerCase();
-                            const s2 = String(m.token).trim().toLowerCase();
-                            if(s1 === s2) startExam(m.link);
-                            else Swal.fire('Salah','','error');
+                    Swal.fire({title: 'Token', input: 'text', showCancelButton: true}).then(r => {
+                        if (r.isConfirmed) {
+                            const tIn = String(r.value).trim().toLowerCase();
+                            const tReal = String(m.token).trim().toLowerCase();
+                            if (tIn === tReal) mulaiUjian(m.link);
+                            else Swal.fire('Token Salah', '', 'error');
                         }
                     });
                 };
-                cont.appendChild(d);
+                list.appendChild(d);
             });
         }
 
-        function startExam(link) {
-            let finalLink = link.replace("/edit", "/viewform");
+        function mulaiUjian(link) {
+            let cleanLink = link.replace("/edit", "/viewform");
             document.getElementById('subject-page').style.display = 'none';
-            document.getElementById('app-header').style.display = 'none';
+            document.getElementById('main-header').style.display = 'none';
             document.getElementById('exam-page').style.display = 'grid';
-            document.getElementById('frame-soal').src = finalLink;
-            const grid = document.getElementById('nomor-soal-grid');
+            document.getElementById('frame-soal').src = cleanLink;
+            
+            const grid = document.getElementById('grid-nomor');
             for(let i=1; i<=40; i++) {
                 let n = document.createElement('div');
-                n.className = "q-box"; n.innerText = i;
+                n.className = "q-item"; n.innerText = i;
                 grid.appendChild(n);
             }
+            document.documentElement.requestFullscreen().catch(()=>{});
         }
 
-        function confirmSelesai() {
-            Swal.fire({title:'Selesai?', showCancelButton:true}).then(r => {
-                if(r.isConfirmed) location.reload();
-            });
+        function keluarUjian() {
+            Swal.fire({title: 'Selesai?', text: 'Pastikan kirim jawaban di form.', showCancelButton: true})
+            .then(r => { if(r.isConfirmed) location.reload(); });
         }
         document.addEventListener('contextmenu', e => e.preventDefault());
     </script>
