@@ -3,38 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHA EXAMBRO - SMP SHALAHUDDIN</title>
+    <title>SHA EXAMBRO - SPESHA</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { --blue: #0056b3; --bg: #f4f7f9; }
-        body { margin: 0; padding: 0; background: var(--bg); font-family: 'Segoe UI', sans-serif; overflow: hidden; }
-        
-        /* HEADER */
+        body { margin: 0; padding: 0; background: var(--bg); font-family: 'Segoe UI', sans-serif; overflow: hidden; user-select: none; -webkit-user-select: none; }
         header { background: #fff; height: 65px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 4px solid var(--blue); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .logo-box { display: flex; align-items: center; gap: 10px; }
         .logo-img { height: 45px; width: auto; }
-        
-        /* IFRAME */
         #exam-area { display: none; height: calc(100vh - 65px); width: 100%; }
         iframe { width: 100%; height: 100%; border: none; }
-
-        /* LOGIN & LOCK */
-        #lock-screen { display:none; position:fixed; inset:0; background:black; z-index:10000; color:white; flex-direction:column; justify-content:center; align-items:center; text-align:center; }
-        .login-card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 350px; text-align: center; }
-        
-        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1.5px solid #ddd; border-radius: 10px; font-size: 1rem; }
+        #lock-screen { display:none; position:fixed; inset:0; background:black; z-index:10000; color:white; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding: 20px; }
+        .login-card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 350px; text-align: center; }
+        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1.5px solid #ddd; border-radius: 10px; font-size: 1rem; outline: none; box-sizing: border-box; }
         .btn-primary { width: 100%; padding: 12px; background: var(--blue); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body oncontextmenu="return false">
 
     <div id="lock-screen">
-        <i class="fas fa-user-lock" style="font-size: 50px; color: #dc3545; margin-bottom: 20px;"></i>
+        <i class="fas fa-user-lock" style="font-size: 60px; color: #dc3545; margin-bottom: 20px;"></i>
         <h2>SISTEM TERKUNCI</h2>
-        <p>Anda terdeteksi keluar dari aplikasi.<br>Silakan hubungi Proktor untuk membuka akses.</p>
-        <input type="password" id="pin-f1" placeholder="PIN PROKTOR" style="width: 200px; text-align: center;">
-        <button onclick="unlock()" class="btn-primary" style="width: 200px; background: #28a745;">BUKA AKSES</button>
+        <p style="color:#ccc; margin-bottom:20px;">Pelanggaran terdeteksi (Keluar Aplikasi).<br>Masukkan PIN PROKTOR untuk membuka.</p>
+        <input type="password" id="pin-input" placeholder="PIN F1" style="width: 220px; text-align: center; background: #222; color: white; border: 1px solid #444;">
+        <button onclick="unlock()" class="btn-primary" style="width: 220px; background: #28a745;">BUKA AKSES</button>
     </div>
 
     <header id="main-header">
@@ -45,15 +38,16 @@
                 <small style="color: #666; font-size: 0.7rem;">SMP SHALAHUDDIN MALANG</small>
             </div>
         </div>
-        <div id="user-display" style="text-align: right; font-size: 0.85rem; font-weight: bold; color: #333;"></div>
+        <div id="user-display" style="text-align: right; font-size: 0.85rem; font-weight: bold;"></div>
     </header>
 
-    <div id="login-area" style="display: flex; justify-content: center; align-items: center; height: calc(100vh - 150px);">
+    <div id="login-area" style="display: flex; justify-content: center; align-items: center; height: 80vh;">
         <div class="login-card">
-            <h3 style="margin-top: 0; color: var(--blue);">LOGIN PESERTA</h3>
+            <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" style="height: 70px; margin-bottom: 15px;">
+            <h3 style="margin: 0 0 20px 0; color: var(--blue);">LOGIN PESERTA</h3>
             <input type="text" id="u" placeholder="Username">
             <input type="password" id="p" placeholder="Password">
-            <button onclick="login()" class="btn-primary">MASUK SISTEM</button>
+            <button onclick="login()" class="btn-primary">MASUK</button>
         </div>
     </div>
 
@@ -62,24 +56,24 @@
     </div>
 
     <script>
-        const WEB_URL = "https://script.google.com/macros/s/AKfycbxr36rJKPOCusxmZl60Z7RI2HKuChDwd3XSzItyeZ4Koenp2_nN4mNlEr0oNkePn8Sewg/exec"; // Ganti dengan URL /exec Bapak
-        let f1 = "", viol = 0;
+        const WEB_URL = "https://script.google.com/macros/s/AKfycbxr36rJKPOCusxmZl60Z7RI2HKuChDwd3XSzItyeZ4Koenp2_nN4mNlEr0oNkePn8Sewg/exec"; // PASTI GUNAKAN LINK /exec TERBARU
+        let pin_f1 = "", viol = 0;
 
         async function login() {
             const user = document.getElementById('u').value, pass = document.getElementById('p').value;
             if(!user || !pass) return;
-            Swal.fire({title: 'Verifikasi Data...', didOpen: () => Swal.showLoading()});
+            Swal.fire({title: 'Memproses...', didOpen: () => Swal.showLoading()});
             try {
-                const r = await fetch(`${WEB_URL}?action=login&user=${user}&pass=${pass}`);
+                const r = await fetch(`${WEB_URL}?action=login&user=${encodeURIComponent(user)}&pass=${encodeURIComponent(pass)}`);
                 const d = await r.json();
                 if (d.status === "success") {
-                    f1 = d.f1;
+                    pin_f1 = String(d.f1).trim(); // Menyimpan PIN F1 secara lokal
                     document.getElementById('login-area').style.display = 'none';
-                    document.getElementById('user-display').innerHTML = `<i class="fas fa-user-circle"></i> ${d.nama}<br><span style="font-weight:normal; color:#666;">${d.ruang}</span>`;
+                    document.getElementById('user-display').innerHTML = `<i class="fas fa-user-circle"></i> ${d.nama}<br>${d.ruang}`;
                     Swal.close();
                     loadMapel();
-                } else Swal.fire('Gagal', 'Username atau Password salah!', 'error');
-            } catch(e) { Swal.fire('Error', 'Gagal terhubung ke database sekolah.', 'error'); }
+                } else Swal.fire('Gagal', 'Username/Password Salah', 'error');
+            } catch(e) { Swal.fire('Error', 'Koneksi database bermasalah', 'error'); }
         }
 
         async function loadMapel() {
@@ -89,61 +83,43 @@
                 <button onclick="startExam('${x.link}','${x.token}')" style="display:block; width:100%; margin:10px 0; padding:15px; border:2px solid var(--blue); background:white; border-radius:12px; font-weight:bold; color:var(--blue); text-align:left;">
                     <i class="fas fa-file-signature"></i> ${x.nama}
                 </button>`).join('');
-            Swal.fire({ 
-                title: 'Pilih Mata Pelajaran', 
-                html: `<div style="max-height:300px; overflow-y:auto">${h}</div>`, 
-                showConfirmButton: false,
-                allowOutsideClick: false 
-            });
+            Swal.fire({ title: 'Pilih Mapel', html: `<div style="max-height:300px; overflow-y:auto">${h}</div>`, showConfirmButton: false, allowOutsideClick: false });
         }
 
         function startExam(url, token) {
-            Swal.fire({ title: 'Token Ujian', input: 'text', inputPlaceholder: 'Masukkan token dari pengawas...' }).then(res => {
+            Swal.fire({ title: 'Token Ujian', input: 'text' }).then(res => {
                 if (res.value === String(token)) {
-                    // Membersihkan URL agar bisa dibuka di iframe
                     let finalUrl = url.includes("viewform") ? url : `https://docs.google.com/forms/d/${url}/viewform`;
                     document.getElementById('google-form-frame').src = finalUrl;
                     document.getElementById('exam-area').style.display = 'block';
-                    
-                    // Request Fullscreen agar navigasi HP tertutup
                     if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
-                } else if(res.isConfirmed) {
-                    Swal.fire('Token Salah', 'Silakan cek kembali token Anda.', 'error');
-                }
+                } else if(res.isConfirmed) Swal.fire('Token Salah', '', 'error');
             });
         }
 
-        // --- SISTEM KEAMANAN (ANTI-CURANG) ---
+        function unlock() {
+            const input = document.getElementById('pin-input').value.trim();
+            if (input === pin_f1 && pin_f1 !== "") {
+                localStorage.removeItem("locked");
+                location.reload();
+            } else {
+                Swal.fire('Salah', 'PIN Proktor tidak valid', 'error');
+            }
+        }
+
         window.onblur = () => {
             if (document.getElementById('exam-area').style.display === 'block' && localStorage.getItem("locked") !== "true") {
                 viol++;
-                if (viol >= 2) {
-                    localStorage.setItem("locked", "true");
-                    location.reload();
+                if (viol >= 2) { 
+                    localStorage.setItem("locked", "true"); 
+                    location.reload(); 
                 } else {
-                    Swal.fire({
-                        title: 'PERINGATAN!',
-                        text: 'Dilarang keluar dari aplikasi ujian! Satu kali lagi Anda keluar, sistem akan terkunci otomatis.',
-                        icon: 'warning',
-                        confirmButtonText: 'SAYA MENGERTI'
-                    });
+                    Swal.fire('PERINGATAN!', 'Dilarang keluar aplikasi atau membuka notifikasi!', 'warning');
                 }
             }
         };
 
-        function unlock() {
-            if (document.getElementById('pin-f1').value === String(f1)) { 
-                localStorage.removeItem("locked"); 
-                location.reload(); 
-            } else {
-                Swal.fire('PIN Salah', 'PIN Proktor tidak valid.', 'error');
-            }
-        }
-
-        // Cek status kunci saat halaman dimuat
-        if (localStorage.getItem("locked") === "true") {
-            document.getElementById('lock-screen').style.display = 'flex';
-        }
+        if (localStorage.getItem("locked") === "true") document.getElementById('lock-screen').style.display = 'flex';
     </script>
 </body>
 </html>
