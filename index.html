@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>SHA EXAMBRO - SPESHA</title>
+    <title>SHA EXAMBRO - CBT SPESHA</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -14,41 +14,62 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        :root { --blue: #0056b3; --bg: #f4f7f9; }
-        body { margin: 0; padding: 0; background: var(--bg); font-family: sans-serif; overflow: hidden; user-select: none; -webkit-user-select: none; }
-        header { background: #fff; height: 65px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 4px solid var(--blue); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .logo-box { display: flex; align-items: center; gap: 10px; }
-        .logo-img { height: 40px; }
-        #exam-area { display: none; height: calc(100vh - 65px); width: 100%; }
+        :root { --blue: #0056b3; --red: #dc3545; --bg: #f4f7f9; }
+        body { margin: 0; padding: 0; background: var(--bg); font-family: 'Segoe UI', Roboto, sans-serif; overflow: hidden; user-select: none; -webkit-user-select: none; }
+        
+        /* HEADER & IDENTITAS */
+        header { background: #fff; height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 4px solid var(--blue); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .logo-box { display: flex; align-items: center; gap: 12px; }
+        .logo-img { height: 50px; width: auto; }
+        .identitas-text { line-height: 1.2; }
+        
+        /* TOMBOL KELUAR PRESISI */
+        .btn-exit-nav { 
+            display: inline-flex; align-items: center; gap: 5px; 
+            margin-top: 4px; padding: 4px 10px; 
+            background: var(--red); color: white; border: none; 
+            border-radius: 4px; font-size: 10px; font-weight: bold; 
+            cursor: pointer; text-decoration: none;
+        }
+
+        #exam-area { display: none; height: calc(100vh - 80px); width: 100%; }
         iframe { width: 100%; height: 100%; border: none; }
+        
         #lock-screen { display:none; position:fixed; inset:0; background:black; z-index:10000; color:white; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding: 20px; }
-        .login-card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 320px; text-align: center; }
-        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1.5px solid #ddd; border-radius: 10px; font-size: 1rem; box-sizing: border-box; }
+        
+        .login-card { background: white; padding: 35px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 320px; text-align: center; }
+        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1.5px solid #ddd; border-radius: 10px; font-size: 1rem; box-sizing: border-box; outline: none; }
         .btn-primary { width: 100%; padding: 12px; background: var(--blue); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body oncontextmenu="return false">
 
     <div id="lock-screen">
-        <i class="fas fa-user-lock" style="font-size: 50px; color: #dc3545; margin-bottom: 20px;"></i>
+        <i class="fas fa-user-lock" style="font-size: 50px; color: var(--red); margin-bottom: 20px;"></i>
         <h2>SISTEM TERKUNCI</h2>
-        <p>Terdeteksi keluar dari aplikasi.<br>Masukkan PIN F1 dari Proktor.</p>
-        <input type="password" id="pin-input" placeholder="PIN PROKTOR" style="width: 220px; text-align: center; background: #222; color: white; border: 1px solid #444;">
-        <button onclick="unlock()" class="btn-primary" style="width: 220px; background: #28a745;">BUKA AKSES</button>
+        <p>Terdeteksi keluar dari aplikasi.<br>Hubungi Proktor untuk membuka.</p>
+        <input type="password" id="pin-f1-input" placeholder="PIN F1" style="width: 200px; text-align: center; background: #222; color: white; border: 1px solid #444;">
+        <button onclick="unlockF1()" class="btn-primary" style="width: 200px; background: #28a745;">BUKA AKSES</button>
     </div>
 
-    <header id="main-header">
+    <header>
         <div class="logo-box">
             <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" class="logo-img">
-            <b style="color: var(--blue);">SHA EXAMBRO</b>
+            <div class="identitas-text">
+                <b style="color: var(--blue); font-size: 1rem;">SHA EXAMBRO</b><br>
+                <small id="student-name" style="color: #666; font-size: 0.8rem;">Selamat Datang</small><br>
+                <button id="nav-exit" class="btn-exit-nav" style="display:none;" onclick="confirmExit()">
+                    <i class="fas fa-power-off"></i> KELUAR APLIKASI
+                </button>
+            </div>
         </div>
-        <div id="user-display" style="font-size: 0.8rem; font-weight: bold; text-align: right;"></div>
+        <div id="ruang-display" style="font-weight: bold; font-size: 0.85rem; text-align: right; color: var(--blue);"></div>
     </header>
 
-    <div id="login-area" style="display: flex; justify-content: center; align-items: center; height: 80vh;">
+    <div id="login-area" style="display: flex; justify-content: center; align-items: center; height: 70vh;">
         <div class="login-card">
-            <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" style="height: 60px; margin-bottom: 15px;">
-            <h3 style="margin-top:0; color: var(--blue);">LOGIN UJIAN</h3>
+            <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" height="60" style="margin-bottom:15px;">
+            <h3 style="margin:0 0 20px 0; color: var(--blue);">LOGIN PESERTA</h3>
             <input type="text" id="u" placeholder="Username">
             <input type="password" id="p" placeholder="Password">
             <button onclick="login()" class="btn-primary">MASUK</button>
@@ -60,7 +81,7 @@
     </div>
 
     <script>
-        const WEB_URL = "https://script.google.com/macros/s/AKfycbxr36rJKPOCusxmZl60Z7RI2HKuChDwd3XSzItyeZ4Koenp2_nN4mNlEr0oNkePn8Sewg/exec"; // GANTI DENGAN LINK /exec BARU
+        const WEB_URL = "https://script.google.com/macros/s/AKfycbxr36rJKPOCusxmZl60Z7RI2HKuChDwd3XSzItyeZ4Koenp2_nN4mNlEr0oNkePn8Sewg/exec"; // Masukkan link /exec terbaru Bapak
 
         async function login() {
             const user = document.getElementById('u').value, pass = document.getElementById('p').value;
@@ -71,17 +92,19 @@
                 const d = await r.json();
                 if (d.status === "success") {
                     document.getElementById('login-area').style.display = 'none';
-                    document.getElementById('user-display').innerHTML = `${d.nama}<br>${d.ruang}`;
+                    document.getElementById('student-name').innerText = d.nama;
+                    document.getElementById('ruang-display').innerText = d.ruang;
+                    document.getElementById('nav-exit').style.display = 'inline-flex';
                     Swal.close();
                     loadMapel();
                 } else Swal.fire('Gagal', 'Akun tidak ditemukan', 'error');
-            } catch(e) { Swal.fire('Error', 'Gagal hubungi server', 'error'); }
+            } catch(e) { Swal.fire('Error', 'Koneksi database bermasalah', 'error'); }
         }
 
         async function loadMapel() {
             const r = await fetch(`${WEB_URL}?action=getMapel`);
             const m = await r.json();
-            let h = m.map(x => `<button onclick="startExam('${x.link}','${x.token}')" style="display:block; width:100%; margin:10px 0; padding:15px; border:2px solid var(--blue); background:white; border-radius:12px; font-weight:bold; color:var(--blue); text-align:left;"><i class="fas fa-edit"></i> ${x.nama}</button>`).join('');
+            let h = m.map(x => `<button onclick="startExam('${x.link}','${x.token}')" style="display:block; width:100%; margin:10px 0; padding:15px; border:2px solid var(--blue); background:white; border-radius:12px; font-weight:bold; color:var(--blue); text-align:left;"><i class="fas fa-file-signature"></i> ${x.nama}</button>`).join('');
             Swal.fire({ title: 'Pilih Mapel', html: h, showConfirmButton: false, allowOutsideClick: false });
         }
 
@@ -96,22 +119,43 @@
             });
         }
 
-        // --- SISTEM UNLOCK PIN REAL-TIME ---
-        async function unlock() {
-            const input = document.getElementById('pin-input').value.trim();
-            if (!input) return;
-            Swal.fire({ title: 'Verifikasi PIN...', didOpen: () => Swal.showLoading() });
-            try {
-                const r = await fetch(`${WEB_URL}?action=checkPin&pin=${encodeURIComponent(input)}`);
+        // --- FUNGSI KELUAR DENGAN PIN F2 ---
+        async function confirmExit() {
+            const { value: pin } = await Swal.fire({
+                title: 'Konfirmasi Keluar',
+                text: 'Masukkan PIN Proktor (F2) untuk menutup aplikasi.',
+                input: 'password',
+                inputPlaceholder: 'PIN F2',
+                showCancelButton: true
+            });
+
+            if (pin) {
+                Swal.fire({ title: 'Validasi...', didOpen: () => Swal.showLoading() });
+                const r = await fetch(`${WEB_URL}?action=checkExitPin&pin=${encodeURIComponent(pin)}`);
                 const d = await r.json();
                 if (d.status === "valid") {
-                    localStorage.removeItem("locked");
-                    localStorage.setItem("viol", "0");
+                    localStorage.clear();
                     location.reload();
                 } else {
-                    Swal.fire('PIN Salah', 'Tidak cocok dengan Spreadsheet', 'error');
+                    Swal.fire('Gagal', 'PIN F2 Salah!', 'error');
                 }
-            } catch(e) { Swal.fire('Error', 'Gagal verifikasi PIN', 'error'); }
+            }
+        }
+
+        // --- FUNGSI BUKA KUNCI DENGAN PIN F1 ---
+        async function unlockF1() {
+            const pin = document.getElementById('pin-f1-input').value;
+            if (!pin) return;
+            Swal.fire({ title: 'Validasi...', didOpen: () => Swal.showLoading() });
+            const r = await fetch(`${WEB_URL}?action=checkPin&pin=${encodeURIComponent(pin)}`);
+            const d = await r.json();
+            if (d.status === "valid") {
+                localStorage.removeItem("locked");
+                localStorage.setItem("viol", "0");
+                location.reload();
+            } else {
+                Swal.fire('Gagal', 'PIN F1 Salah!', 'error');
+            }
         }
 
         window.onblur = () => {
@@ -119,7 +163,7 @@
                 let v = parseInt(localStorage.getItem("viol") || 0) + 1;
                 localStorage.setItem("viol", v);
                 if (v >= 2) { localStorage.setItem("locked", "true"); location.reload(); }
-                else Swal.fire('DILARANG KELUAR!', 'Ujian sedang diawasi!', 'warning');
+                else Swal.fire('PERINGATAN!', 'Jangan keluar aplikasi!', 'warning');
             }
         };
 
