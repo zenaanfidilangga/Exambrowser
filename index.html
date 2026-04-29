@@ -15,30 +15,16 @@
     
     <style>
         :root { --blue: #0056b3; --red: #dc3545; --bg: #f4f7f9; }
-        body { margin: 0; padding: 0; background: var(--bg); font-family: 'Segoe UI', Roboto, sans-serif; overflow: hidden; user-select: none; -webkit-user-select: none; }
-        
-        /* HEADER & IDENTITAS */
-        header { background: #fff; height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 4px solid var(--blue); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        body { margin: 0; padding: 0; background: var(--bg); font-family: 'Segoe UI', sans-serif; overflow: hidden; user-select: none; -webkit-user-select: none; }
+        header { background: #fff; height: 85px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 4px solid var(--blue); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .logo-box { display: flex; align-items: center; gap: 12px; }
-        .logo-img { height: 50px; width: auto; }
-        .identitas-text { line-height: 1.2; }
-        
-        /* TOMBOL KELUAR PRESISI */
-        .btn-exit-nav { 
-            display: inline-flex; align-items: center; gap: 5px; 
-            margin-top: 4px; padding: 4px 10px; 
-            background: var(--red); color: white; border: none; 
-            border-radius: 4px; font-size: 10px; font-weight: bold; 
-            cursor: pointer; text-decoration: none;
-        }
-
-        #exam-area { display: none; height: calc(100vh - 80px); width: 100%; }
+        .logo-img { height: 50px; }
+        .btn-exit-nav { display: inline-flex; align-items: center; gap: 5px; margin-top: 5px; padding: 5px 12px; background: var(--red); color: white; border: none; border-radius: 5px; font-size: 11px; font-weight: bold; cursor: pointer; }
+        #exam-area { display: none; height: calc(100vh - 85px); width: 100%; }
         iframe { width: 100%; height: 100%; border: none; }
-        
         #lock-screen { display:none; position:fixed; inset:0; background:black; z-index:10000; color:white; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding: 20px; }
-        
-        .login-card { background: white; padding: 35px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 320px; text-align: center; }
-        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1.5px solid #ddd; border-radius: 10px; font-size: 1rem; box-sizing: border-box; outline: none; }
+        .login-card { background: white; padding: 35px; border-radius: 20px; width: 100%; max-width: 320px; text-align: center; }
+        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1.5px solid #ddd; border-radius: 10px; font-size: 1rem; box-sizing: border-box; }
         .btn-primary { width: 100%; padding: 12px; background: var(--blue); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
@@ -47,7 +33,7 @@
     <div id="lock-screen">
         <i class="fas fa-user-lock" style="font-size: 50px; color: var(--red); margin-bottom: 20px;"></i>
         <h2>SISTEM TERKUNCI</h2>
-        <p>Terdeteksi keluar dari aplikasi.<br>Hubungi Proktor untuk membuka.</p>
+        <p>Terdeteksi pelanggaran. Masukkan PIN F1 Proktor.</p>
         <input type="password" id="pin-f1-input" placeholder="PIN F1" style="width: 200px; text-align: center; background: #222; color: white; border: 1px solid #444;">
         <button onclick="unlockF1()" class="btn-primary" style="width: 200px; background: #28a745;">BUKA AKSES</button>
     </div>
@@ -55,11 +41,11 @@
     <header>
         <div class="logo-box">
             <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" class="logo-img">
-            <div class="identitas-text">
+            <div>
                 <b style="color: var(--blue); font-size: 1rem;">SHA EXAMBRO</b><br>
-                <small id="student-name" style="color: #666; font-size: 0.8rem;">Selamat Datang</small><br>
+                <small id="student-name" style="color: #666; font-size: 0.8rem;">Silakan Login</small><br>
                 <button id="nav-exit" class="btn-exit-nav" style="display:none;" onclick="confirmExit()">
-                    <i class="fas fa-power-off"></i> KELUAR APLIKASI
+                    <i class="fas fa-power-off"></i> KELUAR
                 </button>
             </div>
         </div>
@@ -68,8 +54,7 @@
 
     <div id="login-area" style="display: flex; justify-content: center; align-items: center; height: 70vh;">
         <div class="login-card">
-            <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" height="60" style="margin-bottom:15px;">
-            <h3 style="margin:0 0 20px 0; color: var(--blue);">LOGIN PESERTA</h3>
+            <h3 style="color: var(--blue);">LOGIN PESERTA</h3>
             <input type="text" id="u" placeholder="Username">
             <input type="password" id="p" placeholder="Password">
             <button onclick="login()" class="btn-primary">MASUK</button>
@@ -81,7 +66,8 @@
     </div>
 
     <script>
-        const WEB_URL = "https://script.google.com/macros/s/AKfycbxr36rJKPOCusxmZl60Z7RI2HKuChDwd3XSzItyeZ4Koenp2_nN4mNlEr0oNkePn8Sewg/exec"; // Masukkan link /exec terbaru Bapak
+        const WEB_URL = "https://script.google.com/macros/s/AKfycbxr36rJKPOCusxmZl60Z7RI2HKuChDwd3XSzItyeZ4Koenp2_nN4mNlEr0oNkePn8Sewg/exec"; // Tempel URL /exec Bapak di sini
+        let currentNama = "";
 
         async function login() {
             const user = document.getElementById('u').value, pass = document.getElementById('p').value;
@@ -91,71 +77,53 @@
                 const r = await fetch(`${WEB_URL}?action=login&user=${encodeURIComponent(user)}&pass=${encodeURIComponent(pass)}`);
                 const d = await r.json();
                 if (d.status === "success") {
+                    currentNama = d.nama;
                     document.getElementById('login-area').style.display = 'none';
                     document.getElementById('student-name').innerText = d.nama;
                     document.getElementById('ruang-display').innerText = d.ruang;
                     document.getElementById('nav-exit').style.display = 'inline-flex';
                     Swal.close();
                     loadMapel();
-                } else Swal.fire('Gagal', 'Akun tidak ditemukan', 'error');
-            } catch(e) { Swal.fire('Error', 'Koneksi database bermasalah', 'error'); }
+                } else Swal.fire('Gagal', 'Username/Password Salah', 'error');
+            } catch(e) { Swal.fire('Error', 'Koneksi Bermasalah', 'error'); }
         }
 
         async function loadMapel() {
             const r = await fetch(`${WEB_URL}?action=getMapel`);
             const m = await r.json();
-            let h = m.map(x => `<button onclick="startExam('${x.link}','${x.token}')" style="display:block; width:100%; margin:10px 0; padding:15px; border:2px solid var(--blue); background:white; border-radius:12px; font-weight:bold; color:var(--blue); text-align:left;"><i class="fas fa-file-signature"></i> ${x.nama}</button>`).join('');
+            let h = m.map(x => `<button onclick="startExam('${x.link}','${x.token}','${x.nama}')" style="display:block; width:100%; margin:10px 0; padding:15px; border:2px solid var(--blue); background:white; border-radius:12px; font-weight:bold; color:var(--blue); text-align:left;"><i class="fas fa-file-alt"></i> ${x.nama}</button>`).join('');
             Swal.fire({ title: 'Pilih Mapel', html: h, showConfirmButton: false, allowOutsideClick: false });
         }
 
-        function startExam(url, token) {
-            Swal.fire({ title: 'Token Ujian', input: 'text' }).then(res => {
-                if (res.value === String(token)) {
-                    let finalUrl = url.includes("viewform") ? url : `https://docs.google.com/forms/d/${url}/viewform`;
-                    document.getElementById('google-form-frame').src = finalUrl;
-                    document.getElementById('exam-area').style.display = 'block';
-                    if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
-                } else if(res.isConfirmed) Swal.fire('Token Salah', '', 'error');
-            });
+        async function startExam(link, token, namaMapel) {
+            const { value: inputToken } = await Swal.fire({ title: 'Token Ujian', input: 'text', inputPlaceholder: 'Masukkan Token' });
+            if (inputToken === String(token)) {
+                // KIRIM PRESENSI KE SHEET NILAI
+                fetch(`${WEB_URL}?action=presensi&nama=${encodeURIComponent(currentNama)}&mapel=${encodeURIComponent(namaMapel)}`);
+                
+                let finalUrl = link.includes("viewform") ? link : `https://docs.google.com/forms/d/${link}/viewform`;
+                document.getElementById('google-form-frame').src = finalUrl;
+                document.getElementById('exam-area').style.display = 'block';
+                if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+            } else if(inputToken !== undefined) Swal.fire('Token Salah', '', 'error');
         }
 
-        // --- FUNGSI KELUAR DENGAN PIN F2 ---
         async function confirmExit() {
-            const { value: pin } = await Swal.fire({
-                title: 'Konfirmasi Keluar',
-                text: 'Masukkan PIN Proktor (F2) untuk menutup aplikasi.',
-                input: 'password',
-                inputPlaceholder: 'PIN F2',
-                showCancelButton: true
-            });
-
+            const { value: pin } = await Swal.fire({ title: 'Konfirmasi Keluar', text: 'Masukkan PIN F2 Proktor', input: 'password', showCancelButton: true });
             if (pin) {
-                Swal.fire({ title: 'Validasi...', didOpen: () => Swal.showLoading() });
                 const r = await fetch(`${WEB_URL}?action=checkExitPin&pin=${encodeURIComponent(pin)}`);
                 const d = await r.json();
-                if (d.status === "valid") {
-                    localStorage.clear();
-                    location.reload();
-                } else {
-                    Swal.fire('Gagal', 'PIN F2 Salah!', 'error');
-                }
+                if (d.status === "valid") { localStorage.clear(); location.reload(); }
+                else Swal.fire('Gagal', 'PIN F2 Salah!', 'error');
             }
         }
 
-        // --- FUNGSI BUKA KUNCI DENGAN PIN F1 ---
         async function unlockF1() {
             const pin = document.getElementById('pin-f1-input').value;
-            if (!pin) return;
-            Swal.fire({ title: 'Validasi...', didOpen: () => Swal.showLoading() });
             const r = await fetch(`${WEB_URL}?action=checkPin&pin=${encodeURIComponent(pin)}`);
             const d = await r.json();
-            if (d.status === "valid") {
-                localStorage.removeItem("locked");
-                localStorage.setItem("viol", "0");
-                location.reload();
-            } else {
-                Swal.fire('Gagal', 'PIN F1 Salah!', 'error');
-            }
+            if (d.status === "valid") { localStorage.removeItem("locked"); localStorage.setItem("viol", "0"); location.reload(); }
+            else Swal.fire('PIN Salah', '', 'error');
         }
 
         window.onblur = () => {
@@ -168,7 +136,7 @@
         };
 
         if (localStorage.getItem("locked") === "true") document.getElementById('lock-screen').style.display = 'flex';
-        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
+        if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
     </script>
 </body>
 </html>
