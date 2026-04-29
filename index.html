@@ -7,260 +7,143 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --blue: #0056b3; --yellow: #ffc107; --bg: #f4f7f9; }
-        * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; outline: none; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; background: var(--bg); height: 100vh; overflow: hidden; }
+        :root { --blue: #0056b3; --bg: #f4f7f9; }
+        body { margin: 0; padding: 0; background: var(--bg); font-family: 'Segoe UI', sans-serif; overflow: hidden; }
         
         /* HEADER */
-        header { background: #fff; padding: 0 20px; display: flex; justify-content: space-between; border-bottom: 4px solid var(--blue); align-items: center; height: 70px; }
-        .logo-box { display: flex; align-items: center; }
-        .logo-img { height: 45px; width: auto; object-fit: contain; margin-right: 12px; }
+        header { background: #fff; height: 65px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 4px solid var(--blue); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .logo-box { display: flex; align-items: center; gap: 10px; }
+        .logo-img { height: 45px; width: auto; }
         
-        /* LAYOUT */
-        #main-layout { display: flex; height: calc(100vh - 70px); position: relative; }
-        .question-area { flex: 1; background: #fff; padding: 25px; overflow-y: auto; padding-bottom: 100px; position: relative; transition: 0.3s; }
-        
-        /* SIDEBAR (NAVIGASI) */
-        .sidebar { width: 300px; background: #f8f9fa; border-left: 1px solid #ddd; padding: 15px; display: flex; flex-direction: column; transition: 0.3s; position: relative; }
-        .sidebar.minimized { width: 0; padding: 0; overflow: hidden; border-left: none; }
-        
-        /* TOMBOL MINIMIZE */
-        .toggle-side { position: absolute; left: -30px; top: 10px; background: var(--blue); color: white; border: none; width: 30px; height: 40px; border-radius: 5px 0 0 5px; cursor: pointer; z-index: 100; }
+        /* IFRAME */
+        #exam-area { display: none; height: calc(100vh - 65px); width: 100%; }
+        iframe { width: 100%; height: 100%; border: none; }
 
-        /* SOAL & GAMBAR */
-        .q-text { font-size: 1.15rem; color: #333; line-height: 1.6; margin-bottom: 20px; }
-        .q-img { max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0; border: 1px solid #eee; }
+        /* LOGIN & LOCK */
+        #lock-screen { display:none; position:fixed; inset:0; background:black; z-index:10000; color:white; flex-direction:column; justify-content:center; align-items:center; text-align:center; }
+        .login-card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 350px; text-align: center; }
         
-        /* OPSI JAWABAN (Tanpa A B C D) */
-        .opt { display: flex; align-items: center; padding: 15px; border: 2px solid #eee; margin: 10px 0; border-radius: 10px; cursor: pointer; transition: 0.2s; background: #fff; }
-        .opt:hover { border-color: var(--blue); background: #f0f7ff; }
-        .opt.selected { background: var(--blue); color: white; border-color: var(--blue); }
-        .opt-img { max-width: 150px; display: block; margin-top: 10px; border-radius: 5px; }
-
-        /* FOOTER NAVIGASI */
-        .footer { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; border-top: 2px solid #eee; padding: 15px 25px; display: flex; justify-content: space-between; z-index: 1000; }
-        .btn { padding: 12px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
-        
-        /* NAV GRID */
-        .nav-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 10px; }
-        .nav-n { height: 40px; border: 1px solid #ccc; background: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; border-radius: 6px; font-size: 0.85rem; }
-        .nav-n.active { border: 3px solid var(--blue); color: var(--blue); }
-        .nav-n.done { background: var(--blue); color: white; border-color: var(--blue); }
-        .nav-n.ragu { background: var(--yellow); color: #000; border-color: var(--yellow); }
-
-        /* LOGIN SCREEN */
-        .login-container { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 350px; text-align: center; }
-        .login-logo { width: 100px; height: 100px; margin-bottom: 20px; object-fit: contain; }
-
-        @media (max-width: 768px) {
-            .sidebar { position: absolute; right: 0; height: 100%; z-index: 200; box-shadow: -5px 0 15px rgba(0,0,0,0.1); }
-            .question-area { padding: 15px; }
-        }
+        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1.5px solid #ddd; border-radius: 10px; font-size: 1rem; }
+        .btn-primary { width: 100%; padding: 12px; background: var(--blue); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false">
 
-    <div id="lock-screen" style="display:none; position:fixed; inset:0; background:black; z-index:9999; color:white; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
-        <i class="fas fa-user-lock" style="font-size:60px; color:#dc3545; margin-bottom:20px;"></i>
+    <div id="lock-screen">
+        <i class="fas fa-user-lock" style="font-size: 50px; color: #dc3545; margin-bottom: 20px;"></i>
         <h2>SISTEM TERKUNCI</h2>
-        <input type="password" id="pin-f1" placeholder="PIN PROKTOR" style="padding:15px; border-radius:10px; border:none; margin:20px; width:200px; text-align:center;">
-        <button onclick="unlock()" style="padding:10px 40px; background:#28a745; color:white; border:none; border-radius:8px; font-weight:bold;">BUKA</button>
+        <p>Anda terdeteksi keluar dari aplikasi.<br>Silakan hubungi Proktor untuk membuka akses.</p>
+        <input type="password" id="pin-f1" placeholder="PIN PROKTOR" style="width: 200px; text-align: center;">
+        <button onclick="unlock()" class="btn-primary" style="width: 200px; background: #28a745;">BUKA AKSES</button>
     </div>
 
-    <header>
+    <header id="main-header">
         <div class="logo-box">
-            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjD3T7V6R1O2G9z6v3f-Y7W_4zY9Z5pG1m-8oXfU7zY6-0y7F1Z-0y7F1Z-0y7F1Z-0y7F1Z-0y7F1Z-0y7F1Z-0y7F1Z-0y7F1Z-0y7F1Z-0y7F1Z/s1600/logo-smp.png" class="logo-img" onerror="this.src='https://via.placeholder.com/100?text=LOGO'">
-            <div style="font-weight: 800; color: var(--blue); font-size: 1.1rem; line-height: 1;">SHA<br><span style="font-size: 0.7rem; color: #666;">EXAMBRO</span></div>
+            <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" class="logo-img">
+            <div style="line-height: 1.1;">
+                <b style="color: var(--blue); font-size: 1.1rem;">SHA EXAMBRO</b><br>
+                <small style="color: #666; font-size: 0.7rem;">SMP SHALAHUDDIN MALANG</small>
+            </div>
         </div>
-        <div id="user-info" style="text-align: right; font-size: 0.8rem; color: #555;"></div>
+        <div id="user-display" style="text-align: right; font-size: 0.85rem; font-weight: bold; color: #333;"></div>
     </header>
 
-    <div id="login-screen" style="display: flex; justify-content: center; align-items: center; height: 80vh; padding: 20px;">
-        <div class="login-container">
-            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjD3T7V6R1O2G9z6v3f-Y7W_4zY9Z5pG1m-8oXfU7zY6-0y7F1Z-0y7F1Z-0y7F1Z-0y7F1Z-0y7F1Z-0y7F1Z-0y7F1Z-0y7F1Z-0y7F1Z-0y7F1Z/s1600/logo-smp.png" class="login-logo" onerror="this.src='https://via.placeholder.com/100?text=LOGO'">
-            <h3 style="margin: 0 0 20px 0; color: var(--blue);">LOGIN PESERTA</h3>
-            <input type="text" id="u" placeholder="Username" style="width:100%; padding:15px; margin-bottom:10px; border:1.5px solid #ddd; border-radius:10px;">
-            <input type="password" id="p" placeholder="Password" style="width:100%; padding:15px; margin-bottom:20px; border:1.5px solid #ddd; border-radius:10px;">
-            <button onclick="login()" style="width:100%; padding:15px; background:var(--blue); color:white; border:none; border-radius:10px; font-weight:bold; font-size:1rem;">MASUK</button>
+    <div id="login-area" style="display: flex; justify-content: center; align-items: center; height: calc(100vh - 150px);">
+        <div class="login-card">
+            <h3 style="margin-top: 0; color: var(--blue);">LOGIN PESERTA</h3>
+            <input type="text" id="u" placeholder="Username">
+            <input type="password" id="p" placeholder="Password">
+            <button onclick="login()" class="btn-primary">MASUK SISTEM</button>
         </div>
     </div>
 
-    <div id="exam-screen" style="display: none;">
-        <div id="main-layout">
-            <div class="question-area" id="q-area">
-                <div id="q-box">
-                    <div id="q-title" class="q-text"></div>
-                    <div id="q-opts"></div>
-                </div>
-            </div>
-
-            <div class="sidebar" id="sidebar">
-                <button class="toggle-side" onclick="toggleSidebar()"><i class="fas fa-chevron-right" id="side-icon"></i></button>
-                <div id="side-content">
-                    <h4 style="margin: 0 0 10px 0;"><i class="fas fa-list-ol"></i> Daftar Soal</h4>
-                    <div id="nav-grid" class="nav-grid"></div>
-                    <div id="time-status" style="margin-top:20px; font-weight:bold; font-size:0.85rem; text-align:center;"></div>
-                    <button id="btn-finish" onclick="finish()" style="width:100%; margin-top:20px; padding:15px; border-radius:10px; border:none; background:#6c757d; color:white; font-weight:bold; cursor:not-allowed;">SELESAI UJIAN</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="footer">
-            <button class="btn" style="background:#eee; color:#333;" onclick="move(-1)"><i class="fas fa-arrow-left"></i> Kembali</button>
-            <button class="btn" id="btn-ragu" style="background:var(--yellow);" onclick="setRagu()"><i class="fas fa-question-circle"></i> Ragu</button>
-            <button class="btn" style="background:var(--blue); color:white;" onclick="move(1)">Berikutnya <i class="fas fa-arrow-right"></i></button>
-        </div>
+    <div id="exam-area">
+        <iframe id="google-form-frame" src=""></iframe>
     </div>
 
     <script>
-        const WEB_URL = "https://script.google.com/macros/s/AKfycbxr36rJKPOCusxmZl60Z7RI2HKuChDwd3XSzItyeZ4Koenp2_nN4mNlEr0oNkePn8Sewg/exec"; // TETAP PAKAI URL EXEC TERBARU BAPAK
-        let questions = [], cur = 0, answers = {}, ragu = {}, student = {}, f1 = "", f2 = "", mapelNow = "", targetTime = "";
-        let isTimeReady = false;
+        const WEB_URL = "URL_WEB_APP_BAPAK_DI_SINI"; // Ganti dengan URL /exec Bapak
+        let f1 = "", viol = 0;
 
-        // LOGIN & LOAD DATA (Logika tetap sama seperti sebelumnya)
         async function login() {
             const user = document.getElementById('u').value, pass = document.getElementById('p').value;
             if(!user || !pass) return;
-            Swal.fire({title: 'Memproses...', didOpen: () => Swal.showLoading()});
+            Swal.fire({title: 'Verifikasi Data...', didOpen: () => Swal.showLoading()});
             try {
                 const r = await fetch(`${WEB_URL}?action=login&user=${user}&pass=${pass}`);
                 const d = await r.json();
                 if (d.status === "success") {
-                    student = d; f1 = d.f1; f2 = d.f2;
-                    document.getElementById('login-screen').style.display = 'none';
-                    document.getElementById('user-info').innerHTML = `<b>${d.nama}</b><br>${d.ruang}`;
-                    Swal.close(); loadMapel();
-                } else Swal.fire('Gagal', 'Username/Password salah', 'error');
-            } catch(e) { Swal.fire('Error', 'Koneksi database bermasalah', 'error'); }
+                    f1 = d.f1;
+                    document.getElementById('login-area').style.display = 'none';
+                    document.getElementById('user-display').innerHTML = `<i class="fas fa-user-circle"></i> ${d.nama}<br><span style="font-weight:normal; color:#666;">${d.ruang}</span>`;
+                    Swal.close();
+                    loadMapel();
+                } else Swal.fire('Gagal', 'Username atau Password salah!', 'error');
+            } catch(e) { Swal.fire('Error', 'Gagal terhubung ke database sekolah.', 'error'); }
         }
 
         async function loadMapel() {
             const r = await fetch(`${WEB_URL}?action=getMapel`);
             const m = await r.json();
-            let h = m.map(x => `<button onclick="checkToken('${x.link}','${x.token}','${x.nama}','${x.jam}')" style="display:block; width:100%; margin:10px 0; padding:15px; border:2px solid var(--blue); background:white; border-radius:12px; font-weight:bold; color:var(--blue); text-align:left;"><i class="fas fa-book"></i> ${x.nama}<br><small style="color:#666">Batas Selesai: ${x.jam}</small></button>`).join('');
-            Swal.fire({ title: 'Pilih Mata Pelajaran', html: `<div style="max-height:300px; overflow-y:auto">${h}</div>`, showConfirmButton: false });
-        }
-
-        function checkToken(link, token, nama, jam) {
-            Swal.fire({ title: 'Token Ujian', input: 'text', inputPlaceholder: 'Masukkan Token...' }).then(res => {
-                if (res.value === String(token)) { mapelNow = nama; targetTime = jam; start(link); }
-                else if(res.isConfirmed) Swal.fire('Token Salah', '', 'error');
+            let h = m.map(x => `
+                <button onclick="startExam('${x.link}','${x.token}')" style="display:block; width:100%; margin:10px 0; padding:15px; border:2px solid var(--blue); background:white; border-radius:12px; font-weight:bold; color:var(--blue); text-align:left;">
+                    <i class="fas fa-file-signature"></i> ${x.nama}
+                </button>`).join('');
+            Swal.fire({ 
+                title: 'Pilih Mata Pelajaran', 
+                html: `<div style="max-height:300px; overflow-y:auto">${h}</div>`, 
+                showConfirmButton: false,
+                allowOutsideClick: false 
             });
         }
 
-        async function start(url) {
-            Swal.fire({title: 'Mengambil Soal...', didOpen: () => Swal.showLoading()});
-            try {
-                const r = await fetch(`${WEB_URL}?action=getQuestions&url=${encodeURIComponent(url)}`);
-                const d = await r.json();
-                if(d.error) { Swal.fire('Gagal', d.error, 'error'); return; }
-                questions = d;
-                Swal.close();
-                document.getElementById('exam-screen').style.display = 'block';
-                render();
-                checkTime(); setInterval(checkTime, 10000);
-            } catch(e) { Swal.fire('Gagal', 'Gagal memuat soal. Pastikan link Google Form benar.', 'error'); }
-        }
-
-        // RENDER SOAL (POIN 2 & 3: Hilangkan A B C D & Support Gambar)
-        function render() {
-            const q = questions[cur];
-            // Render Judul Soal + Gambar Soal (Jika ada)
-            let qContent = `<b>Soal No. ${cur+1}</b><br>${q.title}`;
-            // Deteksi link gambar di judul (format: [img]url[/img]) - Fitur otomatis FormApp biasanya menyatu di HTML
-            document.getElementById('q-title').innerHTML = qContent;
-
-            // Render Opsi (POIN 2: Tanpa A B C D)
-            document.getElementById('q-opts').innerHTML = q.options.map((o, i) => {
-                let isSelected = (q.type === "CHECKBOX") ? (answers[cur] || []).includes(o) : (answers[cur] === o);
-                return `
-                    <div class="opt ${isSelected ? 'selected' : ''}" onclick="ans('${o.replace(/'/g, "\\'")}')">
-                        <i class="far ${isSelected ? (q.type==='CHECKBOX'?'fa-check-square':'fa-dot-circle') : (q.type==='CHECKBOX'?'fa-square':'fa-circle')}" style="margin-right:15px;"></i>
-                        <div class="opt-text">${o}</div>
-                    </div>`;
-            }).join('');
-
-            // Update Navigasi
-            const g = document.getElementById('nav-grid');
-            g.innerHTML = questions.map((_, i) => {
-                let c = (i === cur) ? 'active' : '';
-                if (answers[i] && (Array.isArray(answers[i]) ? answers[i].length > 0 : answers[i])) c += ' done';
-                if (ragu[i]) c += ' ragu';
-                return `<div class="nav-n ${c}" onclick="goTo(${i})">${i+1}</div>`;
-            }).join('');
-            
-            // Scroll ke atas setiap ganti soal
-            document.getElementById('q-area').scrollTop = 0;
-        }
-
-        // POIN 5: MINIMIZE SIDEBAR
-        function toggleSidebar() {
-            const s = document.getElementById('sidebar');
-            const icon = document.getElementById('side-icon');
-            s.classList.toggle('minimized');
-            icon.className = s.classList.contains('minimized') ? 'fas fa-chevron-left' : 'fas fa-chevron-right';
-        }
-
-        function goTo(i) { cur = i; render(); if(window.innerWidth < 768) toggleSidebar(); }
-        function move(d) { let n = cur + d; if (n >= 0 && n < questions.length) { cur = n; render(); } }
-        function setRagu() { ragu[cur] = !ragu[cur]; render(); }
-        
-        function ans(v) {
-            const q = questions[cur];
-            if (q.type === "CHECKBOX") {
-                if (!answers[cur]) answers[cur] = [];
-                let idx = answers[cur].indexOf(v);
-                if (idx > -1) answers[cur].splice(idx, 1); else answers[cur].push(v);
-            } else { answers[cur] = v; }
-            render();
-        }
-
-        function checkTime() {
-            const now = new Date();
-            const current = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
-            const btn = document.getElementById('btn-finish');
-            if (current >= targetTime) {
-                isTimeReady = true; btn.style.background = "#28a745"; btn.style.cursor = "pointer";
-                document.getElementById('time-status').innerHTML = "Status: Ujian dapat diakhiri";
-            } else {
-                isTimeReady = false; btn.style.background = "#6c757d"; btn.style.cursor = "not-allowed";
-                document.getElementById('time-status').innerHTML = `Terkunci s/d jam ${targetTime}`;
-            }
-        }
-
-        async function finish() {
-            if (!isTimeReady) { Swal.fire('Belum Waktunya', `Tombol selesai aktif pada pukul ${targetTime}`, 'warning'); return; }
-            Swal.fire({ title: 'Kirim Jawaban?', text: "Masukkan PIN F2 untuk mengakhiri ujian", input: 'password' }).then(async res => {
-                if (res.value === String(f2)) {
-                    Swal.fire({title: 'Mengirim...', didOpen: () => Swal.showLoading()});
-                    let b = 0;
-                    questions.forEach((q, i) => {
-                        if (q.type === "CHECKBOX") {
-                            if (JSON.stringify((answers[i] || []).sort()) === JSON.stringify(q.correct.sort())) b++;
-                        } else { if (answers[i] === q.correct[0]) b++; }
-                    });
-                    const skor = (b / questions.length) * 100;
-                    await fetch(`${WEB_URL}?action=submitSkor&nama=${student.nama}&ruang=${student.ruang}&mapel=${mapelNow}&skor=${skor}`);
-                    Swal.fire('Berhasil', 'Jawaban terkirim!', 'success').then(() => location.reload());
-                } else if(res.isConfirmed) Swal.fire('PIN Salah', '', 'error');
+        function startExam(url, token) {
+            Swal.fire({ title: 'Token Ujian', input: 'text', inputPlaceholder: 'Masukkan token dari pengawas...' }).then(res => {
+                if (res.value === String(token)) {
+                    // Membersihkan URL agar bisa dibuka di iframe
+                    let finalUrl = url.includes("viewform") ? url : `https://docs.google.com/forms/d/${url}/viewform`;
+                    document.getElementById('google-form-frame').src = finalUrl;
+                    document.getElementById('exam-area').style.display = 'block';
+                    
+                    // Request Fullscreen agar navigasi HP tertutup
+                    if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+                } else if(res.isConfirmed) {
+                    Swal.fire('Token Salah', 'Silakan cek kembali token Anda.', 'error');
+                }
             });
         }
 
-        // ANTI KELUAR (MODIFIED)
-        let viol = 0;
+        // --- SISTEM KEAMANAN (ANTI-CURANG) ---
         window.onblur = () => {
-            if (questions.length > 0 && localStorage.getItem("locked") !== "true") {
+            if (document.getElementById('exam-area').style.display === 'block' && localStorage.getItem("locked") !== "true") {
                 viol++;
-                if (viol >= 2) { localStorage.setItem("locked", "true"); location.reload(); }
-                else Swal.fire('PERINGATAN', 'Dilarang keluar aplikasi!', 'warning');
+                if (viol >= 2) {
+                    localStorage.setItem("locked", "true");
+                    location.reload();
+                } else {
+                    Swal.fire({
+                        title: 'PERINGATAN!',
+                        text: 'Dilarang keluar dari aplikasi ujian! Satu kali lagi Anda keluar, sistem akan terkunci otomatis.',
+                        icon: 'warning',
+                        confirmButtonText: 'SAYA MENGERTI'
+                    });
+                }
             }
         };
 
         function unlock() {
-            if (document.getElementById('pin-f1').value === String(f1)) { localStorage.removeItem("locked"); location.reload(); }
-            else Swal.fire('PIN Salah', '', 'error');
+            if (document.getElementById('pin-f1').value === String(f1)) { 
+                localStorage.removeItem("locked"); 
+                location.reload(); 
+            } else {
+                Swal.fire('PIN Salah', 'PIN Proktor tidak valid.', 'error');
+            }
         }
-        if (localStorage.getItem("locked") === "true") document.getElementById('lock-screen').style.display = 'flex';
+
+        // Cek status kunci saat halaman dimuat
+        if (localStorage.getItem("locked") === "true") {
+            document.getElementById('lock-screen').style.display = 'flex';
+        }
     </script>
 </body>
 </html>
