@@ -199,6 +199,63 @@ async function requestExit() {
         }
     }
 }
+        // Tambahkan variabel status di bagian atas script
+let isBlocked = false;
+
+// Fungsi yang dipanggil dari Java jika siswa mencoba keluar
+function aktifkanBlokir() {
+    isBlocked = true;
+    localStorage.setItem("app_blocked", "true"); // Simpan status agar tetap terblokir walau restart
+    tampilkanLayarBlokir();
+}
+
+function tampilkanLayarBlokir() {
+    Swal.fire({
+        title: 'APLIKASI TERBLOKIR!',
+        html: '<b style="color:red">Pelanggaran Berat Terdeteksi.</b><br>Silakan lapor ke Kepala Sekolah/Proktor untuk membuka.',
+        icon: 'error',
+        showConfirmButton: true,
+        confirmButtonText: 'MASUKKAN KODE PROKTOR',
+        allowOutsideClick: false,
+        allowEscapeKey: false
+    }).then((result) => {
+        if (result.isConfirmed) {
+            bukaBlokir();
+        }
+    });
+}
+
+async function bukaBlokir() {
+    const { value: pin } = await Swal.fire({
+        title: 'Input Kode Proktor',
+        input: 'password',
+        inputAttributes: { autocapitalize: 'off' },
+        showCancelButton: true
+    });
+
+    if (pin) {
+        // Cek PIN di Sheet1 sel F1 (Gunakan action checkPin yang sudah Bapak buat)
+        const res = await fetch(`${WEB_URL}?action=checkPin&pin=${pin}`);
+        const data = await res.json();
+
+        if (data.status === "valid") {
+            isBlocked = false;
+            localStorage.removeItem("app_blocked");
+            Swal.fire('Berhasil', 'Aplikasi terbuka kembali', 'success');
+        } else {
+            Swal.fire('Gagal', 'Kode Salah!', 'error').then(() => tampilkanLayarBlokir());
+        }
+    } else {
+        tampilkanLayarBlokir();
+    }
+}
+
+// Cek status blokir saat halaman dimuat pertama kali
+window.onload = () => {
+    if (localStorage.getItem("app_blocked") === "true") {
+        tampilkanLayarBlokir();
+    }
+};
     </script>
 </body>
 </html>
