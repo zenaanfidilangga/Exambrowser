@@ -3,217 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SPESHA EXAMBRO - SMP SHALAHUDDIN</title>
+    <title>SPESHA EXAMBRO</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        :root { --blue: #0056b3; --yellow: #ffc107; --bg: #f4f7f9; --red: #dc3545; --black: #1a1a1a; --dark-red: #4b0000; }
-        * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; outline: none; }
-        input, textarea { -webkit-user-select: text; user-select: text; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; background: var(--bg); overflow: hidden; }
+        :root { --blue: #0056b3; --bg: #f4f7f9; --red: #dc3545; --black: #1a1a1a; }
+        * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); overflow: hidden; }
 
-        /* Badge Pelanggaran */
-        #viol-badge { 
-            position: fixed; top: 15px; left: 50%; transform: translateX(-50%); 
-            z-index: 9999; background: var(--red); color: white; 
-            padding: 8px 25px; border-radius: 30px; font-weight: bold; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: none; 
-        }
-
-        /* Tampilan Blokir Utama */
+        /* Layar Blokir */
         #blocked-screen {
-            display: none; position: fixed; top: 0; left: 0;
-            width: 100%; height: 100%; background: var(--black); 
-            z-index: 20000; color: white; flex-direction: column; 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: var(--black); z-index: 20000; color: white; flex-direction: column; 
             justify-content: center; align-items: center; text-align: center;
         }
-        .warning-box { border: 2px solid var(--red); padding: 40px; border-radius: 15px; background: #000; max-width: 80%; }
-        .bg-berat { background: var(--dark-red) !important; }
-        .text-berat { color: #ff0000 !important; text-shadow: 0 0 10px #ff0000; }
-
-        header { background: #fff; padding: 10px 25px; display: flex; justify-content: space-between; border-bottom: 4px solid var(--blue); align-items: center; height: 70px; box-sizing: border-box; }
-        #exam-container { width: 100%; height: calc(100vh - 70px); border: none; }
         
-        .logo-img { height: 80px; margin-bottom: 20px; }
-        .btn-mapel { display:block; width:100%; margin:10px 0; padding:15px; border:2px solid var(--blue); background:white; border-radius:8px; font-weight:bold; cursor:pointer; }
-        .btn-proktor { background: var(--red); color: white; border: none; padding: 15px 30px; border-radius: 8px; font-weight: bold; margin-top: 20px; cursor: pointer; }
+        header { 
+            background: #fff; padding: 10px 20px; display: flex; 
+            justify-content: space-between; border-bottom: 4px solid var(--blue); 
+            align-items: center; height: 60px; box-sizing: border-box;
+        }
+
+        /* Counter Pelanggaran di Tengah Atas */
+        #violation-counter {
+            background: #fff3f3; border: 1px solid var(--red); color: var(--red);
+            padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 12px;
+        }
+
+        #exam-container { width: 100%; height: calc(100vh - 60px); border: none; }
+        .btn-mapel { display: block; width: 100%; margin: 10px 0; padding: 15px; border: 2px solid var(--blue); background: white; border-radius: 8px; font-weight: bold; }
     </style>
 </head>
-<body oncontextmenu="return false" onkeydown="return disableKeys(event)">
+<body oncontextmenu="return false">
 
-    <!-- Badge Pelanggaran -->
-    <div id="viol-badge">PELANGGARAN: 0</div>
-
-    <!-- Layar Blokir (Pembeda Biasa & Berat) -->
+    <!-- Screen Pelanggaran Berat -->
     <div id="blocked-screen">
-        <div class="warning-box" id="block-box">
-            <i id="block-icon" class="fas fa-exclamation-triangle" style="font-size: 80px; margin-bottom: 20px;"></i>
-            <h1 id="block-title" style="font-size: 2.5rem; margin: 0;">TERKUNCI</h1>
-            <p id="block-desc" style="font-size: 1.2rem; margin: 20px 0;"></p>
-            <button class="btn-proktor" onclick="bukaBlokir()">INPUT KODE OTORITAS</button>
+        <div style="border: 2px solid var(--red); padding: 40px; border-radius: 15px; background: #000;">
+            <i class="fas fa-exclamation-triangle" style="font-size: 60px; color: var(--red); margin-bottom: 20px;"></i>
+            <h1 style="color: var(--red);">TERKUNCI</h1>
+            <p id="block-desc">Deteksi Pelanggaran Berat atau Batas Toleransi Habis.<br>Silahkan lapor ke Proktor.</p>
+            <button onclick="bukaBlokir()" style="background: var(--red); color: white; border: none; padding: 15px 30px; border-radius: 8px; font-weight: bold; margin-top: 20px;">INPUT KODE OTORITAS</button>
         </div>
     </div>
 
-    <!-- Header Aplikasi -->
-    <header>
-        <div style="display: flex; align-items: center;">
-            <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" style="height: 40px; margin-right: 10px;">
-            <div style="font-weight: 800; color: var(--blue);">SPESHA EXAMBRO</div>
+    <header id="main-header">
+        <div style="display: flex; align-items: center; flex: 1;">
+            <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" style="height: 30px; margin-right: 10px;">
+            <div>
+                <div style="font-weight: 800; color: var(--blue); font-size: 12px;">SPESHA EXAMBRO</div>
+                <div id="user-info" style="font-size: 10px; color: #555; font-weight: bold;">Login dulu</div>
+            </div>
         </div>
-        <button onclick="requestExit()" style="background: var(--red); color: white; border: none; padding: 8px 15px; border-radius: 5px; font-weight: bold; cursor: pointer;">KELUAR</button>
+
+        <!-- Counter Pelanggaran Tengah -->
+        <div id="violation-counter" style="flex: 0;">
+            <i class="fas fa-shield-alt"></i> Pelanggaran: <span id="v-count">0</span>/3
+        </div>
+
+        <div style="flex: 1; text-align: right;">
+            <button id="exit-btn" onclick="requestExit()" style="background: var(--red); color: white; border: none; padding: 6px 12px; border-radius: 5px; font-weight: bold; font-size: 11px;">KELUAR</button>
+        </div>
     </header>
 
-    <!-- Halaman Login -->
-    <div id="login-screen" style="display: flex; justify-content: center; align-items: center; height: 80vh;">
-        <div style="background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 25px rgba(0,0,0,0.1); width: 320px; text-align: center;">
-            <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" class="logo-img"> 
-            <h3 style="color: var(--blue); margin-top: 0;">LOGIN PESERTA</h3>
-            <input type="text" id="u" placeholder="Username" style="width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box;">
-            <input type="password" id="p" placeholder="Password" style="width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box;">
-            <button onclick="login()" style="width: 100%; padding: 12px; background: var(--blue); color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">MASUK</button>
+    <div id="login-screen" style="display: flex; justify-content: center; align-items: center; height: calc(100vh - 60px);">
+        <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); width: 280px; text-align: center;">
+            <h3 style="color: var(--blue);">LOGIN PESERTA</h3>
+            <input type="text" id="u" placeholder="Username" style="width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
+            <input type="password" id="p" placeholder="Password" style="width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 5px;">
+            <button onclick="login()" style="width: 100%; padding: 12px; background: var(--blue); color: white; border: none; border-radius: 5px; font-weight: bold;">MASUK</button>
         </div>
     </div>
 
-    <!-- Area Ujian -->
     <div id="exam-screen" style="display: none;">
         <iframe id="exam-container" src=""></iframe>
-        <button onclick="requestExit()" style="position: fixed; bottom: 20px; right: 20px; padding: 10px 20px; background: var(--red); color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; z-index: 100;">SELESAI</button>
     </div>
 
     <script>
-        // Ganti dengan URL Web App Google Apps Script Bapak[cite: 1]
         const WEB_URL = "https://script.google.com/macros/s/AKfycbxr36rJKPOCusxmZl60Z7RI2HKuChDwd3XSzItyeZ4Koenp2_nN4mNlEr0oNkePn8Sewg/exec"; 
-        let student = {}, mapelNow = "", viol = 0, isExamActive = false;
+        let student = {}, mapelNow = "", vCount = 0;
 
-        // --- SISTEM BLOKIR ---
-
-        function blokirBiasa() {
-            localStorage.setItem("spesha_blocked", "biasa");
-            tampilkanLayarBlokir("biasa");
+        function setIdentity(nama, kelas) {
+            document.getElementById('user-info').innerHTML = `${nama} | ${kelas}`;
         }
 
-        // Dipanggil dari Android Studio jika sistem sematan lepas[cite: 1]
-        function aktifkanBlokir() {
-            localStorage.setItem("spesha_blocked", "berat");
-            tampilkanLayarBlokir("berat");
-        }
-
-        function tampilkanLayarBlokir(tipe) {
-            const screen = document.getElementById('blocked-screen');
-            const box = document.getElementById('block-box');
-            const title = document.getElementById('block-title');
-            const desc = document.getElementById('block-desc');
-            const icon = document.getElementById('block-icon');
-
-            screen.style.display = 'flex';
-            
-            if (tipe === "berat") {
-                screen.classList.add('bg-berat');
-                title.innerHTML = "PELANGGARAN BERAT";
-                title.classList.add('text-berat');
-                icon.style.color = "#ff0000";
-                desc.innerHTML = "Sistem mendeteksi Anda keluar dari mode sematan aplikasi secara paksa.<br><b>WAJIB MELAPOR KE KEPALA SEKOLAH</b>";
+        // --- SISTEM PELANGGARAN ---
+        function aktifkanBlokir(isBerat = false) {
+            if (isBerat) {
+                // Pelanggaran Berat: Langsung kunci total
+                localStorage.setItem("spesha_status", "terkunci");
+                location.reload();
             } else {
-                screen.classList.remove('bg-berat');
-                title.innerHTML = "APLIKASI TERKUNCI";
-                title.classList.remove('text-berat');
-                icon.style.color = "var(--yellow)";
-                desc.innerHTML = "Anda terdeteksi meninggalkan layar ujian sebanyak 3 kali.<br>Hubungi Proktor untuk membuka.";
-            }
-        }
-
-        async function bukaBlokir() {
-            const statusSaatIni = localStorage.getItem("spesha_blocked");
-            const { value: pin } = await Swal.fire({
-                title: statusSaatIni === "berat" ? 'OTORITAS KEPALA SEKOLAH' : 'OTORITAS PROKTOR',
-                input: 'password',
-                placeholder: 'Masukkan Kode Akses',
-                showCancelButton: true
-            });
-
-            if (pin) {
-                const res = await fetch(`${WEB_URL}?action=checkPin&pin=${pin}`);
-                const d = await res.json();
-                if (d.status === "valid") {
-                    localStorage.removeItem("spesha_blocked");
-                    document.getElementById('blocked-screen').style.display = 'none';
-                    viol = 0; 
-                    Swal.fire('Berhasil', 'Akses dibuka kembali.', 'success');
+                // Pelanggaran Ringan: Tambah counter
+                vCount++;
+                document.getElementById('v-count').innerText = vCount;
+                
+                if (vCount >= 3) {
+                    aktifkanBlokir(true); // Jika sudah 3x, jadi berat[cite: 1]
                 } else {
-                    Swal.fire('Gagal', 'Kode Akses Salah!', 'error');
+                    Swal.fire({
+                        title: 'PERINGATAN!',
+                        text: 'Jangan mencoba keluar dari aplikasi atau menarik notifikasi!',
+                        icon: 'warning',
+                        confirmButtonText: 'Saya Mengerti'
+                    });
                 }
             }
-        }
-
-        async function requestExit() {
-            const { value: pin } = await Swal.fire({
-                title: 'KONFIRMASI KELUAR',
-                text: 'Masukkan PIN F2 untuk menutup aplikasi',
-                input: 'password',
-                showCancelButton: true
-            });
-
-            if (pin) {
-                const res = await fetch(`${WEB_URL}?action=checkExitPin&pin=${pin}`);
-                const d = await r.json(); // Menggunakan hasil fetch PIN F2[cite: 1]
-                if (d.status === "valid") {
-                    if (window.AndroidControl) {
-                        window.AndroidControl.keluarUjian();
-                    } else {
-                        location.reload(); 
-                    }
-                } else {
-                    Swal.fire('PIN Salah', '', 'error');
-                }
-            }
-        }
-
-        // --- LOGIKA UJIAN & DETEKSI ---
-
-        window.addEventListener('blur', () => {
-            setTimeout(() => {
-                if (isExamActive && !localStorage.getItem("spesha_blocked")) {
-                    if (document.activeElement !== document.getElementById('exam-container')) {
-                        viol++;
-                        document.getElementById('viol-badge').style.display = 'block';
-                        document.getElementById('viol-badge').innerHTML = `PELANGGARAN: ${viol}`;
-                        if (viol >= 3) {
-                            blokirBiasa();
-                        } else {
-                            Swal.fire('PERINGATAN', `Jangan tinggalkan layar ujian! (${viol}/3)`, 'warning');
-                        }
-                    }
-                }
-            }, 250);
-        });
-
-        window.addEventListener('load', () => {
-            const savedStatus = localStorage.getItem("spesha_blocked");
-            if (savedStatus) tampilkanLayarBlokir(savedStatus);
-        });
-
-        function disableKeys(e) {
-            if (e.ctrlKey && (e.key === 'c' || e.key === 'v' || e.key === 'u' || e.key === 's')) return false;
-            if (e.key === 'F12' || e.key === 'F5') return false;
-            return true;
         }
 
         async function login() {
             const user = document.getElementById('u').value, pass = document.getElementById('p').value;
-            if(!user || !pass) return Swal.fire('Lengkapi data', '', 'warning');
-            
-            Swal.fire({title: 'Autentikasi...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
+            Swal.fire({title: 'Memproses...', didOpen: () => Swal.showLoading()});
             try {
                 const r = await fetch(`${WEB_URL}?action=login&user=${user}&pass=${pass}`);
                 const d = await r.json();
                 if (d.status === "success") {
                     student = d;
+                    setIdentity(d.nama, d.ruang);
                     document.getElementById('login-screen').style.display = 'none';
-                    Swal.close(); 
-                    loadMapel();
-                } else {
-                    Swal.fire('Gagal', 'Akun tidak ditemukan', 'error');
-                }
+                    Swal.close(); loadMapel();
+                } else { Swal.fire('Gagal', 'Akun salah', 'error'); }
             } catch(e) { Swal.fire('Error', 'Koneksi gagal', 'error'); }
         }
 
@@ -221,35 +130,55 @@
             const r = await fetch(`${WEB_URL}?action=getMapel`);
             const m = await r.json();
             let h = m.map(x => `<button onclick="checkToken('${x.link}','${x.token}','${x.nama}')" class="btn-mapel">${x.nama}</button>`).join('');
-            Swal.fire({ title: 'Pilih Mata Pelajaran', html: h, showConfirmButton: false, allowOutsideClick: false });
+            Swal.fire({ title: 'Pilih Mapel', html: h, showConfirmButton: false, allowOutsideClick: false });
         }
 
         function checkToken(link, token, nama) {
-            Swal.fire({ 
-                title: 'Konfirmasi Token', 
-                text: 'Mapel: ' + nama,
-                input: 'text',
-                showCancelButton: true,
-                confirmButtonText: 'Mulai'
-            }).then(res => {
-                if (res.isConfirmed) {
-                    if (res.value === String(token)) { 
-                        mapelNow = nama; 
-                        startExam(link); 
-                    } else {
-                        Swal.fire('Token Salah', '', 'error').then(() => loadMapel());
-                    }
-                } else { loadMapel(); }
+            Swal.fire({ title: 'Input Token', input: 'text', showCancelButton: true }).then(res => {
+                if (res.isConfirmed && res.value === String(token)) {
+                    mapelNow = nama;
+                    startExam(link);
+                }
             });
         }
 
-        async function startExam(url) {
-            isExamActive = true;
+        function startExam(url) {
             document.getElementById('exam-screen').style.display = 'block';
             document.getElementById('exam-container').src = url;
-            // Presensi Otomatis Horizontal ke sheet "Nilai"[cite: 1]
+            // Presensi Otomatis[cite: 1]
             fetch(`${WEB_URL}?action=presensi&nama=${encodeURIComponent(student.nama)}&mapel=${encodeURIComponent(mapelNow)}`);
         }
+
+        async function bukaBlokir() {
+            const { value: pin } = await Swal.fire({ title: 'PIN PROKTOR', input: 'password' });
+            if (pin) {
+                const res = await fetch(`${WEB_URL}?action=checkPin&pin=${pin}`);
+                const d = await res.json();
+                if (d.status === "valid") {
+                    localStorage.removeItem("spesha_status");
+                    location.reload();
+                }
+            }
+        }
+
+        async function requestExit() {
+            const { value: pin } = await Swal.fire({ title: 'PIN KELUAR', input: 'password' });
+            if (pin) {
+                const res = await fetch(`${WEB_URL}?action=checkExitPin&pin=${pin}`);
+                const d = await res.json();
+                if (d.status === "valid" && window.AndroidControl) {
+                    window.AndroidControl.keluarUjian();
+                }
+            }
+        }
+
+        window.onload = () => {
+            if (localStorage.getItem("spesha_status") === "terkunci") {
+                document.getElementById('blocked-screen').style.display = 'flex';
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('main-header').style.filter = 'blur(5px)';
+            }
+        };
     </script>
 </body>
 </html>
