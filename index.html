@@ -162,28 +162,43 @@ window.addEventListener('blur', () => {
             fetch(`${WEB_URL}?action=presensi&nama=${encodeURIComponent(student.nama)}&mapel=${encodeURIComponent(mapelNow)}`);
         }
 
-        async function verifyPin(action) {
-            const pin = action === 'checkPin' ? document.getElementById('pin-input').value : (await Swal.fire({title:'Masukkan PIN Keluar', input:'password', showCancelButton: true})).value;
-            if(!pin) return;
+// Fungsi Kirim Presensi ke Sheet Nilai
+async function kirimPresensi(namaSiswa, mapelAktif) {
+    try {
+        const res = await fetch(`${WEB_URL}?action=presensi&nama=${namaSiswa}&mapel=${mapelAktif}`);
+        const data = await res.json();
+        console.log("Status Presensi:", data.status);
+    } catch (e) {
+        console.error("Gagal presensi:", e);
+    }
+}
 
-            const r = await fetch(`${WEB_URL}?action=${action}&pin=${pin}`);
-            const d = await r.json();
-            if (d.status === "valid") {
-                if(action === 'checkPin') {
-                    localStorage.removeItem("locked");
-                    location.reload();
-                } else {
-                    // Integrasi dengan Android Studio (Buka Kunci Kios)
-                    if (window.AndroidControl) {
-                        window.AndroidControl.keluarUjian();
-                    } else {
-                        location.reload(); 
-                    }
-                }
+// Fungsi Konfirmasi Keluar dengan PIN
+async function requestExit() {
+    const { value: pin } = await Swal.fire({
+        title: 'Konfirmasi Keluar',
+        text: 'Masukkan PIN Operator (F2) untuk keluar',
+        input: 'password',
+        inputPlaceholder: 'PIN Keluar',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545'
+    });
+
+    if (pin) {
+        const response = await fetch(`${WEB_URL}?action=checkExitPin&pin=${pin}`);
+        const data = await response.json();
+
+        if (data.status === "valid") {
+            if (window.AndroidControl) {
+                window.AndroidControl.keluarUjian(); // Perintah ke Android Studio
             } else {
-                Swal.fire('PIN Salah', '', 'error');
+                location.reload(); 
             }
+        } else {
+            Swal.fire('Gagal', 'PIN Salah!', 'error');
         }
+    }
+}
     </script>
 </body>
 </html>
