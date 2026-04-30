@@ -6,64 +6,52 @@
     <title>SPESHA EXAMBRO</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Tetap menggunakan style dari lampiran Anda */
         :root { --primary: #2c3e50; --accent: #3498db; --danger: #e74c3c; --success: #27ae60; }
-        body { margin: 0; font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; overflow: hidden; user-select: none; }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #f0f2f5; overflow: hidden; user-select: none; }
         .header { background: var(--primary); color: white; padding: 8px 15px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; position: fixed; top: 0; width: 100%; z-index: 100; box-sizing: border-box; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        .badge-warning { background: #f39c12; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
         .page { display: none; height: 100vh; width: 100vw; padding: 20px; box-sizing: border-box; }
         .active { display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .login-card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 350px; text-align: center; }
+        .logo-login { width: 80px; margin-bottom: 15px; }
         .input-group { position: relative; margin-bottom: 15px; width: 100%; }
         .input-group i { position: absolute; left: 15px; top: 12px; color: #95a5a6; }
         .input-group input, .input-group select { width: 100%; padding: 12px 15px 12px 45px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
         button.btn-primary { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
         #layarBlokir { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; color: #fff; z-index: 9999; text-align: center; padding: 50px 20px; }
-        #loader { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.8); z-index: 1000; justify-content:center; align-items:center; }
     </style>
 </head>
 <body>
-
-    <div id="loader"><i class="fa-solid fa-spinner fa-spin fa-2x" style="color:var(--primary)"></i></div>
 
     <div id="headerApp" class="header" style="display:none;">
         <div class="header-left">SPESHA EXAMBRO</div>
         <div class="header-right">
             <span id="txtSiswa">Siswa</span> | <span id="txtKelas">Kelas</span>
-            <span id="txtPelanggaran" class="badge-warning">P: 0/3</span>
-            <i class="fa-solid fa-power-off" onclick="mintaPinKeluar()" style="color:#ff7675; cursor:pointer;"></i>
+            <span id="txtPelanggaran" style="background:#f39c12; padding:2px 8px; border-radius:10px; font-size:11px;">P: 0/3</span>
+            <i class="fa-solid fa-power-off" onclick="mintaPinKeluar()" style="color:#ff7675; cursor:pointer; margin-left:10px;"></i>
         </div>
     </div>
 
     <!-- PAGE LOGIN -->
     <div id="pageLogin" class="page active">
         <div class="login-card">
-            <img src="https://zenaanfidilangga.github.io/Exambrowser/logo.png" style="width:80px; margin-bottom:15px;">
-            <h3 style="color:var(--primary);">LOGIN PESERTA</h3>
-            <div class="input-group">
-                <i class="fa-solid fa-user"></i>
-                <input type="text" id="username" placeholder="Username (NIS)">
-            </div>
-            <div class="input-group">
-                <i class="fa-solid fa-lock"></i>
-                <input type="password" id="password" placeholder="Password">
-            </div>
-            <button class="btn-primary" onclick="login()">MASUK</button>
+            <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" class="logo-login" alt="Logo">[cite: 4]
+            <h3 style="margin-top:0; color:var(--primary);">LOGIN PESERTA</h3>
+            <div class="input-group"><i class="fa-solid fa-user"></i><input type="text" id="username" placeholder="Username"></div>
+            <div class="input-group"><i class="fa-solid fa-lock"></i><input type="password" id="password" placeholder="Password"></div>
+            <button class="btn-primary" onclick="doLogin()">MASUK</button>
         </div>
     </div>
 
-    <!-- PAGE PILIH MAPEL (Sekarang Dinamis) -->
+    <!-- PAGE PILIH MAPEL -->
     <div id="pageMapel" class="page">
         <div class="login-card">
             <i class="fa-solid fa-book-open" style="font-size: 40px; color: var(--accent); margin-bottom: 10px;"></i>
             <h3 style="color:var(--primary);">MATA PELAJARAN</h3>
             <div class="input-group">
                 <i class="fa-solid fa-list-check"></i>
-                <select id="selectMapel">
-                    <option value="">-- Memuat Mapel... --</option>
-                </select>
+                <select id="selectMapel"><option value="">Memuat...</option></select>
             </div>
-            <button class="btn-primary" onclick="keHalamanToken()">LANJUTKAN</button>
+            <button class="btn-primary" onclick="keToken()">LANJUTKAN</button>
         </div>
     </div>
 
@@ -71,10 +59,7 @@
     <div id="pageToken" class="page">
         <div class="login-card">
             <h3 id="judulMapel" style="color:var(--primary);">UJIAN</h3>
-            <div class="input-group">
-                <i class="fa-solid fa-key"></i>
-                <input type="text" id="tokenUjian" placeholder="Masukkan Token">
-            </div>
+            <div class="input-group"><i class="fa-solid fa-key"></i><input type="text" id="tokenUjian" placeholder="Masukkan Token"></div>
             <div style="display:flex; gap:10px;">
                 <button onclick="pindahKe('pageMapel')" style="flex:1; background:#95a5a6; border:none; color:white; border-radius:8px;">BATAL</button>
                 <button onclick="prosesMulai()" style="flex:1; background:var(--success); border:none; color:white; border-radius:8px; padding:12px;">KONFIRMASI</button>
@@ -87,111 +72,74 @@
         <iframe id="frameUjian" src="" style="width:100%; height:100%; border:none;"></iframe>
     </div>
 
-    <!-- LAYAR BLOKIR -->
-    <div id="layarBlokir">
-        <i class="fa-solid fa-triangle-exclamation" style="font-size: 60px; color: var(--danger);"></i>
-        <h1 style="color:var(--danger);">PELANGGARAN BERAT</h1>
-        <p>HUBUNGI PROKTOR</p>
-        <br>
-        <input type="password" id="inputKodeSakti" placeholder="Kode Sakti" style="text-align:center; padding:10px;">
-        <br><br>
-        <button onclick="cekKodeSakti()" style="background:var(--success); color:white; padding:10px 30px; border:none; border-radius:5px;">BUKA KUNCI</button>
-    </div>
-
     <script>
-        // GANTI DENGAN URL WEB APP GAS ANDA
-        const URL_GAS = "https://script.google.com/macros/s/AKfycbxr36rJKPOCusxmZl60Z7RI2HKuChDwd3XSzItyeZ4Koenp2_nN4mNlEr0oNkePn8Sewg/exec
-        
-        let dataSiswa = {}; 
+        const URL_GAS = "https://script.google.com/macros/s/AKfycbxr36rJKPOCusxmZl60Z7RI2HKuChDwd3XSzItyeZ4Koenp2_nN4mNlEr0oNkePn8Sewg/exec"; // GANTI DENGAN URL DEPLOYMENT BAPAK
+        let userSiswa = {}; 
         let listMapel = []; 
-        let mapelTerpilih = {}; 
-        let statusUjian = "OFF"; 
-        let jumlahPelanggaran = 0;
+        let mapelAktif = {};
 
         function pindahKe(id) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(id).classList.add('active');
         }
 
-        function showLoading(s) { document.getElementById('loader').style.display = s ? 'flex' : 'none'; }
-
-        // LOGIN DINAMIS (Cek ke Spreadsheet)
-        async function login() {
+        async function doLogin() {
             const u = document.getElementById('username').value;
             const p = document.getElementById('password').value;
-            if(!u || !p) return alert("Isi data!");
+            if(!u || !p) return alert("Isi Username & Password!");
             
-            showLoading(true);
             try {
                 const res = await fetch(`${URL_GAS}?action=login&user=${u}&pass=${p}`);
                 const d = await res.json();
-                if(d.status === "success") {
-                    dataSiswa = d;
+                if (d.status === "success") {
+                    userSiswa = d;
                     document.getElementById('txtSiswa').innerText = d.nama;
                     document.getElementById('txtKelas').innerText = d.kelas;
-                    await muatMapel();
+                    muatMapel();
                     pindahKe('pageMapel');
-                } else { alert("Login Gagal!"); }
-            } catch(e) { alert("Error Koneksi"); }
-            showLoading(false);
+                } else alert("Login Gagal! Periksa kembali data Anda.");
+            } catch(e) { alert("Error koneksi ke Server."); }
         }
 
-        // AMBIL MAPEL DARI SHEET
         async function muatMapel() {
             const res = await fetch(`${URL_GAS}?action=getMapel`);
             listMapel = await res.json();
             const sel = document.getElementById('selectMapel');
             sel.innerHTML = '<option value="">-- Pilih Mapel --</option>';
-            listMapel.forEach(m => {
-                sel.innerHTML += `<option value="${m.nama}">${m.nama}</option>`;
-            });
+            listMapel.forEach(m => sel.innerHTML += `<option value="${m.nama}">${m.nama}</option>`);
         }
 
-        function keHalamanToken() {
+        function keToken() {
             const val = document.getElementById('selectMapel').value;
-            mapelTerpilih = listMapel.find(m => m.nama === val);
-            if(mapelTerpilih) {
-                document.getElementById('judulMapel').innerText = mapelTerpilih.nama;
+            mapelAktif = listMapel.find(m => m.nama === val);
+            if(mapelAktif) {
+                document.getElementById('judulMapel').innerText = mapelAktif.nama;
                 pindahKe('pageToken');
-            } else { alert("Pilih Mapel!"); }
+            } else alert("Pilih Mata Pelajaran!");
         }
 
-        // TOKEN & PRESENSI OTOMATIS
         async function prosesMulai() {
-            const inputTk = document.getElementById('tokenUjian').value;
-            if(inputTk === mapelTerpilih.token) {
-                showLoading(true);
-                // Kirim Presensi (Nama, Kelas, Mapel)
-                const res = await fetch(`${URL_GAS}?action=presensi&nama=${dataSiswa.nama}&kelas=${dataSiswa.kelas}&mapel=${mapelTerpilih.nama}`);
-                const r = await res.json();
+            const tk = document.getElementById('tokenUjian').value;
+            if (tk === mapelAktif.token) {
+                // Kirim Presensi Otomatis
+                await fetch(`${URL_GAS}?action=presensi&nama=${userSiswa.nama}&kelas=${userSiswa.kelas}&mapel=${mapelAktif.nama}`);
                 
-                if(r.status === "success") {
-                    document.getElementById('headerApp').style.display = 'flex';
-                    document.getElementById('frameUjian').src = mapelTerpilih.link;
-                    pindahKe('pageUjian');
-                    statusUjian = "ON";
-                }
-                showLoading(false);
-            } else { alert("Token Salah!"); }
+                document.getElementById('headerApp').style.display = 'flex';
+                document.getElementById('frameUjian').src = mapelAktif.link;
+                pindahKe('pageUjian');
+            } else alert("Token Salah!");
         }
 
-        // PIN SAKTI DARI SHEET
-        async function cekKodeSakti() {
-            const pin = document.getElementById('inputKodeSakti').value;
-            const res = await fetch(`${URL_GAS}?action=checkPin&pin=${pin}`);
-            const d = await res.json();
-            if(d.status === "valid") {
-                document.getElementById('layarBlokir').style.display = "none";
-                jumlahPelanggaran = 0;
-                document.getElementById('txtPelanggaran').innerText = "P: 0/3";
-            } else { alert("PIN Salah!"); }
-        }
-
-        async function mintaPinKeluar() {
-            const p = prompt("PIN Keluar:");
-            const res = await fetch(`${URL_GAS}?action=checkExitPin&pin=${p}`);
-            const d = await res.json();
-            if(d.status === "valid" && window.AndroidControl) window.AndroidControl.keluarUjian();
+        function mintaPinKeluar() {
+            const pin = prompt("Masukkan PIN Proktor:");
+            if(pin) {
+                fetch(`${URL_GAS}?action=checkExitPin&pin=${pin}`)
+                .then(r => r.json())
+                .then(d => {
+                    if(d.status === "valid" && window.AndroidControl) window.AndroidControl.keluarUjian();
+                    else if(d.status !== "valid") alert("PIN Salah!");
+                });
+            }
         }
     </script>
 </body>
