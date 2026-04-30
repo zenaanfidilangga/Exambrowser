@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHA EXAMBRO - SMP SHALAHUDDIN</title>
+    <title>SPESHA EXAMBRO - SMP SHALAHUDDIN</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -11,46 +11,42 @@
         * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; outline: none; }
         input, textarea { -webkit-user-select: text; user-select: text; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; background: var(--bg); overflow: hidden; }
-        
-        /* Pelanggaran Counter Atas Tengah */
+
+        /* Badge Pelanggaran Atas Tengah */
         #viol-badge { 
             position: fixed; top: 15px; left: 50%; transform: translateX(-50%); 
-            z-index: 2000; background: var(--red); color: white; 
-            padding: 8px 20px; border-radius: 30px; font-weight: bold; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2); display: none; 
+            z-index: 9999; background: var(--red); color: white; 
+            padding: 8px 25px; border-radius: 30px; font-weight: bold; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: none; 
         }
 
         header { background: #fff; padding: 10px 25px; display: flex; justify-content: space-between; border-bottom: 4px solid var(--blue); align-items: center; height: 70px; box-sizing: border-box; }
-        #main-layout { display: grid; grid-template-columns: 1fr 300px; height: calc(100vh - 70px); }
-        .question-area { background: #fff; padding: 30px; overflow-y: auto; position: relative; border-right: 1px solid #ddd; padding-bottom: 100px; }
-        .sidebar { background: #f8f9fa; padding: 15px; display: flex; flex-direction: column; overflow-y: auto; }
-        .footer { position: absolute; bottom: 0; left: 0; width: 100%; background: #fff; border-top: 1px solid #ddd; padding: 15px 30px; display: flex; justify-content: space-between; box-sizing: border-box; z-index: 10; }
-        .btn { padding: 12px 25px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
-        #lock-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; color: white; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        #exam-container { width: 100%; height: calc(100vh - 70px); border: none; }
+        
+        #lock-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; color: white; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
         .logo-img { height: 50px; margin-right: 15px; }
         
-        /* Mapel Button Styling */
-        .btn-mapel { display:block; width:100%; margin:10px 0; padding:15px; border:2px solid var(--blue); background:white; border-radius:8px; font-weight:bold; cursor:pointer; transition: 0.3s; }
-        .btn-mapel:hover { background: var(--blue); color: white; }
+        .btn-mapel { display:block; width:100%; margin:10px 0; padding:15px; border:2px solid var(--blue); background:white; border-radius:8px; font-weight:bold; cursor:pointer; }
     </style>
 </head>
 <body oncontextmenu="return false" onkeydown="return disableKeys(event)">
 
     <!-- Counter Pelanggaran -->
-    <div id="viol-badge">Pelanggaran: <span id="viol-num">0</span></div>
+    <div id="viol-badge">PELANGGARAN: 0</div>
 
+    <!-- Screen Lock (PIN F1) -->
     <div id="lock-screen">
-        <i class="fas fa-shield-alt" style="font-size: 80px; color: #dc3545; margin-bottom: 20px;"></i>
-        <h2>SISTEM TERKUNCI</h2>
-        <p>Anda mencoba keluar dari aplikasi terlalu banyak.<br>Hubungi Proktor untuk membuka.</p>
-        <input type="password" id="pin-f1" placeholder="PIN F1" style="padding: 12px; text-align: center; border-radius: 5px; border: none; font-size: 1.1rem;">
-        <button onclick="unlock()" style="margin-top: 20px; padding: 10px 40px; background: #28a745; color: white; border: none; border-radius: 5px; font-weight: bold;">BUKA</button>
+        <i class="fas fa-user-lock" style="font-size: 80px; color: var(--red); margin-bottom: 20px;"></i>
+        <h2>APLIKASI TERKUNCI</h2>
+        <p>Anda terdeteksi keluar dari ujian.<br>Hubungi Proktor untuk membuka.</p>
+        <input type="password" id="pin-input" placeholder="Masukkan KODE OPERATOR" style="padding: 12px; text-align: center; border-radius: 5px; border: none; font-size: 1.1rem; width: 200px;">
+        <button onclick="verifyPin('checkPin')" style="margin-top: 20px; padding: 10px 40px; background: #28a745; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">BUKA</button>
     </div>
 
     <header>
         <div style="display: flex; align-items: center;">
-            <img class="logo-img" src="https://via.placeholder.com/50?text=Logo" id="app-logo">
-            <div style="font-weight: 800; color: var(--blue); font-size: 1.2rem;">SHA EXAMBRO</div>
+            <img class="logo-img" src="https://via.placeholder.com/50?text=SHA" id="app-logo">
+            <div style="font-weight: 800; color: var(--blue); font-size: 1.2rem;">SPESHA EXAMBRO</div>
         </div>
         <div id="user-info" style="text-align: right; font-size: 0.9rem;"></div>
     </header>
@@ -64,203 +60,113 @@
         </div>
     </div>
 
+    <!-- Area Google Form -->
     <div id="exam-screen" style="display: none;">
-        <div id="main-layout">
-            <div class="question-area">
-                <div id="q-box">
-                    <div id="q-title" style="font-size: 1.25rem; line-height: 1.6;"></div>
-                    <div id="q-opts" style="margin-top: 20px;"></div>
-                </div>
-                <div class="footer">
-                    <button class="btn" style="background: #6c757d; color: white;" onclick="move(-1)">KEMBALI</button>
-                    <button class="btn" style="background: var(--yellow);" onclick="setRagu()">RAGU-RAGU</button>
-                    <button class="btn" style="background: var(--blue); color: white;" onclick="move(1)">BERIKUTNYA</button>
-                </div>
-            </div>
-            <div class="sidebar">
-                <h4 style="margin: 0 0 10px 0;">Navigasi Soal</h4>
-                <div id="nav-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;"></div>
-                <div id="time-status" style="margin-top: 15px; font-size: 0.8rem; text-align: center; font-weight: bold;"></div>
-                <button id="btn-finish" onclick="finish()" style="margin-top: auto; padding: 15px; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: not-allowed; transition: 0.3s;">SELESAI & KIRIM</button>
-            </div>
-        </div>
+        <iframe id="exam-container" src=""></iframe>
+        <button onclick="verifyPin('checkExitPin')" style="position: fixed; bottom: 20px; right: 20px; padding: 10px 20px; background: var(--red); color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; z-index: 100;">SELESAI</button>
     </div>
 
     <script>
-        const WEB_URL = "URL_APPS_SCRIPT_BAPAK_DISINI"; 
-        let questions = [], cur = 0, answers = {}, ragu = {}, student = {}, f1 = "", f2 = "", mapelNow = "", targetTime = "";
-        let viol = 0;
+        const WEB_URL = "https://script.google.com/macros/s/AKfycbxr36rJKPOCusxmZl60Z7RI2HKuChDwd3XSzItyeZ4Koenp2_nN4mNlEr0oNkePn8Sewg/exec"; 
+        let student = {}, mapelNow = "", viol = 0, isExamActive = false;
 
-        // 1. KEAMANAN & PELANGGARAN
         function disableKeys(e) {
             if (e.ctrlKey && (e.key === 'c' || e.key === 'v' || e.key === 'u' || e.key === 's')) return false;
             if (e.key === 'F12' || e.key === 'F5') return false;
             return true;
         }
 
+        // Keamanan Pelanggaran
         window.onblur = () => {
-            if (questions.length > 0 && localStorage.getItem("locked") !== "true") {
+            if (isExamActive && localStorage.getItem("locked") !== "true") {
                 viol++;
-                document.getElementById('viol-num').innerText = viol;
-                if (viol >= 3) { 
-                    localStorage.setItem("locked", "true"); 
-                    location.reload(); 
+                document.getElementById('viol-badge').style.display = 'block';
+                document.getElementById('viol-badge').innerHTML = `PELANGGARAN: ${viol}`;
+                
+                if (viol >= 3) {
+                    localStorage.setItem("locked", "true");
+                    location.reload();
                 } else {
-                    Swal.fire({
-                        title: 'PERINGATAN!',
-                        text: 'Jangan meninggalkan halaman ujian! (' + viol + '/3)',
-                        icon: 'warning',
-                        confirmButtonText: 'Kembali Ujian'
-                    });
+                    Swal.fire('PERINGATAN', `Dilarang keluar! (${viol}/3)`, 'warning');
                 }
             }
         };
 
         if (localStorage.getItem("locked") === "true") document.getElementById('lock-screen').style.display = 'flex';
 
-        // 2. SISTEM LOGIN & LOADING OPTIMASI
         async function login() {
             const user = document.getElementById('u').value, pass = document.getElementById('p').value;
-            if(!user || !pass) return Swal.fire('Error', 'Lengkapi username/password', 'error');
-            
             Swal.fire({title: 'Autentikasi...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
             try {
                 const r = await fetch(`${WEB_URL}?action=login&user=${user}&pass=${pass}`);
                 const d = await r.json();
                 if (d.status === "success") {
-                    student = d; f1 = d.f1; f2 = d.f2;
+                    student = d;
                     document.getElementById('login-screen').style.display = 'none';
                     document.getElementById('user-info').innerHTML = `<b>${d.nama}</b><br>${d.ruang}`;
                     Swal.close(); 
                     loadMapel();
                 } else {
-                    Swal.fire('Gagal', 'Akun tidak ditemukan', 'error');
+                    Swal.fire('Gagal', 'Akun salah', 'error');
                 }
-            } catch(e) { Swal.fire('Error', 'Gagal terhubung ke database', 'error'); }
+            } catch(e) { Swal.fire('Error', 'Koneksi gagal', 'error'); }
         }
 
-        // 3. PEMILIHAN MAPEL & TOKEN (FIX CANCEL)
         async function loadMapel() {
-            Swal.fire({title: 'Memuat Daftar Mapel...', didOpen: () => Swal.showLoading()});
             const r = await fetch(`${WEB_URL}?action=getMapel`);
             const m = await r.json();
-            Swal.close();
-
-            let h = m.map(x => `<button onclick="checkToken('${x.link}','${x.token}','${x.nama}','${x.jam}')" class="btn-mapel">${x.nama} (Selesai: ${x.jam})</button>`).join('');
-            
-            Swal.fire({ 
-                title: 'Pilih Mata Pelajaran', 
-                html: h, 
-                showConfirmButton: false,
-                allowOutsideClick: false
-            });
+            let h = m.map(x => `<button onclick="checkToken('${x.link}','${x.token}','${x.nama}')" class="btn-mapel">${x.nama}</button>`).join('');
+            Swal.fire({ title: 'Pilih Mata Pelajaran', html: h, showConfirmButton: false, allowOutsideClick: false });
         }
 
-        function checkToken(link, token, nama, jam) {
+        function checkToken(link, token, nama) {
             Swal.fire({ 
                 title: 'Konfirmasi Token', 
                 text: 'Mapel: ' + nama,
                 input: 'text',
-                inputPlaceholder: 'Masukkan Token...',
                 showCancelButton: true,
                 cancelButtonText: 'Batal/Kembali',
-                confirmButtonText: 'Mulai Ujian'
+                confirmButtonText: 'Mulai'
             }).then(res => {
                 if (res.isConfirmed) {
                     if (res.value === String(token)) { 
-                        mapelNow = nama; targetTime = jam; 
-                        start(link); 
+                        mapelNow = nama; 
+                        startExam(link); 
                     } else {
                         Swal.fire('Token Salah', '', 'error').then(() => loadMapel());
                     }
                 } else {
-                    // Jika Batal/Cancel, Kembali ke Pemilihan Mapel
-                    loadMapel();
+                    loadMapel(); // Kembali ke pemilihan mapel
                 }
             });
         }
 
-        // 4. ENGINE UJIAN
-        async function start(url) {
-            Swal.fire({title: 'Menyiapkan Soal...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
-            const r = await fetch(`${WEB_URL}?action=getQuestions&url=${encodeURIComponent(url)}`);
-            const d = await r.json();
-            if(d.error) { Swal.fire('Gagal', d.error, 'error'); return; }
-            
-            questions = d;
-            document.getElementById('viol-badge').style.display = 'block';
+        async function startExam(url) {
+            isExamActive = true;
             document.getElementById('exam-screen').style.display = 'block';
-            document.documentElement.requestFullscreen().catch(e => console.log("FS Blocked"));
+            document.getElementById('exam-container').src = url;
+            document.documentElement.requestFullscreen().catch(() => {});
             
-            // Kirim Presensi Otomatis saat mulai
-            fetch(`${WEB_URL}?action=presensi&nama=${encodeURIComponent(student.nama)}&kelas=${encodeURIComponent(student.ruang)}&mapel=${encodeURIComponent(mapelNow)}`);
-            
-            Swal.close();
-            render();
-            checkTime(); setInterval(checkTime, 10000);
+            // Presensi Otomatis Horizontal
+            fetch(`${WEB_URL}?action=presensi&nama=${encodeURIComponent(student.nama)}&mapel=${encodeURIComponent(mapelNow)}`);
         }
 
-        // Fungsi render dan logika ujian tetap sama seperti sebelumnya (Questions, Answers, Finish)
-        // ... (Kode Render() s/d finish() di bawah tetap dipertahankan dari sumber asli Bapak)
-        
-        function render() {
-            const q = questions[cur];
-            document.getElementById('q-title').innerHTML = `<b>No. ${cur+1}</b> ${q.type === "CHECKBOX" ? "<br><small style='color:red;'>(Jawaban lebih dari satu)</small>" : ""}<br><br>${q.title}`;
-            document.getElementById('q-opts').innerHTML = q.options.map((o, i) => {
-                let isSelected = (q.type === "CHECKBOX") ? (answers[cur] || []).includes(o) : (answers[cur] === o);
-                return `<div class="opt ${isSelected ? 'selected' : ''}" onclick="ans('${o}')" style="display: flex; align-items: center; padding: 15px; border: 1px solid #ddd; margin: 10px 0; border-radius: 8px; cursor: pointer;"><b>${String.fromCharCode(65+i)}. </b> ${o}</div>`;
-            }).join('');
-            
-            const g = document.getElementById('nav-grid');
-            g.innerHTML = questions.map((_, i) => {
-                let c = (i === cur) ? 'background: #0056b3; color: white;' : 'background: white;';
-                if (answers[i]) c = 'background: #28a745; color: white;';
-                return `<div style="${c} height: 40px; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; border-radius: 4px;" onclick="cur=${i};render()">${i+1}</div>`;
-            }).join('');
-        }
+        async function verifyPin(action) {
+            const pin = action === 'checkPin' ? document.getElementById('pin-input').value : (await Swal.fire({title:'Masukkan PIN Keluar', input:'password'})).value;
+            if(!pin) return;
 
-        function ans(v) {
-            const q = questions[cur];
-            if (q.type === "CHECKBOX") {
-                if (!answers[cur]) answers[cur] = [];
-                let idx = answers[cur].indexOf(v);
-                if (idx > -1) answers[cur].splice(idx, 1); else answers[cur].push(v);
-            } else { answers[cur] = v; }
-            render();
-        }
-
-        function move(d) { let n = cur + d; if (n >= 0 && n < questions.length) { cur = n; render(); } }
-
-        function checkTime() {
-            const now = new Date();
-            const current = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
-            const btn = document.getElementById('btn-finish');
-            if (current >= targetTime) {
-                btn.style.background = "#28a745"; btn.style.cursor = "pointer";
-            } else {
-                btn.style.background = "#6c757d"; btn.style.cursor = "not-allowed";
-            }
-        }
-
-        function unlock() {
-            if (document.getElementById('pin-f1').value === String(f1)) { 
-                localStorage.removeItem("locked"); 
-                location.reload(); 
-            } else Swal.fire('PIN Salah', '', 'error');
-        }
-        
-        async function finish() {
-            const now = new Date();
-            const current = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
-            if (current < targetTime) return Swal.fire('Sabar', 'Waktu ujian belum selesai!', 'warning');
-            
-            Swal.fire({ title: 'Kirim Jawaban?', text: "Masukkan PIN F2", input: 'password' }).then(async res => {
-                if (res.value === String(f2)) {
-                    Swal.fire({title: 'Mengirim...', didOpen: () => Swal.showLoading()});
-                    // Logika hitung skor dan kirim nilai...
+            const r = await fetch(`${WEB_URL}?action=${action}&pin=${pin}`);
+            const d = await r.json();
+            if (d.status === "valid") {
+                if(action === 'checkPin') {
+                    localStorage.removeItem("locked");
                     location.reload();
+                } else {
+                    location.reload(); // Selesai Ujian
                 }
-            });
+            } else {
+                Swal.fire('PIN Salah', '', 'error');
+            }
         }
     </script>
 </body>
