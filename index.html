@@ -7,12 +7,12 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --blue: #0056b3; --yellow: #ffc107; --bg: #f4f7f9; --red: #dc3545; }
+        :root { --blue: #0056b3; --yellow: #ffc107; --bg: #f4f7f9; --red: #dc3545; --black: #1a1a1a; --dark-red: #4b0000; }
         * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; outline: none; }
         input, textarea { -webkit-user-select: text; user-select: text; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; background: var(--bg); overflow: hidden; }
 
-        /* Badge Pelanggaran Atas Tengah */
+        /* Badge Pelanggaran */
         #viol-badge { 
             position: fixed; top: 15px; left: 50%; transform: translateX(-50%); 
             z-index: 9999; background: var(--red); color: white; 
@@ -20,58 +20,177 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: none; 
         }
 
+        /* Tampilan Blokir Utama */
+        #blocked-screen {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; background: var(--black); 
+            z-index: 20000; color: white; flex-direction: column; 
+            justify-content: center; align-items: center; text-align: center;
+        }
+        .warning-box { border: 2px solid var(--red); padding: 40px; border-radius: 15px; background: #000; max-width: 80%; }
+        .bg-berat { background: var(--dark-red) !important; }
+        .text-berat { color: #ff0000 !important; text-shadow: 0 0 10px #ff0000; }
+
         header { background: #fff; padding: 10px 25px; display: flex; justify-content: space-between; border-bottom: 4px solid var(--blue); align-items: center; height: 70px; box-sizing: border-box; }
         #exam-container { width: 100%; height: calc(100vh - 70px); border: none; }
         
-        #lock-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; color: white; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-        .logo-img { height: 50px; margin-right: 15px; }
-        
+        .logo-img { height: 80px; margin-bottom: 20px; }
         .btn-mapel { display:block; width:100%; margin:10px 0; padding:15px; border:2px solid var(--blue); background:white; border-radius:8px; font-weight:bold; cursor:pointer; }
+        .btn-proktor { background: var(--red); color: white; border: none; padding: 15px 30px; border-radius: 8px; font-weight: bold; margin-top: 20px; cursor: pointer; }
     </style>
 </head>
 <body oncontextmenu="return false" onkeydown="return disableKeys(event)">
 
-    <!-- Counter Pelanggaran -->
+    <!-- Badge Pelanggaran -->
     <div id="viol-badge">PELANGGARAN: 0</div>
 
-    <!-- Screen Lock (KODE OPERATOR) -->
-    <div id="lock-screen">
-        <i class="fas fa-user-lock" style="font-size: 80px; color: var(--red); margin-bottom: 20px;"></i>
-        <h2>APLIKASI TERKUNCI</h2>
-        <p>Anda terdeteksi keluar dari ujian.<br>Hubungi Proktor untuk membuka.</p>
-        <input type="password" id="pin-input" placeholder="Masukkan KODE OPERATOR" style="padding: 12px; text-align: center; border-radius: 5px; border: none; font-size: 1.1rem; width: 200px;">
-        <button onclick="verifyPin('checkPin')" style="margin-top: 20px; padding: 10px 40px; background: #28a745; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">BUKA</button>
+    <!-- Layar Blokir (Pembeda Biasa & Berat) -->
+    <div id="blocked-screen">
+        <div class="warning-box" id="block-box">
+            <i id="block-icon" class="fas fa-exclamation-triangle" style="font-size: 80px; margin-bottom: 20px;"></i>
+            <h1 id="block-title" style="font-size: 2.5rem; margin: 0;">TERKUNCI</h1>
+            <p id="block-desc" style="font-size: 1.2rem; margin: 20px 0;"></p>
+            <button class="btn-proktor" onclick="bukaBlokir()">INPUT KODE OTORITAS</button>
+        </div>
     </div>
 
-<header style="display: flex; justify-content: space-between; align-items: center; padding: 10px 20px;">
-    <div style="display: flex; align-items: center;">
-        <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" style="height: 40px; margin-right: 10px;">
-        <div style="font-weight: 800; color: var(--blue);">SPESHA EXAMBRO</div>
-    </div>
-    <!-- Tombol Keluar yang muncul sejak awal -->
-    <button onclick="requestExit()" style="background: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 5px; font-weight: bold; cursor: pointer;">KELUAR</button>
-</header>
-<div id="login-screen" style="display: flex; justify-content: center; align-items: center; height: 80vh;">
-    <div style="background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 25px rgba(0,0,0,0.1); width: 320px; text-align: center;">
-        <!-- Logo di Halaman Login -->
-        <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" style="height: 80px; margin-bottom: 20px;"> 
-        
-        <h3 style="color: var(--blue); margin-top: 0;">LOGIN PESERTA</h3>
-        <input type="text" id="u" placeholder="Username" style="width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box;">
-        <input type="password" id="p" placeholder="Password" style="width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box;">
-        <button onclick="login()" style="width: 100%; padding: 12px; background: var(--blue); color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">MASUK</button>
-    </div>
-</div>
+    <!-- Header Aplikasi -->
+    <header>
+        <div style="display: flex; align-items: center;">
+            <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" style="height: 40px; margin-right: 10px;">
+            <div style="font-weight: 800; color: var(--blue);">SPESHA EXAMBRO</div>
+        </div>
+        <button onclick="requestExit()" style="background: var(--red); color: white; border: none; padding: 8px 15px; border-radius: 5px; font-weight: bold; cursor: pointer;">KELUAR</button>
+    </header>
 
-    <!-- Area Google Form -->
+    <!-- Halaman Login -->
+    <div id="login-screen" style="display: flex; justify-content: center; align-items: center; height: 80vh;">
+        <div style="background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 25px rgba(0,0,0,0.1); width: 320px; text-align: center;">
+            <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" class="logo-img"> 
+            <h3 style="color: var(--blue); margin-top: 0;">LOGIN PESERTA</h3>
+            <input type="text" id="u" placeholder="Username" style="width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box;">
+            <input type="password" id="p" placeholder="Password" style="width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box;">
+            <button onclick="login()" style="width: 100%; padding: 12px; background: var(--blue); color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">MASUK</button>
+        </div>
+    </div>
+
+    <!-- Area Ujian -->
     <div id="exam-screen" style="display: none;">
         <iframe id="exam-container" src=""></iframe>
-        <button onclick="verifyPin('checkExitPin')" style="position: fixed; bottom: 20px; right: 20px; padding: 10px 20px; background: var(--red); color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; z-index: 100;">SELESAI</button>
+        <button onclick="requestExit()" style="position: fixed; bottom: 20px; right: 20px; padding: 10px 20px; background: var(--red); color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; z-index: 100;">SELESAI</button>
     </div>
 
     <script>
+        // Ganti dengan URL Web App Google Apps Script Bapak[cite: 1]
         const WEB_URL = "https://script.google.com/macros/s/AKfycbxr36rJKPOCusxmZl60Z7RI2HKuChDwd3XSzItyeZ4Koenp2_nN4mNlEr0oNkePn8Sewg/exec"; 
         let student = {}, mapelNow = "", viol = 0, isExamActive = false;
+
+        // --- SISTEM BLOKIR ---
+
+        function blokirBiasa() {
+            localStorage.setItem("spesha_blocked", "biasa");
+            tampilkanLayarBlokir("biasa");
+        }
+
+        // Dipanggil dari Android Studio jika sistem sematan lepas[cite: 1]
+        function aktifkanBlokir() {
+            localStorage.setItem("spesha_blocked", "berat");
+            tampilkanLayarBlokir("berat");
+        }
+
+        function tampilkanLayarBlokir(tipe) {
+            const screen = document.getElementById('blocked-screen');
+            const box = document.getElementById('block-box');
+            const title = document.getElementById('block-title');
+            const desc = document.getElementById('block-desc');
+            const icon = document.getElementById('block-icon');
+
+            screen.style.display = 'flex';
+            
+            if (tipe === "berat") {
+                screen.classList.add('bg-berat');
+                title.innerHTML = "PELANGGARAN BERAT";
+                title.classList.add('text-berat');
+                icon.style.color = "#ff0000";
+                desc.innerHTML = "Sistem mendeteksi Anda keluar dari mode sematan aplikasi secara paksa.<br><b>WAJIB MELAPOR KE KEPALA SEKOLAH</b>";
+            } else {
+                screen.classList.remove('bg-berat');
+                title.innerHTML = "APLIKASI TERKUNCI";
+                title.classList.remove('text-berat');
+                icon.style.color = "var(--yellow)";
+                desc.innerHTML = "Anda terdeteksi meninggalkan layar ujian sebanyak 3 kali.<br>Hubungi Proktor untuk membuka.";
+            }
+        }
+
+        async function bukaBlokir() {
+            const statusSaatIni = localStorage.getItem("spesha_blocked");
+            const { value: pin } = await Swal.fire({
+                title: statusSaatIni === "berat" ? 'OTORITAS KEPALA SEKOLAH' : 'OTORITAS PROKTOR',
+                input: 'password',
+                placeholder: 'Masukkan Kode Akses',
+                showCancelButton: true
+            });
+
+            if (pin) {
+                const res = await fetch(`${WEB_URL}?action=checkPin&pin=${pin}`);
+                const d = await res.json();
+                if (d.status === "valid") {
+                    localStorage.removeItem("spesha_blocked");
+                    document.getElementById('blocked-screen').style.display = 'none';
+                    viol = 0; 
+                    Swal.fire('Berhasil', 'Akses dibuka kembali.', 'success');
+                } else {
+                    Swal.fire('Gagal', 'Kode Akses Salah!', 'error');
+                }
+            }
+        }
+
+        async function requestExit() {
+            const { value: pin } = await Swal.fire({
+                title: 'KONFIRMASI KELUAR',
+                text: 'Masukkan PIN F2 untuk menutup aplikasi',
+                input: 'password',
+                showCancelButton: true
+            });
+
+            if (pin) {
+                const res = await fetch(`${WEB_URL}?action=checkExitPin&pin=${pin}`);
+                const d = await r.json(); // Menggunakan hasil fetch PIN F2[cite: 1]
+                if (d.status === "valid") {
+                    if (window.AndroidControl) {
+                        window.AndroidControl.keluarUjian();
+                    } else {
+                        location.reload(); 
+                    }
+                } else {
+                    Swal.fire('PIN Salah', '', 'error');
+                }
+            }
+        }
+
+        // --- LOGIKA UJIAN & DETEKSI ---
+
+        window.addEventListener('blur', () => {
+            setTimeout(() => {
+                if (isExamActive && !localStorage.getItem("spesha_blocked")) {
+                    if (document.activeElement !== document.getElementById('exam-container')) {
+                        viol++;
+                        document.getElementById('viol-badge').style.display = 'block';
+                        document.getElementById('viol-badge').innerHTML = `PELANGGARAN: ${viol}`;
+                        if (viol >= 3) {
+                            blokirBiasa();
+                        } else {
+                            Swal.fire('PERINGATAN', `Jangan tinggalkan layar ujian! (${viol}/3)`, 'warning');
+                        }
+                    }
+                }
+            }, 250);
+        });
+
+        window.addEventListener('load', () => {
+            const savedStatus = localStorage.getItem("spesha_blocked");
+            if (savedStatus) tampilkanLayarBlokir(savedStatus);
+        });
 
         function disableKeys(e) {
             if (e.ctrlKey && (e.key === 'c' || e.key === 'v' || e.key === 'u' || e.key === 's')) return false;
@@ -79,34 +198,10 @@
             return true;
         }
 
-        /// Tambahkan variabel untuk mengecek apakah sedang fokus di iframe
-let isFocusOnIframe = false;
-
-window.addEventListener('blur', () => {
-    // Jika fokus hilang tapi isExamActive aktif dan bukan karena klik di dalam soal
-    setTimeout(() => {
-        if (isExamActive && localStorage.getItem("locked") !== "true") {
-            // Cek apakah yang aktif sekarang adalah iframe soal
-            if (document.activeElement !== document.getElementById('exam-container')) {
-                viol++;
-                document.getElementById('viol-badge').style.display = 'block';
-                document.getElementById('viol-badge').innerHTML = `PELANGGARAN: ${viol}`;
-                
-                if (viol >= 3) {
-                    localStorage.setItem("locked", "true");
-                    location.reload();
-                } else {
-                    Swal.fire('PERINGATAN', `Jangan keluar dari layar ujian! (${viol}/3)`, 'warning');
-                }
-            }
-        }
-    }, 100); // Beri jeda sedikit agar sistem bisa menentukan elemen mana yang aktif
-});
-
-        if (localStorage.getItem("locked") === "true") document.getElementById('lock-screen').style.display = 'flex';
-
         async function login() {
             const user = document.getElementById('u').value, pass = document.getElementById('p').value;
+            if(!user || !pass) return Swal.fire('Lengkapi data', '', 'warning');
+            
             Swal.fire({title: 'Autentikasi...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
             try {
                 const r = await fetch(`${WEB_URL}?action=login&user=${user}&pass=${pass}`);
@@ -114,11 +209,10 @@ window.addEventListener('blur', () => {
                 if (d.status === "success") {
                     student = d;
                     document.getElementById('login-screen').style.display = 'none';
-                    document.getElementById('user-info').innerHTML = `<b>${d.nama}</b><br>${d.ruang}`;
                     Swal.close(); 
                     loadMapel();
                 } else {
-                    Swal.fire('Gagal', 'Akun salah', 'error');
+                    Swal.fire('Gagal', 'Akun tidak ditemukan', 'error');
                 }
             } catch(e) { Swal.fire('Error', 'Koneksi gagal', 'error'); }
         }
@@ -136,7 +230,6 @@ window.addEventListener('blur', () => {
                 text: 'Mapel: ' + nama,
                 input: 'text',
                 showCancelButton: true,
-                cancelButtonText: 'Batal/Kembali',
                 confirmButtonText: 'Mulai'
             }).then(res => {
                 if (res.isConfirmed) {
@@ -146,9 +239,7 @@ window.addEventListener('blur', () => {
                     } else {
                         Swal.fire('Token Salah', '', 'error').then(() => loadMapel());
                     }
-                } else {
-                    loadMapel(); // Kembali ke pemilihan mapel
-                }
+                } else { loadMapel(); }
             });
         }
 
@@ -156,106 +247,9 @@ window.addEventListener('blur', () => {
             isExamActive = true;
             document.getElementById('exam-screen').style.display = 'block';
             document.getElementById('exam-container').src = url;
-            document.documentElement.requestFullscreen().catch(() => {});
-            
-            // Presensi Otomatis Horizontal[cite: 2, 3]
+            // Presensi Otomatis Horizontal ke sheet "Nilai"[cite: 1]
             fetch(`${WEB_URL}?action=presensi&nama=${encodeURIComponent(student.nama)}&mapel=${encodeURIComponent(mapelNow)}`);
         }
-
-// Fungsi Kirim Presensi ke Sheet Nilai
-async function kirimPresensi(namaSiswa, mapelAktif) {
-    try {
-        const res = await fetch(`${WEB_URL}?action=presensi&nama=${namaSiswa}&mapel=${mapelAktif}`);
-        const data = await res.json();
-        console.log("Status Presensi:", data.status);
-    } catch (e) {
-        console.error("Gagal presensi:", e);
-    }
-}
-
-// Fungsi Konfirmasi Keluar dengan PIN
-async function requestExit() {
-    const { value: pin } = await Swal.fire({
-        title: 'Konfirmasi Keluar',
-        text: 'Masukkan PIN Operator (F2) untuk keluar',
-        input: 'password',
-        inputPlaceholder: 'PIN Keluar',
-        showCancelButton: true,
-        confirmButtonColor: '#dc3545'
-    });
-
-    if (pin) {
-        const response = await fetch(`${WEB_URL}?action=checkExitPin&pin=${pin}`);
-        const data = await response.json();
-
-        if (data.status === "valid") {
-            if (window.AndroidControl) {
-                window.AndroidControl.keluarUjian(); // Perintah ke Android Studio
-            } else {
-                location.reload(); 
-            }
-        } else {
-            Swal.fire('Gagal', 'PIN Salah!', 'error');
-        }
-    }
-}
-        // Tambahkan variabel status di bagian atas script
-let isBlocked = false;
-
-// Fungsi yang dipanggil dari Java jika siswa mencoba keluar
-function aktifkanBlokir() {
-    isBlocked = true;
-    localStorage.setItem("app_blocked", "true"); // Simpan status agar tetap terblokir walau restart
-    tampilkanLayarBlokir();
-}
-
-function tampilkanLayarBlokir() {
-    Swal.fire({
-        title: 'APLIKASI TERBLOKIR!',
-        html: '<b style="color:red">Pelanggaran Berat Terdeteksi.</b><br>Silakan lapor ke Kepala Sekolah untuk membuka.',
-        icon: 'error',
-        showConfirmButton: true,
-        confirmButtonText: 'MASUKKAN KODE PROKTOR',
-        allowOutsideClick: false,
-        allowEscapeKey: false
-    }).then((result) => {
-        if (result.isConfirmed) {
-            bukaBlokir();
-        }
-    });
-}
-
-async function bukaBlokir() {
-    const { value: pin } = await Swal.fire({
-        title: 'Input Kode Proktor',
-        input: 'password',
-        inputAttributes: { autocapitalize: 'off' },
-        showCancelButton: true
-    });
-
-    if (pin) {
-        // Cek PIN di Sheet1 sel F1 (Gunakan action checkPin yang sudah Bapak buat)
-        const res = await fetch(`${WEB_URL}?action=checkPin&pin=${pin}`);
-        const data = await res.json();
-
-        if (data.status === "valid") {
-            isBlocked = false;
-            localStorage.removeItem("app_blocked");
-            Swal.fire('Berhasil', 'Aplikasi terbuka kembali', 'success');
-        } else {
-            Swal.fire('Gagal', 'Kode Salah!', 'error').then(() => tampilkanLayarBlokir());
-        }
-    } else {
-        tampilkanLayarBlokir();
-    }
-}
-
-// Cek status blokir saat halaman dimuat pertama kali
-window.onload = () => {
-    if (localStorage.getItem("app_blocked") === "true") {
-        tampilkanLayarBlokir();
-    }
-};
     </script>
 </body>
 </html>
