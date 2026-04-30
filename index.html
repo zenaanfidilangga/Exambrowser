@@ -34,7 +34,7 @@
     <!-- Counter Pelanggaran -->
     <div id="viol-badge">PELANGGARAN: 0</div>
 
-    <!-- Screen Lock (PIN F1) -->
+    <!-- Screen Lock (KODE OPERATOR) -->
     <div id="lock-screen">
         <i class="fas fa-user-lock" style="font-size: 80px; color: var(--red); margin-bottom: 20px;"></i>
         <h2>APLIKASI TERKUNCI</h2>
@@ -147,12 +147,12 @@
             document.getElementById('exam-container').src = url;
             document.documentElement.requestFullscreen().catch(() => {});
             
-            // Presensi Otomatis Horizontal
+            // Presensi Otomatis Horizontal[cite: 2, 3]
             fetch(`${WEB_URL}?action=presensi&nama=${encodeURIComponent(student.nama)}&mapel=${encodeURIComponent(mapelNow)}`);
         }
 
         async function verifyPin(action) {
-            const pin = action === 'checkPin' ? document.getElementById('pin-input').value : (await Swal.fire({title:'Masukkan PIN Keluar', input:'password'})).value;
+            const pin = action === 'checkPin' ? document.getElementById('pin-input').value : (await Swal.fire({title:'Masukkan PIN Keluar', input:'password', showCancelButton: true})).value;
             if(!pin) return;
 
             const r = await fetch(`${WEB_URL}?action=${action}&pin=${pin}`);
@@ -162,7 +162,12 @@
                     localStorage.removeItem("locked");
                     location.reload();
                 } else {
-                    location.reload(); // Selesai Ujian
+                    // Integrasi dengan Android Studio (Buka Kunci Kios)
+                    if (window.AndroidControl) {
+                        window.AndroidControl.keluarUjian();
+                    } else {
+                        location.reload(); 
+                    }
                 }
             } else {
                 Swal.fire('PIN Salah', '', 'error');
