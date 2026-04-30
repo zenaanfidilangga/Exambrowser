@@ -4,181 +4,225 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SPESHA EXAMBRO</title>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <!-- Tambahkan Font Awesome untuk Icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --blue: #0056b3; --bg: #f4f7f9; --red: #dc3545; --black: #1a1a1a; }
-        * { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); overflow: hidden; }
-
-        /* Layar Blokir */
-        #blocked-screen {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: var(--black); z-index: 20000; color: white; flex-direction: column; 
-            justify-content: center; align-items: center; text-align: center;
-        }
-        
-        header { 
-            background: #fff; padding: 10px 20px; display: flex; 
-            justify-content: space-between; border-bottom: 4px solid var(--blue); 
-            align-items: center; height: 60px; box-sizing: border-box;
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --danger: #e74c3c;
+            --success: #27ae60;
         }
 
-        /* Counter Pelanggaran di Tengah Atas */
-        #violation-counter {
-            background: #fff3f3; border: 1px solid var(--red); color: var(--red);
-            padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 12px;
+        body {
+            margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5; overflow: hidden; user-select: none;
         }
 
-        #exam-container { width: 100%; height: calc(100vh - 60px); border: none; }
-        .btn-mapel { display: block; width: 100%; margin: 10px 0; padding: 15px; border: 2px solid var(--blue); background: white; border-radius: 8px; font-weight: bold; }
+        /* HEADER RINGKAS */
+        .header {
+            background: var(--primary); color: white; padding: 8px 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 13px; position: fixed; top: 0; width: 100%; z-index: 100;
+            box-sizing: border-box; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .header-left { font-weight: bold; }
+        .header-right { display: flex; align-items: center; gap: 10px; }
+        .badge-warning { background: #f39c12; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+
+        /* LOGIN STYLE PROFESIONAL */
+        .page {
+            display: none; height: 100vh; width: 100vw;
+            padding: 20px; box-sizing: border-box;
+        }
+        .active { display: flex; flex-direction: column; justify-content: center; align-items: center; }
+
+        .login-card {
+            background: white; padding: 30px; border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 350px;
+            text-align: center;
+        }
+
+        .logo-login { width: 80px; margin-bottom: 15px; }
+
+        .input-group {
+            position: relative; margin-bottom: 15px; width: 100%;
+        }
+        .input-group i {
+            position: absolute; left: 15px; top: 12px; color: #95a5a6;
+        }
+        .input-group input, .input-group select {
+            width: 100%; padding: 12px 15px 12px 45px; border: 1px solid #ddd;
+            border-radius: 8px; box-sizing: border-box; font-size: 14px;
+            transition: 0.3s;
+        }
+        .input-group input:focus { border-color: var(--accent); outline: none; }
+
+        button.btn-primary {
+            width: 100%; padding: 12px; background: var(--primary);
+            color: white; border: none; border-radius: 8px; font-weight: bold;
+            cursor: pointer; margin-top: 10px;
+        }
+
+        /* OVERLAY PELANGGARAN */
+        #layarBlokir {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; background: #000; color: #fff;
+            z-index: 9999; text-align: center; padding: 50px 20px;
+        }
     </style>
 </head>
-<body oncontextmenu="return false">
+<body>
 
-    <!-- Screen Pelanggaran Berat -->
-    <div id="blocked-screen">
-        <div style="border: 2px solid var(--red); padding: 40px; border-radius: 15px; background: #000;">
-            <i class="fas fa-exclamation-triangle" style="font-size: 60px; color: var(--red); margin-bottom: 20px;"></i>
-            <h1 style="color: var(--red);">TERKUNCI</h1>
-            <p id="block-desc">Deteksi Pelanggaran Berat atau Batas Toleransi Habis.<br>Silahkan lapor ke Proktor.</p>
-            <button onclick="bukaBlokir()" style="background: var(--red); color: white; border: none; padding: 15px 30px; border-radius: 8px; font-weight: bold; margin-top: 20px;">INPUT KODE OTORITAS</button>
+    <div id="headerApp" class="header" style="display:none;">
+        <div class="header-left">SPESHA EXAMBRO</div>
+        <div class="header-right">
+            <span id="txtSiswa">Siswa</span>
+            <span id="txtPelanggaran" class="badge-warning">P: 0/3</span>
+            <i class="fa-solid fa-power-off" onclick="mintaPinKeluar()" style="color:#ff7675; cursor:pointer;"></i>
         </div>
     </div>
 
-    <header id="main-header">
-        <div style="display: flex; align-items: center; flex: 1;">
-            <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" style="height: 30px; margin-right: 10px;">
-            <div>
-                <div style="font-weight: 800; color: var(--blue); font-size: 12px;">SPESHA EXAMBRO</div>
-                <div id="user-info" style="font-size: 10px; color: #555; font-weight: bold;">Login dulu</div>
+    <!-- PAGE LOGIN -->
+    <div id="pageLogin" class="page active">
+        <div class="login-card">
+            <img src="https://zenaanfidilangga.github.io/Exambrowser/logo.png" class="logo-login" alt="Logo">
+            <h3 style="margin-top:0; color:var(--primary);">LOGIN PESERTA</h3>
+            <div class="input-group">
+                <i class="fa-solid fa-user"></i>
+                <input type="text" id="username" placeholder="Nama Lengkap / NIS">
+            </div>
+            <div class="input-group">
+                <i class="fa-solid fa-lock"></i>
+                <input type="password" id="password" placeholder="Password">
+            </div>
+            <button class="btn-primary" onclick="login()">MASUK</button>
+        </div>
+    </div>
+
+    <!-- PAGE PILIH MAPEL -->
+    <div id="pageMapel" class="page">
+        <div class="login-card">
+            <i class="fa-solid fa-book-open" style="font-size: 40px; color: var(--accent); margin-bottom: 10px;"></i>
+            <h3 style="color:var(--primary);">MATA PELAJARAN</h3>
+            <div class="input-group">
+                <i class="fa-solid fa-list-check"></i>
+                <select id="selectMapel">
+                    <option value="">-- Pilih Mapel --</option>
+                    <option value="PJOK">PJOK (Olahraga)</option>
+                    <option value="IPA">Ilmu Pengetahuan Alam</option>
+                    <option value="MATEMATIKA">Matematika</option>
+                </select>
+            </div>
+            <button class="btn-primary" onclick="pilihMapel()">LANJUTKAN</button>
+        </div>
+    </div>
+
+    <!-- PAGE TOKEN & PRESENSI -->
+    <div id="pageToken" class="page">
+        <div class="login-card">
+            <h3 id="judulMapel" style="color:var(--primary);">UJIAN</h3>
+            <div class="input-group">
+                <i class="fa-solid fa-key"></i>
+                <input type="text" id="tokenUjian" placeholder="Masukkan Token">
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button onclick="pindahKe('pageMapel')" style="flex:1; background:#95a5a6; border:none; color:white; border-radius:8px;">BATAL</button>
+                <button onclick="prosesMulai()" style="flex:1; background:var(--success); border:none; color:white; border-radius:8px; padding:12px;">KONFIRMASI</button>
             </div>
         </div>
-
-        <!-- Counter Pelanggaran Tengah -->
-        <div id="violation-counter" style="flex: 0;">
-            <i class="fas fa-shield-alt"></i> Pelanggaran: <span id="v-count">0</span>/3
-        </div>
-
-        <div style="flex: 1; text-align: right;">
-            <button id="exit-btn" onclick="requestExit()" style="background: var(--red); color: white; border: none; padding: 6px 12px; border-radius: 5px; font-weight: bold; font-size: 11px;">KELUAR</button>
-        </div>
-    </header>
-
-    <div id="login-screen" style="display: flex; justify-content: center; align-items: center; height: calc(100vh - 60px);">
-        <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); width: 280px; text-align: center;">
-            <h3 style="color: var(--blue);">LOGIN PESERTA</h3>
-            <input type="text" id="u" placeholder="Username" style="width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;">
-            <input type="password" id="p" placeholder="Password" style="width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 5px;">
-            <button onclick="login()" style="width: 100%; padding: 12px; background: var(--blue); color: white; border: none; border-radius: 5px; font-weight: bold;">MASUK</button>
-        </div>
     </div>
 
-    <div id="exam-screen" style="display: none;">
-        <iframe id="exam-container" src=""></iframe>
+    <div id="pageUjian" class="page" style="padding:0; padding-top:40px;">
+        <iframe id="frameUjian" src="" style="width:100%; height:100%; border:none;"></iframe>
+    </div>
+
+    <div id="layarBlokir">
+        <i class="fa-solid fa-triangle-exclamation" style="font-size: 60px; color: var(--danger);"></i>
+        <h1 style="color:var(--danger);">PELANGGARAN BERAT</h1>
+        <p>HUBUNGI KEPALA SEKOLAH</p>
+        <br>
+        <input type="password" id="inputKodeSakti" placeholder="Kode Sakti" style="text-align:center; width:200px;">
+        <br><br>
+        <button onclick="cekKodeSakti()" style="background:var(--success); padding:10px 30px; color:white; border:none; border-radius:5px;">BUKA KUNCI</button>
     </div>
 
     <script>
-        const WEB_URL = "https://script.google.com/macros/s/AKfycbxr36rJKPOCusxmZl60Z7RI2HKuChDwd3XSzItyeZ4Koenp2_nN4mNlEr0oNkePn8Sewg/exec"; 
-        let student = {}, mapelNow = "", vCount = 0;
+        let statusUjian = "BELUM_LOGIN";
+        let jumlahPelanggaran = 0;
+        const KODE_SAKTI = "123456"; 
+        // GANTI URL DI BAWAH DENGAN URL WEB APP GOOGLE APPS SCRIPT BAPAK
+        const URL_GAS_PRESENSI = "https://script.google.com/macros/s/xxxxxx/exec";
 
-        function setIdentity(nama, kelas) {
-            document.getElementById('user-info').innerHTML = `${nama} | ${kelas}`;
+        function pindahKe(idTarget) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(idTarget).classList.add('active');
         }
 
-        // --- SISTEM PELANGGARAN ---
-        function aktifkanBlokir(isBerat = false) {
-            if (isBerat) {
-                // Pelanggaran Berat: Langsung kunci total
-                localStorage.setItem("spesha_status", "terkunci");
-                location.reload();
-            } else {
-                // Pelanggaran Ringan: Tambah counter
-                vCount++;
-                document.getElementById('v-count').innerText = vCount;
-                
-                if (vCount >= 3) {
-                    aktifkanBlokir(true); // Jika sudah 3x, jadi berat[cite: 1]
-                } else {
-                    Swal.fire({
-                        title: 'PERINGATAN!',
-                        text: 'Jangan mencoba keluar dari aplikasi atau menarik notifikasi!',
-                        icon: 'warning',
-                        confirmButtonText: 'Saya Mengerti'
-                    });
-                }
+        function login() {
+            const user = document.getElementById('username').value;
+            if(user) {
+                document.getElementById('txtSiswa').innerText = user;
+                pindahKe('pageMapel');
+            } else { alert("Data tidak lengkap!"); }
+        }
+
+        function pilihMapel() {
+            const mapel = document.getElementById('selectMapel').value;
+            if(mapel) {
+                document.getElementById('judulMapel').innerText = mapel;
+                pindahKe('pageToken');
+            } else { alert("Pilih Mapel!"); }
+        }
+
+        function prosesMulai() {
+            const token = document.getElementById('tokenUjian').value;
+            if(token === "TOKEN123") {
+                kirimPresensi(); // Fungsi presensi otomatis
+                document.getElementById('headerApp').style.display = 'flex';
+                document.getElementById('frameUjian').src = "https://docs.google.com/forms/d/e/..."; 
+                pindahKe('pageUjian');
+                statusUjian = "UJIAN";
+            } else { alert("Token Salah!"); }
+        }
+
+        function kirimPresensi() {
+            const nama = document.getElementById('txtSiswa').innerText;
+            const mapel = document.getElementById('selectMapel').value;
+            
+            // Mengirim data ke Google Spreadsheet via GAS
+            fetch(URL_GAS_PRESENSI + `?nama=${nama}&mapel=${mapel}&status=Hadir`)
+            .then(res => console.log("Presensi Berhasil"))
+            .catch(err => console.log("Gagal Presensi"));
+        }
+
+        // FUNGSI BLOKIR (Sama seperti sebelumnya)
+        function aktifkanBlokirRingan() {
+            if (statusUjian === "UJIAN") {
+                jumlahPelanggaran++;
+                document.getElementById('txtPelanggaran').innerText = "P: " + jumlahPelanggaran + "/3";
+                if (jumlahPelanggaran >= 3) aktifkanBlokirBerat();
             }
         }
 
-        async function login() {
-            const user = document.getElementById('u').value, pass = document.getElementById('p').value;
-            Swal.fire({title: 'Memproses...', didOpen: () => Swal.showLoading()});
-            try {
-                const r = await fetch(`${WEB_URL}?action=login&user=${user}&pass=${pass}`);
-                const d = await r.json();
-                if (d.status === "success") {
-                    student = d;
-                    setIdentity(d.nama, d.ruang);
-                    document.getElementById('login-screen').style.display = 'none';
-                    Swal.close(); loadMapel();
-                } else { Swal.fire('Gagal', 'Akun salah', 'error'); }
-            } catch(e) { Swal.fire('Error', 'Koneksi gagal', 'error'); }
+        function aktifkanBlokirBerat() {
+            document.getElementById('layarBlokir').style.display = "block";
         }
 
-        async function loadMapel() {
-            const r = await fetch(`${WEB_URL}?action=getMapel`);
-            const m = await r.json();
-            let h = m.map(x => `<button onclick="checkToken('${x.link}','${x.token}','${x.nama}')" class="btn-mapel">${x.nama}</button>`).join('');
-            Swal.fire({ title: 'Pilih Mapel', html: h, showConfirmButton: false, allowOutsideClick: false });
-        }
-
-        function checkToken(link, token, nama) {
-            Swal.fire({ title: 'Input Token', input: 'text', showCancelButton: true }).then(res => {
-                if (res.isConfirmed && res.value === String(token)) {
-                    mapelNow = nama;
-                    startExam(link);
-                }
-            });
-        }
-
-        function startExam(url) {
-            document.getElementById('exam-screen').style.display = 'block';
-            document.getElementById('exam-container').src = url;
-            // Presensi Otomatis[cite: 1]
-            fetch(`${WEB_URL}?action=presensi&nama=${encodeURIComponent(student.nama)}&mapel=${encodeURIComponent(mapelNow)}`);
-        }
-
-        async function bukaBlokir() {
-            const { value: pin } = await Swal.fire({ title: 'PIN PROKTOR', input: 'password' });
-            if (pin) {
-                const res = await fetch(`${WEB_URL}?action=checkPin&pin=${pin}`);
-                const d = await res.json();
-                if (d.status === "valid") {
-                    localStorage.removeItem("spesha_status");
-                    location.reload();
-                }
+        function cekKodeSakti() {
+            if (document.getElementById('inputKodeSakti').value === KODE_SAKTI) {
+                document.getElementById('layarBlokir').style.display = "none";
+                jumlahPelanggaran = 0;
+                document.getElementById('txtPelanggaran').innerText = "P: 0/3";
             }
         }
 
-        async function requestExit() {
-            const { value: pin } = await Swal.fire({ title: 'PIN KELUAR', input: 'password' });
-            if (pin) {
-                const res = await fetch(`${WEB_URL}?action=checkExitPin&pin=${pin}`);
-                const d = await res.json();
-                if (d.status === "valid" && window.AndroidControl) {
-                    window.AndroidControl.keluarUjian();
-                }
+        function mintaPinKeluar() {
+            if (prompt("PIN Proktor:") === KODE_SAKTI) {
+                if(window.AndroidControl) window.AndroidControl.keluarUjian();
             }
         }
-
-        window.onload = () => {
-            if (localStorage.getItem("spesha_status") === "terkunci") {
-                document.getElementById('blocked-screen').style.display = 'flex';
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('main-header').style.filter = 'blur(5px)';
-            }
-        };
     </script>
 </body>
 </html>
