@@ -72,158 +72,135 @@
         </div>
     </div>
 
-    <!-- PANEL UJIAN -->
+        }
+<!-- Bagian CSS & Header tetap sama seperti sebelumnya, hanya ganti bagian Iframe dan Script ini -->
+
+    <!-- PANEL UJIAN DENGAN SECURITY SANDBOX -->
     <div id="p-exam" class="page" style="padding:0; padding-top:65px;">
-        <iframe id="f-exam" src="" style="width:100%; height:100%; border:none;"></iframe>
+        <!-- sandbox="allow-forms allow-scripts allow-same-origin" 
+             Tanpa "allow-popups" dan "allow-top-navigation" agar link eksternal Google Form lumpuh -->
+        <iframe id="f-exam" 
+                src="" 
+                sandbox="allow-forms allow-scripts allow-same-origin allow-modals"
+                style="width:100%; height:100%; border:none;"></iframe>
     </div>
 
-    <!-- LOCK OVERLAY -->
-    <div id="l-ovr" class="overlay">
-        <h1 id="l-ttl">TERKUNCI</h1>
-        <p id="l-msg" style="font-size:1.2rem; margin-bottom:20px;">Deskripsi Pelanggaran</p>
-        <input type="text" id="l-inp" placeholder="KODE AKSES" style="width:250px; text-transform:uppercase;">
-        <button class="btn-action" id="l-btn" style="width:250px; background:var(--success); color:white; margin-top:10px;">BUKA AKSES</button>
-    </div>
+<script>
+    const API = "https://script.google.com/macros/s/AKfycbxr36rJKPOCusxmZl60Z7RI2HKuChDwd3XSzItyeZ4Koenp2_nN4mNlEr0oNkePn8Sewg/exec"; 
+    let user = {}, curMapel = {}, pCount = 0, isLive = false, isHeavy = false, isSystemAction = false;
 
-    <script>
-        const API = "https://script.google.com/macros/s/AKfycbxr36rJKPOCusxmZl60Z7RI2HKuChDwd3XSzItyeZ4Koenp2_nN4mNlEr0oNkePn8Sewg/exec"; 
-        let user = {}, curMapel = {}, pCount = 0, isLive = false, isHeavy = false;
+    // 1. LOCK LAYAR & ANTI-REFRESH
+    window.onbeforeunload = function() {
+        if(isLive) return "Ujian sedang berlangsung! Keluar akan dianggap pelanggaran.";
+    };
+
+    // 2. FUNGSI ALERT KHUSUS AGAR TIDAK DIHITUNG PELANGGARAN
+    function appAlert(msg) {
+        isSystemAction = true;
+        alert(msg);
+        setTimeout(() => { isSystemAction = false; }, 500);
+    }
+
+    // 3. DETEKSI PELANGGARAN (BLUR & VISIBILITY)
+    document.addEventListener("visibilitychange", function() {
+        if (document.visibilityState === 'hidden' && isLive && !isHeavy && !isSystemAction) {
+            handleViolation();
+        }
+    });
+
+    window.addEventListener('blur', function() {
+        if(isLive && !isHeavy && !isSystemAction) {
+            handleViolation();
+        }
+    });
+
+    function handleViolation() {
+        pCount++;
+        document.getElementById('h-p').innerText = "P: " + pCount;
+        fetch(`${API}?action=updateP&row=${user.row}&count=${pCount}`); 
         
-        // REVISI: PENANDA AGAR NOTIFIKASI TIDAK DIHITUNG PELANGGARAN
-        let isSystemAction = false; 
-
-        if ('wakeLock' in navigator) navigator.wakeLock.request('screen').catch(()=>{});
-
-        // REVISI: FUNGSI NOTIFIKASI KHUSUS ANTI-BLUR
-        function appAlert(msg) {
-            isSystemAction = true;
-            alert(msg);
-            setTimeout(() => { isSystemAction = false; }, 500);
+        if(pCount >= 2) {
+            showLock("proctor", "APLIKASI TERKUNCI", "Pelanggaran terdeteksi 2x.\nMasukkan KODE PROKTOR.");
+        } else {
+            appAlert("⚠️ PERINGATAN (1/2): Dilarang keluar dari aplikasi atau membuka menu lain!");
         }
+    }
 
-        function pindah(id) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
+    // 4. PEMICU PELANGGARAN BERAT (BACK / RECENT / GESTURE)
+    // Kita paksa history tetap di halaman yang sama
+    function preventBack() {
+        window.history.pushState(null, null, window.location.href);
+    }
+
+    window.addEventListener('popstate', function() {
+        if(isLive) {
+            isHeavy = true;
+            preventBack();
+            showLock("principal", "PELANGGARAN BERAT", "Deteksi navigasi ilegal (Tombol Back/Recent)!\nHubungi KEPALA SEKOLAH.");
         }
+    });
 
-        async function doLogin() {
-            const uReq = document.getElementById('u').value.trim();
-            const pReq = document.getElementById('p').value.trim();
-            if(!uReq || !pReq) return appAlert("⚠️ Harap isi Username dan Password!");
+    // Inisialisasi pencegah back
+    setInterval(() => { if(isLive) preventBack(); }, 1000);
 
-            const btn = document.getElementById('btn-login');
+    // 5. LOGIN & START EXAM (Fungsi lain tetap sama)
+    async function startExam() {
+        const inputToken = document.getElementById('tk').value.trim();
+        if(!inputToken) return appAlert("⚠️ Masukkan Token!");
+
+        if(inputToken.toUpperCase() === curMapel.token.toUpperCase()) {
+            const btn = document.getElementById('btn-token');
             btn.innerText = "MEMPROSES...";
-
-            try {
-                const res = await fetch(`${API}?action=login&user=${encodeURIComponent(uReq)}&pass=${encodeURIComponent(pReq)}`);
-                const d = await res.json();
-                
-                if(d.status === "success") {
-                    user = d;
-                    document.getElementById('h-info').innerHTML = `${d.nama} | Kelas: ${d.kelas}`;
-                    await loadMapel();
-                    pindah('p-mapel');
-                } else {
-                    appAlert("❌ " + d.message);
-                }
-            } catch(err) {
-                appAlert("❌ Gagal terhubung. Pastikan URL Web App sudah benar.");
-            }
-            btn.innerText = "MASUK";
+            
+            await fetch(`${API}?action=presensi&nama=${encodeURIComponent(user.nama)}&kelas=${encodeURIComponent(user.kelas)}&mapel=${encodeURIComponent(curMapel.nama)}`);
+            
+            // Set sumber iframe dan aktifkan mode ujian
+            document.getElementById('f-exam').src = curMapel.link;
+            isLive = true; 
+            pindah('p-exam');
+            
+            // Minta Fullscreen
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) elem.requestFullscreen();
+            else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
+            
+            preventBack();
+        } else {
+            appAlert("❌ Token Salah!");
         }
+    }
 
-        async function loadMapel() {
-            const res = await fetch(`${API}?action=getMapel`);
-            const list = await res.json();
-            const s = document.getElementById('s-mapel');
-            s.innerHTML = '<option value="">-- Pilih Mata Pelajaran --</option>';
-            list.forEach(m => s.innerHTML += `<option value='${JSON.stringify(m)}'>${m.nama}</option>`);
-        }
+    // 6. LOCK SYSTEM (REVISI KODE KELUAR F2)
+    function askExit() {
+        showLock("exit", "KONFIRMASI KELUAR", "Masukkan PIN KELUAR (Sheet1 F2).");
+    }
 
-        function goToken() {
-            const val = document.getElementById('s-mapel').value;
-            if(!val) return appAlert("⚠️ Pilih Mata Pelajaran terlebih dahulu!");
-            curMapel = JSON.parse(val);
-            document.getElementById('t-name').innerText = curMapel.nama;
-            document.getElementById('tk').value = ""; 
-            pindah('p-token');
-        }
-
-        async function startExam() {
-            const inputToken = document.getElementById('tk').value.trim();
-            if(!inputToken) return appAlert("⚠️ Masukkan Token!");
-
-            if(inputToken.toUpperCase() === curMapel.token.toUpperCase()) {
-                const btn = document.getElementById('btn-token');
-                btn.innerText = "MEMBUAT PRESENSI...";
-                
-                await fetch(`${API}?action=presensi&nama=${encodeURIComponent(user.nama)}&kelas=${encodeURIComponent(user.kelas)}&mapel=${encodeURIComponent(curMapel.nama)}`);
-                
-                document.getElementById('f-exam').src = curMapel.link;
-                isLive = true; 
-                pindah('p-exam');
-                
-                if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+    function showLock(type, title, msg) {
+        isSystemAction = true; 
+        const ov = document.getElementById('l-ovr');
+        ov.style.display = 'flex';
+        if(type === 'principal') ov.classList.add('heavy');
+        
+        document.getElementById('l-ttl').innerText = title;
+        document.getElementById('l-msg').innerText = msg;
+        
+        const btn = document.getElementById('l-btn');
+        btn.onclick = async () => {
+            const code = document.getElementById('l-inp').value.trim();
+            if(!code) return appAlert("⚠️ Masukkan Kode!");
+            
+            btn.innerText = "MENGECEK...";
+            const res = await fetch(`${API}?action=checkCode&type=${type}&code=${encodeURIComponent(code)}`);
+            const d = await res.json();
+            
+            if(d.status === 'valid') {
+                location.reload(); // Kembali ke Login
             } else {
-                appAlert("❌ Token Salah! Silakan cek kembali.");
+                appAlert("❌ Kode Salah!");
             }
-        }
+            btn.innerText = "BUKA AKSES";
+        };
+    }
 
-        // SISTEM ANTI CHEATING
-        window.addEventListener('blur', function() {
-            // REVISI: JIKA SEDANG ADA NOTIFIKASI APLIKASI (isSystemAction), JANGAN DIHITUNG
-            if(!isLive || isHeavy || isSystemAction) return; 
-            
-            pCount++;
-            document.getElementById('h-p').innerText = "P: " + pCount;
-            fetch(`${API}?action=updateP&row=${user.row}&count=${pCount}`); 
-            
-            if(pCount >= 2) {
-                showLock("proctor", "APLIKASI TERKUNCI", "Pelanggaran terdeteksi 2x.\nMasukkan KODE PROKTOR.");
-            } else {
-                appAlert("⚠️ PERINGATAN (1/2): Dilarang membuka notifikasi atau keluar layar!");
-            }
-        });
-
-        window.addEventListener('popstate', function() {
-            if(isLive) {
-                isHeavy = true;
-                showLock("principal", "PELANGGARAN BERAT", "Dilarang menekan tombol kembali!\nHubungi KEPALA SEKOLAH masukkan kode.");
-            }
-        });
-        history.pushState(null, null, location.href);
-
-        function askExit() {
-            showLock("exit", "KONFIRMASI KELUAR", "Masukkan PIN KELUAR dari Sheet 1 (F2).");
-        }
-
-        function showLock(type, title, msg) {
-            isSystemAction = true; // Menghentikan hitungan pelanggaran selama popup terbuka
-            const ov = document.getElementById('l-ovr');
-            ov.style.display = 'flex';
-            if(type === 'principal') ov.classList.add('heavy');
-            
-            document.getElementById('l-ttl').innerText = title;
-            document.getElementById('l-msg').innerText = msg;
-            const btn = document.getElementById('l-btn');
-            
-            btn.onclick = async () => {
-                const code = document.getElementById('l-inp').value.trim();
-                if(!code) return appAlert("⚠️ Masukkan Kode!");
-                
-                btn.innerText = "MENGECEK...";
-                const res = await fetch(`${API}?action=checkCode&type=${type}&code=${encodeURIComponent(code)}`);
-                const d = await res.json();
-                
-                if(d.status === 'valid') {
-                    // REVISI: SEMUA AKSI BUKA KUNCI BERHASIL AKAN KEMBALI KE HALAMAN LOGIN AWAL
-                    location.reload(); 
-                } else {
-                    appAlert("❌ Kode Salah!");
-                }
-                btn.innerText = "BUKA AKSES";
-            };
-        }
-    </script>
-</body>
-</html>
+    // Fungsi pembantu lainnya (doLogin, loadMapel, pindah) tetap sama...
+</script>
