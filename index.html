@@ -51,14 +51,17 @@
         <div id="user-info" style="text-align: right; font-size: 0.9rem;"></div>
     </header>
 
-    <div id="login-screen" style="display: flex; justify-content: center; align-items: center; height: 80vh;">
-        <div style="background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 25px rgba(0,0,0,0.1); width: 320px; text-align: center;">
-            <h3 style="color: var(--blue);">LOGIN PESERTA</h3>
-            <input type="text" id="u" placeholder="Username" style="width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box;">
-            <input type="password" id="p" placeholder="Password" style="width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box;">
-            <button onclick="login()" style="width: 100%; padding: 12px; background: var(--blue); color: white; border: none; border-radius: 5px; font-weight: bold;">MASUK</button>
-        </div>
+<div id="login-screen" style="display: flex; justify-content: center; align-items: center; height: 80vh;">
+    <div style="background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 25px rgba(0,0,0,0.1); width: 320px; text-align: center;">
+        <!-- Logo di Halaman Login -->
+        <img src="https://via.placeholder.com/80?text=SHA" style="height: 80px; margin-bottom: 20px;"> 
+        
+        <h3 style="color: var(--blue); margin-top: 0;">LOGIN PESERTA</h3>
+        <input type="text" id="u" placeholder="Username" style="width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box;">
+        <input type="password" id="p" placeholder="Password" style="width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box;">
+        <button onclick="login()" style="width: 100%; padding: 12px; background: var(--blue); color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">MASUK</button>
     </div>
+</div>
 
     <!-- Area Google Form -->
     <div id="exam-screen" style="display: none;">
