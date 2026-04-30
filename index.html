@@ -76,9 +76,15 @@
             return true;
         }
 
-        // Keamanan Pelanggaran
-        window.onblur = () => {
-            if (isExamActive && localStorage.getItem("locked") !== "true") {
+        /// Tambahkan variabel untuk mengecek apakah sedang fokus di iframe
+let isFocusOnIframe = false;
+
+window.addEventListener('blur', () => {
+    // Jika fokus hilang tapi isExamActive aktif dan bukan karena klik di dalam soal
+    setTimeout(() => {
+        if (isExamActive && localStorage.getItem("locked") !== "true") {
+            // Cek apakah yang aktif sekarang adalah iframe soal
+            if (document.activeElement !== document.getElementById('exam-container')) {
                 viol++;
                 document.getElementById('viol-badge').style.display = 'block';
                 document.getElementById('viol-badge').innerHTML = `PELANGGARAN: ${viol}`;
@@ -87,10 +93,12 @@
                     localStorage.setItem("locked", "true");
                     location.reload();
                 } else {
-                    Swal.fire('PERINGATAN', `Dilarang keluar! (${viol}/3)`, 'warning');
+                    Swal.fire('PERINGATAN', `Jangan keluar dari layar ujian! (${viol}/3)`, 'warning');
                 }
             }
-        };
+        }
+    }, 100); // Beri jeda sedikit agar sistem bisa menentukan elemen mana yang aktif
+});
 
         if (localStorage.getItem("locked") === "true") document.getElementById('lock-screen').style.display = 'flex';
 
