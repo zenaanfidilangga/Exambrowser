@@ -9,56 +9,52 @@
         :root { --primary: #2c3e50; --accent: #3498db; --danger: #e74c3c; --success: #27ae60; }
         body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #f0f2f5; overflow: hidden; user-select: none; }
         
-        /* HEADER DIPERBESAR */
+        /* HEADER PERMANEN & LEBIH BESAR[cite: 4] */
         .header { 
             background: var(--primary); color: white; padding: 12px 20px; 
             display: flex; justify-content: space-between; align-items: center; 
-            font-size: 16px; position: fixed; top: 0; width: 100%; z-index: 100; 
-            box-sizing: border-box; box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+            position: fixed; top: 0; width: 100%; z-index: 999; 
+            box-sizing: border-box; height: 70px; box-shadow: 0 3px 10px rgba(0,0,0,0.3);
         }
-        .header-left { font-weight: bold; font-size: 18px; }
-        .header-right { display: flex; align-items: center; gap: 15px; }
+        .header-left img { height: 45px; vertical-align: middle; margin-right: 10px; }
+        .header-info { text-align: right; line-height: 1.2; }
 
-        .page { display: none; height: 100vh; width: 100vw; padding: 20px; box-sizing: border-box; padding-top: 70px; }
+        .page { display: none; height: 100vh; width: 100vw; padding: 20px; box-sizing: border-box; padding-top: 80px; }
         .active { display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        #pageLogin { padding-top: 0; } /* Login tidak butuh padding top header */
 
-        .login-card { background: white; padding: 35px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 380px; text-align: center; }
-        .logo-login { width: 100px; margin-bottom: 20px; }
-        
+        .login-card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 380px; text-align: center; }
         .input-group { position: relative; margin-bottom: 15px; width: 100%; }
         .input-group i { position: absolute; left: 15px; top: 12px; color: #95a5a6; }
         .input-group input, .input-group select { width: 100%; padding: 12px 15px 12px 45px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
         
-        button.btn-primary { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; }
-        
-        /* Tombol Keluar Khusus di Login */
-        .btn-exit-login { margin-top: 20px; background: none; border: none; color: var(--danger); cursor: pointer; font-weight: bold; }
+        button.btn-primary { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-exit-header { color: #ff7675; font-size: 28px; cursor: pointer; margin-left: 15px; }
     </style>
 </head>
 <body>
 
-    <!-- Header muncul selalu kecuali saat login (dikontrol via JS) -->
-    <div id="headerApp" class="header" style="display:none;">
-        <div class="header-left">SPESHA EXAMBRO</div>
-        <div class="header-right">
-            <div style="text-align: right;">
-                <b id="txtSiswa" style="display:block;">Siswa</b>
-                <small id="txtKelas">Kelas</small>
+    <!-- Header selalu muncul untuk navigasi darurat[cite: 4] -->
+    <div class="header">
+        <div class="header-left">
+            <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" alt="Logo">
+            <span id="labelApp">SPESHA</span>
+        </div>
+        <div class="header-right" style="display: flex; align-items: center;">
+            <div class="header-info">
+                <b id="txtSiswa" style="font-size: 16px;">Selamat Datang</b><br>
+                <small id="txtKelas">Silahkan Login</small>
             </div>
-            <i class="fa-solid fa-circle-xmark" onclick="mintaPinKeluar()" style="color:#ff7675; font-size: 24px; cursor:pointer;"></i>
+            <i class="fa-solid fa-circle-xmark btn-exit-header" onclick="mintaPinKeluar()"></i>
         </div>
     </div>
 
     <!-- PAGE LOGIN -->
     <div id="pageLogin" class="page active">
         <div class="login-card">
-            <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" class="logo-login">
             <h3 style="margin-top:0; color:var(--primary);">LOGIN PESERTA</h3>
             <div class="input-group"><i class="fa-solid fa-user"></i><input type="text" id="username" placeholder="Username"></div>
             <div class="input-group"><i class="fa-solid fa-lock"></i><input type="password" id="password" placeholder="Password"></div>
             <button class="btn-primary" onclick="doLogin()">MASUK</button>
-            <button class="btn-exit-login" onclick="mintaPinKeluar()"><i class="fa-solid fa-power-off"></i> KELUAR APLIKASI</button>
         </div>
     </div>
 
@@ -69,7 +65,7 @@
             <h3>PILIH MATA PELAJARAN</h3>
             <div class="input-group">
                 <i class="fa-solid fa-list-check"></i>
-                <select id="selectMapel"><option value="">Memuat Mapel...</option></select>
+                <select id="selectMapel"><option value="">Memuat...</option></select>
             </div>
             <button class="btn-primary" onclick="keToken()">LANJUTKAN</button>
         </div>
@@ -88,25 +84,25 @@
     </div>
 
     <!-- PAGE UJIAN -->
-    <div id="pageUjian" class="page" style="padding:0; padding-top:55px;">
+    <div id="pageUjian" class="page" style="padding:0; padding-top:70px;">
         <iframe id="frameUjian" src="" style="width:100%; height:100%; border:none;"></iframe>
     </div>
 
     <script>
         const URL_GAS = "https://script.google.com/macros/s/AKfycbxr36rJKPOCusxmZl60Z7RI2HKuChDwd3XSzItyeZ4Koenp2_nN4mNlEr0oNkePn8Sewg/exec"; 
-        let userSiswa = {}; let listMapel = []; let mapelAktif = {};
+        let userSiswa = { nama: "Siswa", kelas: "Guest" }; 
+        let listMapel = []; 
+        let mapelAktif = {};
 
         function pindahKe(id) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            // Header muncul di semua halaman kecuali login[cite: 4]
-            document.getElementById('headerApp').style.display = (id === 'pageLogin') ? 'none' : 'flex';
         }
 
         async function doLogin() {
             const u = document.getElementById('username').value;
             const p = document.getElementById('password').value;
-            if(!u || !p) return alert("Username/Password kosong!");
+            if(!u || !p) return alert("Lengkapi data!");
             
             try {
                 const res = await fetch(`${URL_GAS}?action=login&user=${u}&pass=${p}`);
@@ -118,7 +114,7 @@
                     muatMapel();
                     pindahKe('pageMapel');
                 } else alert("Login Gagal!");
-            } catch(e) { alert("Server tidak merespon."); }
+            } catch(e) { alert("Masalah Jaringan/URL GAS."); }
         }
 
         async function muatMapel() {
@@ -139,10 +135,10 @@
         }
 
         async function prosesMulai() {
-            const tk = document.getElementById('tokenUjian').value;
-            if (tk === mapelAktif.token) {
-                // Jalankan Presensi Otomatis sebelum buka soal[cite: 4]
-                fetch(`${URL_GAS}?action=presensi&nama=${encodeURIComponent(userSiswa.nama)}&kelas=${encodeURIComponent(userSiswa.kelas)}&mapel=${encodeURIComponent(mapelAktif.nama)}`);
+            if (document.getElementById('tokenUjian').value === mapelAktif.token) {
+                // KIRIM PRESENSI DENGAN DATA VALID[cite: 4]
+                const urlPresensi = `${URL_GAS}?action=presensi&nama=${encodeURIComponent(userSiswa.nama)}&kelas=${encodeURIComponent(userSiswa.kelas)}&mapel=${encodeURIComponent(mapelAktif.nama)}`;
+                fetch(urlPresensi).then(() => console.log("Presensi Terkirim"));
                 
                 document.getElementById('frameUjian').src = mapelAktif.link;
                 pindahKe('pageUjian');
@@ -150,17 +146,20 @@
         }
 
         function mintaPinKeluar() {
-            const pin = prompt("Masukkan PIN Petugas:");
-            if(pin) {
-                fetch(`${URL_GAS}?action=checkExitPin&pin=${pin}`)
-                .then(r => r.json())
-                .then(d => {
-                    if(d.status === "valid") {
-                        if(window.AndroidControl) window.AndroidControl.keluarUjian();
-                        else alert("Aplikasi ditutup (Mode Browser)");
-                    } else alert("PIN Salah!");
-                });
-            }
+            const pinSiswa = prompt("Masukkan PIN Petugas untuk keluar:");
+            if(!pinSiswa) return;
+
+            fetch(`${URL_GAS}?action=checkExitPin&pin=${pinSiswa}`)
+            .then(r => r.json())
+            .then(d => {
+                if(d.status === "valid") {
+                    if(window.AndroidControl) window.AndroidControl.keluarUjian();
+                    else {
+                        alert("Berhasil! Aplikasi akan dimuat ulang.");
+                        location.reload();
+                    }
+                } else alert("PIN Salah!");
+            }).catch(() => alert("Gagal verifikasi PIN."));
         }
     </script>
 </body>
