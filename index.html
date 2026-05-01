@@ -20,12 +20,11 @@
         
         .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); width: 85%; max-width: 380px; text-align: center; }
         
-        /* GAYA LAMA UNTUK ELEMEN SELAIN LOGIN */
         select, #tk, #l-inp { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; text-align: center; }
         #l-inp { width: 250px; text-transform:uppercase; }
         .btn-action { width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 16px; display: flex; justify-content: center; align-items: center; gap: 8px;}
         
-        /* GAYA BARU UNTUK INPUT DENGAN IKON (USERNAME & PASSWORD) */
+        /* Ikon Username & Password */
         .input-group { position: relative; margin: 12px 0; width: 100%; text-align: left; }
         .input-group svg { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); width: 22px; height: 22px; fill: #7f8c8d; transition: 0.3s; }
         .input-group input { width: 100%; padding: 14px 14px 14px 48px; border: 1.5px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; text-align: left; transition: 0.3s; }
@@ -49,7 +48,7 @@
         <button class="btn-exit" onclick="askExit()">KELUAR</button>
     </div>
 
-    <!-- HALAMAN LOGIN (DENGAN IKON ELEGAN) -->
+    <!-- HALAMAN LOGIN -->
     <div id="p-login" class="page active">
         <div class="card">
             <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" width="80" style="margin-bottom:15px;" alt="Logo">
@@ -104,8 +103,8 @@
     </div>
 
     <script>
-        // ⬇️ BAPAK HANYA PERLU MENGGANTI URL DI BAWAH INI SAJA ⬇️
-        const API = "https://script.google.com/macros/s/AKfycbxr36rJKPOCusxmZl60Z7RI2HKuChDwd3XSzItyeZ4Koenp2_nN4mNlEr0oNkePn8Sewg/exec"; 
+        // ⬇️ GANTI URL DI BAWAH INI DENGAN URL DEPLOYMENT BARU BAPAK ⬇️
+        const API = "https://script.google.com/macros/s/AKfycbydoi3UbfRBtLSUHJmXGpKoXJNKoyvlw6D-Ef2rVbpnBfAyzd3q-O8VjogFGRFeFzw6yg/exec"; 
         
         let user = {}, curMapel = {}, pCount = 0, isLive = false, isSystemAction = false;
         
@@ -138,6 +137,7 @@
                     user = d;
                     document.getElementById('h-info').innerHTML = `${d.nama} | Kelas: ${d.kelas}`;
                     
+                    // Fitur Pelanggaran Permanen (Cek dari Spreadsheet saat login)
                     if(d.isLocked) {
                         isLive = true; 
                         if(d.lockType === "principal") {
@@ -155,7 +155,6 @@
                 }
             } catch(err) {
                 console.error(err);
-                // Tambahan: Pesan error spesifik agar tahu kenapa gagal terhubung
                 appAlert("❌ Gagal terhubung ke Server.\nPastikan Link API sudah benar dan akses Spreadsheet adalah 'Siapa saja'.\n\nDetail: " + err.message);
             }
             btn.innerText = "MASUK";
@@ -166,6 +165,7 @@
             const list = await res.json();
             const s = document.getElementById('s-mapel');
             s.innerHTML = '<option value="">-- Pilih Mata Pelajaran --</option>';
+            // Semua mapel ditampilkan di pilihan
             list.forEach(m => s.innerHTML += `<option value='${JSON.stringify(m)}'>${m.nama}</option>`);
         }
 
@@ -173,6 +173,12 @@
             const val = document.getElementById('s-mapel').value;
             if(!val) return appAlert("⚠️ Pilih Mata Pelajaran terlebih dahulu!");
             curMapel = JSON.parse(val);
+            
+            // FITUR BARU: CEK STATUS AKTIF / NONAKTIF DARI KOLOM C SPREADSHEET
+            if(curMapel.status !== "AKTIF") {
+                return appAlert("❌ MAAF MAPEL INI BELUM DIBUKA");
+            }
+
             document.getElementById('t-name').innerText = curMapel.nama;
             document.getElementById('tk').value = ""; 
             pindah('p-token');
@@ -237,7 +243,7 @@
         });
 
         function askExit() {
-            showLock("exit", "KONFIRMASI KELUAR", "Masukkan PIN KELUAR.");
+            showLock("exit", "KONFIRMASI KELUAR", "Masukkan PIN KELUAR dari Sheet 1 (F2).");
         }
 
         function showLock(type, title, msg) {
