@@ -9,29 +9,32 @@
         :root { --primary: #1a252f; --danger: #c0392b; --success: #27ae60; --warning: #f39c12; }
         body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f3f5; overflow: hidden; user-select: none; }
         
-        .header { background: var(--primary); color: white; padding: 0 15px; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; width: 100%; z-index: 999999 !important; height: 65px; box-sizing: border-box; border-bottom: 3px solid #3498db; }
-        .h-brand { font-weight: bold; font-size: 14px; color: #3498db; display: flex; align-items: center; }
-        .h-user { font-size: 11px; flex-grow: 1; margin: 0 15px; line-height: 1.2; border-left: 1px solid #555; padding-left: 10px; }
-        .h-p { color: var(--warning); font-weight: bold; font-size: 14px; margin-right: 15px; }
-        .btn-exit { background: transparent; border: 2px solid white; color: white; padding: 6px 14px; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 12px; }
+        /* PERBAIKAN HEADER AGAR PRESISI DI MOBILE */
+        .header { background: var(--primary); color: white; padding: 0 10px; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; width: 100%; z-index: 999999 !important; height: 65px; box-sizing: border-box; border-bottom: 3px solid #3498db; }
+        .h-brand { font-weight: bold; font-size: 14px; color: #3498db; display: flex; align-items: center; flex-shrink: 0; }
+        .h-user { font-size: 11px; flex-grow: 1; margin: 0 10px; line-height: 1.2; border-left: 1px solid #555; padding-left: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .h-p { color: var(--warning); font-weight: bold; font-size: 14px; margin-right: 10px; flex-shrink: 0; }
+        .btn-exit { background: transparent; border: 2px solid white; color: white; padding: 6px 12px; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 12px; flex-shrink: 0; }
 
         .page { display: none; height: 100vh; width: 100vw; padding-top: 65px; box-sizing: border-box; }
         .active { display: flex; flex-direction: column; justify-content: center; align-items: center; }
         
         .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); width: 85%; max-width: 380px; text-align: center; }
         
-        select, #tk, #l-inp { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; text-align: center; }
-        #l-inp { width: 250px; text-transform:uppercase; }
+        /* PERBAIKAN FORM INPUT & TOMBOL AGAR RATA TENGAH */
+        select, #tk { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; text-align: center; }
+        #l-inp { width: 100%; max-width: 280px; padding: 14px; margin: 15px auto; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; text-align: center; text-transform:uppercase; display: block; }
+        #l-btn { width: 100%; max-width: 280px; margin: 0 auto; display: flex; }
+        
         .btn-action { width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 16px; display: flex; justify-content: center; align-items: center; gap: 8px;}
         
-        /* Ikon Username & Password */
         .input-group { position: relative; margin: 12px 0; width: 100%; text-align: left; }
         .input-group svg { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); width: 22px; height: 22px; fill: #7f8c8d; transition: 0.3s; }
         .input-group input { width: 100%; padding: 14px 14px 14px 48px; border: 1.5px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; text-align: left; transition: 0.3s; }
         .input-group input:focus { border-color: #3498db; outline: none; }
         .input-group input:focus + svg { fill: #3498db; }
 
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 9999999 !important; color: white; flex-direction: column; justify-content: center; align-items: center; padding: 30px; text-align: center; }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 9999999 !important; color: white; flex-direction: column; justify-content: center; align-items: center; padding: 30px; text-align: center; box-sizing: border-box; }
         .heavy { background: radial-gradient(circle, #8b0000 0%, #000 100%); border: 5px solid #c0392b; }
         .heavy h1 { font-size: 2.5rem; margin-bottom: 10px; color: #ff4d4d; }
     </style>
@@ -40,15 +43,14 @@
 
     <div class="header">
         <div class="h-brand">
-            <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" width="24" style="margin-right: 8px;" alt="Logo Spesha">
-            SPESHA EXAMBRO
+            <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" width="24" style="margin-right: 6px;" alt="Logo Spesha">
+            SPESHA
         </div>
         <div class="h-user" id="h-info">Belum Login</div>
         <div class="h-p" id="h-p">P: 0</div>
         <button class="btn-exit" onclick="askExit()">KELUAR</button>
     </div>
 
-    <!-- HALAMAN LOGIN -->
     <div id="p-login" class="page active">
         <div class="card">
             <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" width="80" style="margin-bottom:15px;" alt="Logo">
@@ -68,7 +70,6 @@
         </div>
     </div>
 
-    <!-- HALAMAN PILIH MAPEL -->
     <div id="p-mapel" class="page">
         <div class="card">
             <h2>PILIH UJIAN</h2>
@@ -77,7 +78,6 @@
         </div>
     </div>
 
-    <!-- HALAMAN TOKEN -->
     <div id="p-token" class="page">
         <div class="card">
             <h2 id="t-name">MATA PELAJARAN</h2>
@@ -89,17 +89,15 @@
         </div>
     </div>
 
-    <!-- PANEL UJIAN -->
     <div id="p-exam" class="page" style="padding:0; padding-top:65px;">
         <iframe id="f-exam" src="" sandbox="allow-forms allow-scripts allow-same-origin allow-modals" style="width:100%; height:100%; border:none;"></iframe>
     </div>
 
-    <!-- LOCK OVERLAY -->
     <div id="l-ovr" class="overlay">
         <h1 id="l-ttl">TERKUNCI</h1>
         <p id="l-msg" style="font-size:1.2rem; margin-bottom:20px;">Deskripsi Pelanggaran</p>
         <input type="text" id="l-inp" placeholder="KODE AKSES">
-        <button class="btn-action" id="l-btn" style="width:250px; background:var(--success); color:white; margin-top:10px;">BUKA AKSES</button>
+        <button class="btn-action" id="l-btn" style="background:var(--success); color:white; margin-top:10px;">BUKA AKSES</button>
     </div>
 
     <script>
@@ -135,9 +133,8 @@
                 
                 if(d.status === "success") {
                     user = d;
-                    document.getElementById('h-info').innerHTML = `${d.nama} | Kelas: ${d.kelas}`;
+                    document.getElementById('h-info').innerHTML = `${d.nama} | ${d.kelas}`;
                     
-                    // Fitur Pelanggaran Permanen (Cek dari Spreadsheet saat login)
                     if(d.isLocked) {
                         isLive = true; 
                         if(d.lockType === "principal") {
@@ -155,7 +152,7 @@
                 }
             } catch(err) {
                 console.error(err);
-                appAlert("❌ Gagal terhubung ke Server.\nPastikan Link API sudah benar dan akses Spreadsheet adalah 'Siapa saja'.\n\nDetail: " + err.message);
+                appAlert("❌ Gagal terhubung ke Server. Detail: " + err.message);
             }
             btn.innerText = "MASUK";
         }
@@ -165,7 +162,6 @@
             const list = await res.json();
             const s = document.getElementById('s-mapel');
             s.innerHTML = '<option value="">-- Pilih Mata Pelajaran --</option>';
-            // Semua mapel ditampilkan di pilihan
             list.forEach(m => s.innerHTML += `<option value='${JSON.stringify(m)}'>${m.nama}</option>`);
         }
 
@@ -174,7 +170,6 @@
             if(!val) return appAlert("⚠️ Pilih Mata Pelajaran terlebih dahulu!");
             curMapel = JSON.parse(val);
             
-            // FITUR BARU: CEK STATUS AKTIF / NONAKTIF DARI KOLOM C SPREADSHEET
             if(curMapel.status !== "AKTIF") {
                 return appAlert("❌ MAAF MAPEL INI BELUM DIBUKA");
             }
@@ -204,34 +199,33 @@
             }
         }
 
+        // PELANGGARAN RINGAN -> DIKIRIM KE KOLOM C (type=minor)
         function handleStandardViolation(pesanPeringatan) {
             pCount++;
             if(pCount >= 2) {
-                fetch(`${API}?action=updateP&row=${user.row}&count=2`);
+                fetch(`${API}?action=updateP&row=${user.row}&type=minor&count=2`);
                 showLock("proctor", "APLIKASI TERKUNCI", "Pelanggaran terdeteksi 2x.\nMasukkan KODE PROKTOR.");
             } else {
-                fetch(`${API}?action=updateP&row=${user.row}&count=${pCount}`);
+                fetch(`${API}?action=updateP&row=${user.row}&type=minor&count=${pCount}`);
                 document.getElementById('h-p').innerText = "P: " + pCount;
                 appAlert(`⚠️ PERINGATAN (1/2): ${pesanPeringatan}`);
             }
         }
 
-        // DETEKSI KELUAR APLIKASI (JEBOL SEMATAN / FORCE CLOSE) -> KEPALA SEKOLAH
+        // PELANGGARAN BERAT -> DIKIRIM KE KOLOM G (type=major)
         document.addEventListener("visibilitychange", function() {
             if (document.visibilityState === 'hidden' && isLive && !isSystemAction) {
-                fetch(`${API}?action=updateP&row=${user.row}&count=BLOCKED`); 
+                fetch(`${API}?action=updateP&row=${user.row}&type=major`); 
                 showLock("principal", "PELANGGARAN BERAT", "Meninggalkan aplikasi secara paksa dilarang keras!\nHubungi KEPALA SEKOLAH.");
             }
         });
 
-        // DETEKSI NOTIFIKASI / SPLIT SCREEN -> PROKTOR
         window.addEventListener('blur', function() {
             if(isLive && !isSystemAction) {
                 handleStandardViolation("Dilarang membuka layar notifikasi atau layar belah!");
             }
         });
 
-        // DETEKSI TOMBOL BACK -> PROKTOR
         window.history.pushState(null, null, window.location.href);
         window.addEventListener('popstate', function() {
             if(isLive) {
@@ -243,7 +237,7 @@
         });
 
         function askExit() {
-            showLock("exit", "KONFIRMASI KELUAR", "Masukkan PIN KELUAR dari Sheet 1 (F2).");
+            showLock("exit", "KONFIRMASI KELUAR", "Masukkan PIN KELUAR.");
         }
 
         function showLock(type, title, msg) {
@@ -266,7 +260,18 @@
                 const d = await res.json();
                 
                 if(d.status === 'valid') {
-                    location.reload(); 
+                    if(type === 'exit') {
+                        appAlert("Menutup aplikasi...");
+                        // PAKSA KELUAR APLIKASI
+                        setTimeout(() => {
+                            window.open('', '_self', ''); 
+                            window.close(); 
+                            // Jika browser menolak window.close(), lempar siswa ke Google
+                            window.location.replace("https://www.google.com"); 
+                        }, 800);
+                    } else {
+                        location.reload(); 
+                    }
                 } else {
                     appAlert("❌ Kode Salah!");
                 }
