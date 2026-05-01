@@ -9,7 +9,7 @@
         :root { --primary: #1a252f; --danger: #c0392b; --success: #27ae60; --warning: #f39c12; }
         body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f3f5; overflow: hidden; user-select: none; }
         
-        .header { background: var(--primary); color: white; padding: 0 15px; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; width: 100%; z-index: 1000; height: 65px; box-sizing: border-box; border-bottom: 3px solid #3498db; }
+        .header { background: var(--primary); color: white; padding: 0 15px; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; width: 100%; z-index: 999999 !important; height: 65px; box-sizing: border-box; border-bottom: 3px solid #3498db; }
         .h-brand { font-weight: bold; font-size: 14px; color: #3498db; display: flex; align-items: center; }
         .h-user { font-size: 11px; flex-grow: 1; margin: 0 15px; line-height: 1.2; border-left: 1px solid #555; padding-left: 10px; }
         .h-p { color: var(--warning); font-weight: bold; font-size: 14px; margin-right: 15px; }
@@ -22,7 +22,7 @@
         input, select { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; text-align: center; }
         .btn-action { width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 16px; display: flex; justify-content: center; align-items: center; gap: 8px;}
         
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; color: white; flex-direction: column; justify-content: center; align-items: center; padding: 30px; text-align: center; }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 9999999 !important; color: white; flex-direction: column; justify-content: center; align-items: center; padding: 30px; text-align: center; }
         .heavy { background: radial-gradient(circle, #8b0000 0%, #000 100%); border: 5px solid #c0392b; }
         .heavy h1 { font-size: 2.5rem; margin-bottom: 10px; color: #ff4d4d; }
     </style>
@@ -31,11 +31,10 @@
 
     <div class="header">
         <div class="h-brand">
-            <!-- REVISI: LOGO DI HEADER -->
             <img src="https://smpshalahuddin.sch.id/wp-content/uploads/2025/12/cropped-LOGO-SPESHA-1.png" width="24" style="margin-right: 8px;">
             SPESHA EXAMBRO
         </div>
-        <div class="h-user" id="h-info">Identitas Siswa</div>
+        <div class="h-user" id="h-info">Belum Login</div>
         <div class="h-p" id="h-p">P: 0</div>
         <button class="btn-exit" onclick="askExit()">KELUAR</button>
     </div>
@@ -72,21 +71,23 @@
         </div>
     </div>
 
-        }
-<!-- Bagian CSS & Header tetap sama seperti sebelumnya, hanya ganti bagian Iframe dan Script ini -->
-
-    <!-- PANEL UJIAN DENGAN SECURITY SANDBOX -->
+    <!-- PANEL UJIAN -->
     <div id="p-exam" class="page" style="padding:0; padding-top:65px;">
-        <!-- sandbox="allow-forms allow-scripts allow-same-origin" 
-             Tanpa "allow-popups" dan "allow-top-navigation" agar link eksternal Google Form lumpuh -->
-        <iframe id="f-exam" 
-                src="" 
-                sandbox="allow-forms allow-scripts allow-same-origin allow-modals"
-                style="width:100%; height:100%; border:none;"></iframe>
+        <iframe id="f-exam" src="" sandbox="allow-forms allow-scripts allow-same-origin allow-modals" style="width:100%; height:100%; border:none;"></iframe>
     </div>
 
-            <script>
+    <!-- LOCK OVERLAY -->
+    <div id="l-ovr" class="overlay">
+        <h1 id="l-ttl">TERKUNCI</h1>
+        <p id="l-msg" style="font-size:1.2rem; margin-bottom:20px;">Deskripsi Pelanggaran</p>
+        <input type="text" id="l-inp" placeholder="KODE AKSES" style="width:250px; text-transform:uppercase;">
+        <button class="btn-action" id="l-btn" style="width:250px; background:var(--success); color:white; margin-top:10px;">BUKA AKSES</button>
+    </div>
+
+    <script>
+        // GANTI URL DI BAWAH INI DENGAN URL DEPLOYMENT BARU BAPAK
         const API = "URL_WEB_APP_BAPAK_YANG_BARU"; 
+        
         let user = {}, curMapel = {}, pCount = 0, isLive = false, isSystemAction = false;
         
         if ('wakeLock' in navigator) navigator.wakeLock.request('screen').catch(()=>{});
@@ -118,7 +119,7 @@
                     user = d;
                     document.getElementById('h-info').innerHTML = `${d.nama} | Kelas: ${d.kelas}`;
                     
-                    // CEK BUKU HITAM
+                    // CEK BUKU HITAM DI SERVER
                     if(d.isLocked) {
                         isLive = true; 
                         if(d.lockType === "principal") {
@@ -135,7 +136,7 @@
                     appAlert("❌ " + d.message);
                 }
             } catch(err) {
-                appAlert("❌ Gagal terhubung ke Server.");
+                appAlert("❌ Gagal terhubung ke Server. Pastikan URL API sudah benar.");
             }
             btn.innerText = "MASUK";
         }
@@ -179,7 +180,6 @@
 
         // --- SISTEM PELANGGARAN ---
 
-        // Fungsi Pelanggaran Biasa (Proktor) untuk Notifikasi & Tombol Back tidak sengaja
         function handleStandardViolation(pesanPeringatan) {
             pCount++;
             if(pCount >= 2) {
@@ -192,7 +192,7 @@
             }
         }
 
-        // 1. DETEKSI BENAR-BENAR KELUAR APLIKASI (JEBOL SEMATAN) -> KEPALA SEKOLAH
+        // 1. DETEKSI KELUAR APLIKASI (JEBOL SEMATAN / FORCE CLOSE) -> KEPALA SEKOLAH
         document.addEventListener("visibilitychange", function() {
             if (document.visibilityState === 'hidden' && isLive && !isSystemAction) {
                 fetch(`${API}?action=updateP&row=${user.row}&count=BLOCKED`); 
@@ -200,18 +200,18 @@
             }
         });
 
-        // 2. DETEKSI NOTIFIKASI / SPLIT SCREEN (Masih di dalam aplikasi tapi hilang fokus) -> PROKTOR
+        // 2. DETEKSI NOTIFIKASI / SPLIT SCREEN -> PROKTOR
         window.addEventListener('blur', function() {
             if(isLive && !isSystemAction) {
                 handleStandardViolation("Dilarang membuka layar notifikasi atau layar belah!");
             }
         });
 
-        // 3. DETEKSI TOMBOL BACK (Mencegah mundur ke halaman sebelumnya) -> PROKTOR
+        // 3. DETEKSI TOMBOL BACK -> PROKTOR
         window.history.pushState(null, null, window.location.href);
         window.addEventListener('popstate', function() {
             if(isLive) {
-                window.history.pushState(null, null, window.location.href); // Tahan posisi history
+                window.history.pushState(null, null, window.location.href); 
                 if(!isSystemAction) {
                     handleStandardViolation("Dilarang menekan tombol navigasi sistem (Back)!");
                 }
@@ -233,7 +233,6 @@
             document.getElementById('l-msg').innerText = msg;
             const btn = document.getElementById('l-btn');
             
-            // Hapus event listener lama agar tidak menumpuk saat di-klik berkali-kali
             btn.onclick = null; 
             btn.onclick = async () => {
                 const code = document.getElementById('l-inp').value.trim();
@@ -252,3 +251,5 @@
             };
         }
     </script>
+</body>
+</html>
