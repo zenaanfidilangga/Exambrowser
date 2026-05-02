@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SPESHA EXAMBRO</title>
-    <!-- CSS TETAP SAMA DENGAN SEBELUMNYA -->
     <style>
         :root { --primary: #1a252f; --danger: #c0392b; --success: #27ae60; --warning: #f39c12; }
         body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #f0f3f5; overflow: hidden; user-select: none; }
@@ -23,21 +22,22 @@
         #l-inp { width: 100%; max-width: 280px; padding: 14px; margin: 15px auto; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; text-align: center; text-transform:uppercase; display: block; }
         
         .btn-action { width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 16px; display: flex; justify-content: center; align-items: center; gap: 8px;}
-        .input-group { position: relative; margin: 12px 0; width: 100%; text-align: left; }
-        .input-group input { width: 100%; padding: 14px; border: 1.5px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; text-align: center; transition: 0.3s; }
+        
+        /* IKON INPUT */
+        .input-group { position: relative; margin: 15px 0; width: 100%; }
+        .input-group span { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); font-size: 20px; color: #7f8c8d; }
+        .input-group input { width: 100%; padding: 14px 14px 14px 45px; border: 1.5px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; transition: 0.3s; }
         
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 9999999 !important; color: white; flex-direction: column; justify-content: center; align-items: center; padding: 30px; text-align: center; box-sizing: border-box; }
         .heavy { background: radial-gradient(circle, #8b0000 0%, #000 100%); border: 5px solid #c0392b; }
         .heavy h1 { font-size: 2.5rem; margin-bottom: 10px; color: #ff4d4d; }
 
-        /* FITUR BARU: NOTIFIKASI CUSTOM (TOAST) ANTI PELANGGARAN */
         #toast { display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(44, 62, 80, 0.95); color: white; padding: 12px 24px; border-radius: 30px; z-index: 99999999; font-size: 14px; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.3); text-align: center; width: max-content; max-width: 90%; }
         .toast-error { background: rgba(192, 57, 43, 0.95) !important; }
     </style>
 </head>
 <body>
 
-    <!-- NOTIFIKASI CUSTOM -->
     <div id="toast">Notifikasi</div>
 
     <div class="header">
@@ -50,8 +50,14 @@
     <div id="p-login" class="page active">
         <div class="card">
             <h2 style="margin-top:0; color:#2c3e50;">LOGIN PESERTA</h2>
-            <div class="input-group"><input type="text" id="u" placeholder="Username"></div>
-            <div class="input-group"><input type="password" id="p" placeholder="Password"></div>
+            <div class="input-group">
+                <span>👤</span>
+                <input type="text" id="u" placeholder="Username">
+            </div>
+            <div class="input-group">
+                <span>🔒</span>
+                <input type="password" id="p" placeholder="Password">
+            </div>
             <button id="btn-login" class="btn-action" style="background:var(--primary); color:white; margin-top:15px;" onclick="doLogin()">MASUK</button>
         </div>
     </div>
@@ -87,12 +93,11 @@
     </div>
 
     <script>
-        // ⬇️ MASUKKAN URL GOOGLE SCRIPT BAPAK ⬇️
+        // ⬇️ MASUKKAN URL GOOGLE SCRIPT BAPAK (Bisa sama dengan yang ada di web sebelumnya) ⬇️
         const API = "https://script.google.com/macros/s/AKfycbydoi3UbfRBtLSUHJmXGpKoXJNKoyvlw6D-Ef2rVbpnBfAyzd3q-O8VjogFGRFeFzw6yg/exec"; 
         
         let user = {}, curMapel = {}, pCount = 0, isLive = false;
 
-        // FUNGSI NOTIFIKASI CUSTOM (Tidak memicu blur/pelanggaran)
         function showToast(msg, isError = false) {
             const t = document.getElementById('toast');
             t.innerText = msg;
@@ -109,7 +114,7 @@
         async function doLogin() {
             const uReq = document.getElementById('u').value.trim();
             const pReq = document.getElementById('p').value.trim();
-            if(!uReq || !pReq) return showToast("Harap isi Username dan Password!", true);
+            if(!uReq || !pReq) return showToast("Isi Username & Password!", true);
 
             const btn = document.getElementById('btn-login');
             btn.innerText = "MEMPROSES...";
@@ -121,9 +126,7 @@
                 if(d.status === "success") {
                     user = d;
                     document.getElementById('h-info').innerHTML = `${d.nama} | ${d.kelas}`;
-                    
                     if(d.isLocked) {
-                        isLive = true; 
                         if(d.lockType === "principal") showLock("principal", "PELANGGARAN BERAT", "Hubungi KEPALA SEKOLAH.");
                         else showLock("proctor", "APLIKASI TERKUNCI", "Masukkan KODE PROKTOR.");
                         return; 
@@ -149,54 +152,35 @@
 
         function goToken() {
             const val = document.getElementById('s-mapel').value;
-            if(!val) return showToast("Pilih Mata Pelajaran terlebih dahulu!", true);
+            if(!val) return showToast("Pilih Mapel!", true);
             curMapel = JSON.parse(val);
-            if(curMapel.status !== "AKTIF") return showToast("MAAF MAPEL INI BELUM DIBUKA", true);
-
+            if(curMapel.status !== "AKTIF") return showToast("MAPEL BELUM DIBUKA", true);
             document.getElementById('t-name').innerText = curMapel.nama;
-            document.getElementById('tk').value = ""; 
             pindah('p-token');
         }
 
         async function startExam() {
-            const inputToken = document.getElementById('tk').value.trim();
-            if(!inputToken) return showToast("Masukkan Token!", true);
-
-            if(inputToken.toUpperCase() === curMapel.token.toUpperCase()) {
-                const btn = document.getElementById('btn-token');
-                btn.innerText = "MEMBUAT PRESENSI...";
+            const tk = document.getElementById('tk').value.trim();
+            if(tk.toUpperCase() === curMapel.token.toUpperCase()) {
                 await fetch(`${API}?action=presensi&nama=${encodeURIComponent(user.nama)}&kelas=${encodeURIComponent(user.kelas)}&mapel=${encodeURIComponent(curMapel.nama)}`);
                 document.getElementById('f-exam').src = curMapel.link;
                 isLive = true; 
+                if(typeof AndroidApp !== "undefined") AndroidApp.setExamLive(true); // Beritahu Android ujian mulai
                 pindah('p-exam');
             } else {
                 showToast("Token Salah!", true);
             }
         }
 
-        // PELANGGARAN
-        function handleStandardViolation(msg) {
-            pCount++;
-            if(pCount >= 2) {
-                fetch(`${API}?action=updateP&row=${user.row}&type=minor&count=2`);
-                showLock("proctor", "APLIKASI TERKUNCI", "Pelanggaran terdeteksi 2x.");
-            } else {
-                fetch(`${API}?action=updateP&row=${user.row}&type=minor&count=${pCount}`);
-                document.getElementById('h-p').innerText = "P: " + pCount;
-                showToast(`PERINGATAN (1/2): ${msg}`, true);
-            }
-        }
-
-        document.addEventListener("visibilitychange", function() {
-            if (document.visibilityState === 'hidden' && isLive) {
+        // FUNGSI INI DIPANGGIL OLEH ANDROID JIKA KETAHUAN PINDAH APLIKASI/KLIK LINK ASING
+        window.triggerAndroidMajorViolation = function(reason) {
+            if(isLive) {
+                isLive = false; // Matikan sensor agar tidak looping
+                if(typeof AndroidApp !== "undefined") AndroidApp.setExamLive(false);
                 fetch(`${API}?action=updateP&row=${user.row}&type=major`); 
-                showLock("principal", "PELANGGARAN BERAT", "Meninggalkan aplikasi secara paksa dilarang!");
+                showLock("principal", "PELANGGARAN BERAT", reason);
             }
-        });
-
-        window.addEventListener('blur', function() {
-            if(isLive) handleStandardViolation("Dilarang berpindah aplikasi!");
-        });
+        };
 
         function askExit() {
             showLock("exit", "KONFIRMASI KELUAR", "Masukkan PIN KELUAR (F2).");
@@ -211,31 +195,22 @@
             document.getElementById('l-msg').innerText = msg;
             const btn = document.getElementById('l-btn');
             
-            btn.onclick = async () => {
+            // Hapus event listener lama agar tidak dobel klik
+            const newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+            
+            newBtn.onclick = async () => {
                 const code = document.getElementById('l-inp').value.trim();
-                if(!code) return showToast("Masukkan Kode!", true);
-                
-                btn.innerText = "MENGECEK...";
+                newBtn.innerText = "MENGECEK...";
                 const res = await fetch(`${API}?action=checkCode&type=${type}&code=${encodeURIComponent(code)}&row=${user.row || ""}`);
                 const d = await res.json();
                 
                 if(d.status === 'valid') {
                     if(type === 'exit') {
-                        showToast("Aplikasi ditutup...");
-                        // 🚀 INTEGRASI ANDROID: Memanggil fungsi Java di Android Studio
-                        if(typeof AndroidApp !== "undefined") {
-                            AndroidApp.forceCloseApp();
-                        } else {
-                            // Fallback jika dibuka di browser biasa
-                            window.location.replace("https://www.google.com"); 
-                        }
-                    } else {
-                        location.reload(); 
-                    }
-                } else {
-                    showToast("Kode Salah/Gagal!", true);
-                }
-                btn.innerText = "BUKA AKSES";
+                        if(typeof AndroidApp !== "undefined") AndroidApp.forceCloseApp();
+                    } else location.reload(); 
+                } else showToast("Kode Salah!", true);
+                newBtn.innerText = "BUKA AKSES";
             };
         }
     </script>
